@@ -1,0 +1,161 @@
+.stream-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+    justify-content: space-between;
+}
+
+#playerContainer {
+    flex-grow: 1;
+    min-width: 0;  /* prevent flexbox from overflowing */
+    padding-left: 10px; /* add some space between the containers */
+    height: 100vh;
+    overflow-y: auto;
+}
+
+
+#contentContainer {
+    display: flex;
+    justify-content: flex-start;
+}
+
+#allStreamsContainer, #playerContainer {
+    /*flex: 1 1 0;*/
+    margin-right: 10px;
+}
+
+#allStreamsContainer {
+    width: 240px;
+}
+
+#streamContainer {
+    display: flex;
+}
+
+#allStreams, #playerContainer {
+    width: calc(50% - 10px);
+}
+
+.stream-item:hover {
+    background-color: #2c3542; 
+}
+
+.left{
+    display: flex;
+    align-items: center;
+}
+.text {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    white-space: nowrap;
+    color: white;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.streamer-name, .game-name {
+    line-height: 1.2;
+}
+
+.game-name{
+    font-size: 12px;
+    overflow-wrap: break-word;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stream-viewers {
+    margin-left: 10px;
+    min-width: fit-content;
+    font-size: 8px;
+    position: relative;
+}
+
+.streamer-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.stream-link {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+}
+
+.stream-link,
+.video-link {
+    text-decoration: none;
+    color: white;
+}
+
+.stream-viewers,
+.video-viewers {
+    margin-left: 10px;
+    color: white;
+    font-size: 20px;
+}
+
+body {
+    background: black;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    justify-content: left;
+    display: flex;
+    align-items: center;
+    height: 77px;
+    background-color: #2D2C2C;
+    padding-left: 10px;
+}
+
+.video-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 15px;
+}
+
+.video-thumbnail {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.video-link {
+    text-decoration: none;
+    color: white;
+    /* Adjust the font color */
+}
+
+.video-viewers {
+    margin-left: 2px;
+    color: white;
+    font-size: 8px;
+    /* Adjust the font color */
+}
+
+
+
+#allStreams {
+    background-color: #1F2833;
+    width: 240px;
+    height: 100vh;
+    padding-top: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
+    overflow-y: auto;
+    /*(padding-top: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
+    display: inline-block;
+    background-color: #1F2833;
+    width: 240px;
+    height: 100vh;  */
+}

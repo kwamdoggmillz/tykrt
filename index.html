@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="icon" href="thumbnail.png" type="image/png">
+    <link rel="shortcut icon" href="thumbnail.png" type="image/png">
+    <div class="container">
+        <img src="Logo.png" alt="Tykrt" width="300" height="73">
+    </div>
+    <title>Tykrt</title>
+    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+    <link rel="stylesheet" href="app.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <div id="loginContainer">
+        <button id="loginBtn">Login with Twitch</button>
+        <button id="logoutBtn" style="display:none">Logout</button>
+    </div>
+    <div id="contentContainer">
+        <div id="allStreamsContainer">
+            <div id="allStreams"></div>
+        </div>
+        <div id="playerContainer"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
