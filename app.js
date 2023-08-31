@@ -3,12 +3,17 @@ const clientId = 'clzeuervlptjtp304d1ulqxbdb633z';
 const redirectUri = 'https://tykrt.com/callback.html';
 const apiKey = 'AIzaSyCxRdb7Bhr0z9-iSTf_OpRTTAMk2ChMqsc';
 const scope = 'user:read:follows';
-let userDataCount = 0;
-let allStreamsData = []; // add this line to keep all streams data together before they are available
+let leftNavData = []; // add this line to keep all streams data together before they are available
 let streamItems = [];
 let accessToken = null;
 let userId = null;
-let playerContainer = '';
+let streamPlayerContainer = '';
+const API_BASE_URL = 'https://api.twitch.tv/helix/';
+const headers = {
+  'Authorization': 'Bearer ' + accessToken,
+  'Client-Id': clientId
+};
+const options = { headers };
 
 // Function to handle Twitch login button click
 function login() {
@@ -20,247 +25,222 @@ function login() {
 function logout() {
   localStorage.removeItem('accessToken');
   document.getElementById('loginContainer').style.display = 'block';
-  document.getElementById('allStreams').innerHTML = '';
+  document.getElementById('leftNav').innerHTML = '';
 }
 
-/*
-function embedTwitchPlayer(username) {
-  // clear the playerContainer
-  const playerContainer = document.getElementById('playerContainer');
-  while (playerContainer.firstChild) {
-    playerContainer.removeChild(playerContainer.firstChild);
-  }
-
-  // Add the parent div for the Twitch player to the stream element.
-  const playerDiv = document.createElement('div');
-  playerDiv.id = `twitch-player-${username}`;
-  playerContainer.appendChild(playerDiv);
-
-  // Options for the Twitch embed
-  var options = {
-    width: 620, // put your needed width value here
-    height: 378, // put your needed height value here
-    channel: username,
-    parent: ["tykrt.com"],
-  };
-
-  // Create and embed the Twitch player
-  new Twitch.Player(`twitch-player-${username}`, options);
-
+async function fetchData(url) {
+  const response = await fetch(url, options);
+  const data = await response.json();
+  return data;
 }
-*/
+
+async function fetchStreamData(userId) {
+  const url = '${API_BASE_URL}/users?id=${userId}';
+  return await fetchData(url);
+}
+
+async function fetchGameData(gameId) {
+  const url = '${API_BASE_URL}/games?id=${gameId}';
+  return await fetcData(url);
+}
 
 // Function to fetch the list of followed live streams using Twitch API
-function getFollowedLiveStreams(accessToken, userId) {
+async function getFollowedLiveStreams(accessToken, userId) {
   if (userId === undefined) {
     // Handle the undefined case if needed
     return;
   }
 
-  fetch(`https://api.twitch.tv/helix/streams/followed?user_id=${userId}`, {
-    headers: {
-      'Authorization': 'Bearer ' + accessToken,
-      'Client-Id': clientId,
-    }
-  })
-    .then(response => response.json())
-    .then(data => {
-      const liveStreams = data.data;
-      const usersMap = new Map(); // Map to store user data
-      const gamesMap = new Map(); // Map to store game data
+  try {
+    const response = await fetchData('${API_BASE_URL}/streams/followed?user_id=${userId}');
+    const liveStreams = response.data;
 
-      const fetchUserAndGameDataPromises = liveStreams.map((stream) => {
-        // Fetch user data
-        const fetchUserData = fetch(`https://api.twitch.tv/helix/users?id=${stream.user_id}`, {
-          headers: {
-            'Authorization': 'Bearer ' + accessToken,
-            'Client-Id': clientId,
-          }
-        })
-          .then(response => response.json())
-          .then(userData => {
-            const user = userData.data[0];
-            usersMap.set(stream.user_id, user); // Store user data with stream ID as the key
-          });
+    const usersMap = new Map(); // Map to store user data
+    const gamesMap = new Map(); // Map to store game data
 
-        // Fetch game data
-        const fetchGameData = fetch(`https://api.twitch.tv/helix/games?id=${stream.game_id}`, {
-          headers: {
-            'Authorization': 'Bearer ' + accessToken,
-            'Client-Id': clientId,
-          }
-        })
-          .then(response => response.json())
-          .then(gameData => {
-            const game = gameData.data[0];
-            gamesMap.set(stream.game_id, game); // Store game data with game ID as the key 
-          });
+    const fetchUserAndGameDataPromises = liveStreams.map(async (stream) => {
+      const [userData, gameData] = await Promise.all([
+        fetchUserData(stream.user_id),
+        fetchGameData(stream.game_id)
+      ]);
 
-        return Promise.all([fetchUserData, fetchGameData]);
+      usersMap.set(stream.user_id, userData.data[0]); // Store user data with stream ID as the key
+      gamesMap.set(stream.game_id, gameData.data[0]); // Store game data with game ID as the key
+    });
+
+    await Promise.all(fetchUserAndGameDataPromises);
+
+    const leftNav = document.getElementById('leftNav');
+
+    for (let i = 0; i < liveStreams.length; i++) {
+
+      const stream = liveStreams[i];
+      const user = usersMap.get(stream.user_id);
+      const game = gamesMap.get(stream.game_id);
+
+      const streamerCardLink = document.createElement('a');
+      streamerCardLink.href = `javascript:void(0);`;  //this makes link inactive
+      streamerCardLink.dataset.streamer = `${stream.user_login}`;
+
+      const userLogin = stream.user_login; // Store the user_login value
+
+      streamerCardLink.dataset.streamer = userLogin;
+
+      const streamItem = document.createElement('div');
+
+      const streamerCardLeftDetails = document.createElement('div');
+      streamerCardLeftDetails.className = 'streamerCardLeftDetails';
+
+      streamItem.className = 'streamerCard';
+      streamItem.dataset.userLogin = stream.user_login;
+
+      const profilePic = document.createElement('img'); // New Line
+      profilePic.src = user.profile_image_url; // New Line
+      profilePic.className = 'video-thumbnail';
+
+      streamerCardLeftDetails.appendChild(profilePic); // New Line
+
+      const imageUrl = user.profile_image_url;
+
+      const streamerName = document.createElement('div');
+      streamerName.textContent = user.display_name
+
+      const gameDiv = document.createElement('div');
+      gameDiv.textContent = game.name;
+      gameDiv.className = 'game-name';
+
+      streamerName.className = 'stream-link';
+
+      const textView = document.createElement('div');
+      textView.className = 'text';
+
+      const viewerCount = document.createElement('span');
+      viewerCount.textContent = `${getFormattedNumber(stream.viewer_count)}`;
+      viewerCount.className = 'stream-viewers';
+
+      textView.appendChild(streamerName);
+      textView.appendChild(gameDiv);
+
+      streamerCardLeftDetails.appendChild(textView);
+      streamItem.appendChild(streamerCardLeftDetails);
+
+      streamItem.appendChild(viewerCount);
+
+      // Push the stream item to the global array with viewer count
+      leftNavData.push({
+        element: streamItem,
+        viewCount: parseInt(stream.viewer_count) // Push stream to array
       });
 
-      // Wait for all fetch calls to complete
-      Promise.all(fetchUserAndGameDataPromises)
-        .then(() => {
-          const allStreams = document.getElementById('allStreams');
-          for (let i = 0; i < liveStreams.length; i++) {
-            const stream = liveStreams[i];
-            const user = usersMap.get(stream.user_id);
-            const game = gamesMap.get(stream.game_id);
+      streamerCardLink.appendChild(streamItem);
 
-            const streamLink = document.createElement('a');
-            streamLink.href = `javascript:void(0);`;  //this makes link inactive
-            streamLink.dataset.streamer = `${stream.user_login}`;
-            const userLogin = stream.user_login; // Store the user_login value
-            streamLink.dataset.streamer = userLogin;
+      leftNav.appendChild(streamerCardLink);
 
-            const streamItem = document.createElement('div');
-            const left = document.createElement('div');
-            left.className = 'left';
-
-            streamItem.className = 'stream-item';
-            streamItem.dataset.userLogin = stream.user_login;
-            const profilePic = document.createElement('img'); // New Line
-            profilePic.src = user.profile_image_url; // New Line
-            profilePic.className = 'video-thumbnail';
-            left.appendChild(profilePic); // New Line
-            const imageUrl = user.profile_image_url;
-            const streamerName = document.createElement('div');
-            //streamLink.href = `https://www.twitch.tv/${stream.user_login}`;
-            streamerName.textContent = user.display_name
-            //streamLink.title = stream.title;
-            const gameDiv = document.createElement('div');
-            gameDiv.textContent = game.name;
-            gameDiv.className = 'game-name';
-            streamerName.className = 'stream-link';
-
-            const textView = document.createElement('div');
-            textView.className = 'text';
-
-            const viewerCount = document.createElement('span');
-            viewerCount.textContent = `${getFormattedNumber(stream.viewer_count)}`;
-            viewerCount.className = 'stream-viewers';
-            textView.appendChild(streamerName);
-            textView.appendChild(gameDiv);
-
-            left.appendChild(textView);
-            streamItem.appendChild(left);
-            streamItem.appendChild(viewerCount);
-
-            // Push the stream item to the global array with viewer count
-            allStreamsData.push({
-              element: streamItem,
-              viewCount: parseInt(stream.viewer_count) // Push stream to array
-            });
-
-            streamLink.appendChild(streamItem);
-            allStreams.appendChild(streamLink);
-
-            /* for checkbox
-            // Track selected streams
-            const selectedStreams = new Set();
-
-            // Function to handle checkbox change
-            function handleCheckboxChange(event, streamUsername) {
-              if (event.target.checked) {
-                selectedStreams.add(streamUsername);
-              } else {
-                selectedStreams.delete(streamUsername);
-              }
-
-              // Clear the playerContainer
-              const playerContainer = document.getElementById('playerContainer');
-              while (playerContainer.firstChild) {
-                playerContainer.removeChild(playerContainer.firstChild);
-              }
-
-              // Embed players for selected streams
-              selectedStreams.forEach(username => {
-                const options = {
-                  width: 620,
-                  height: 378,
-                  channel: username,
-                  parent: ["tykrt.com"],
-                };
-
-                const playerDiv = document.createElement('div');
-                playerDiv.id = `twitch-player-${username}`;
-                playerContainer.appendChild(playerDiv);
-
-                new Twitch.Player(`twitch-player-${username}`, options);
-              });
-            }
-
-            // Inside your loop for creating stream items
-            streamLink.addEventListener('click', function () {
-              // Toggle the checkbox's checked state
-              const checkbox = document.getElementById(`checkbox-${stream.user_login}`);
-              checkbox.checked = !checkbox.checked;
-
-              // Call the handleCheckboxChange function with the username
-              handleCheckboxChange({ target: checkbox }, stream.user_login);
-            });
-            */
-
-            document.getElementById('allStreams').addEventListener('click', function (event) {
-
-              const target = event.target;
-              const streamItem = target.closest('.stream-item'); // Find the closest ancestor with class 'stream-item'
-
-              if (streamItem) {
-                const userLogin = streamItem.dataset.userLogin;
-                if (userLogin) {
-                  const playerContainer = document.getElementById('playerContainer');
-                  const currentPlayerUserLogin = playerContainer.dataset.userLogin;
-
-                  if (currentPlayerUserLogin === userLogin) {
-                    // Player for the same streamer is already embedded, do nothing
-                    return;
-                  }
-
-                  // Remove existing player
-                  while (playerContainer.firstChild) {
-                    playerContainer.removeChild(playerContainer.firstChild);
-                  }
-                  // Options for the Twitch embed
-                  const options = {
-                    width: 1336,
-                    height: 751.5,
-                    channel: userLogin, // Embed for the clicked streamer
-                    parent: ["tykrt.com"],
-                  };
-
-                  // Create and embed the Twitch player
-                  const playerDiv = document.createElement('div');
-                  playerDiv.id = `twitch-player-${userLogin}`;
-                  playerContainer.appendChild(playerDiv);
-
-                  new Twitch.Player(`twitch-player-${userLogin}`, options);
-
-                  // Update the playerContainer's userLogin attribute
-                  playerContainer.dataset.userLogin = userLogin;
-                }
-              }
-            });
-
-            // Add the following line to set the streamViewCount property
-            streamItem.streamViewCount = stream.viewer_count;
-            //streamsContainer.appendChild(streamItem);
-          }
-          try {
-            getYouTubeLiveBroadcasts(apiKey);
-          } catch (error) {
-            console.error('YouTube API error:', error);
-            sortStreamsByViewers();
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
+      /* for checkbox
+      // Track selected streams
+      const selectedStreams = new Set();
+  
+      // Function to handle checkbox change
+      function handleCheckboxChange(event, streamUsername) {
+        if (event.target.checked) {
+          selectedStreams.add(streamUsername);
+        } else {
+          selectedStreams.delete(streamUsername);
+        }
+  
+        // Clear the streamPlayerContainer
+        const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+        while (streamPlayerContainer.firstChild) {
+          streamPlayerContainer.removeChild(streamPlayerContainer.firstChild);
+        }
+  
+        // Embed players for selected streams
+        selectedStreams.forEach(username => {
+          const options = {
+            width: 620,
+            height: 378,
+            channel: username,
+            parent: ["tykrt.com"],
+          };
+  
+          const playerDiv = document.createElement('div');
+          playerDiv.id = `twitch-player-${username}`;
+          streamPlayerContainer.appendChild(playerDiv);
+  
+          new Twitch.Player(`twitch-player-${username}`, options);
         });
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
+      }
+  
+      // Inside your loop for creating stream items
+      streamerCardLink.addEventListener('click', function () {
+        // Toggle the checkbox's checked state
+        const checkbox = document.getElementById(`checkbox-${stream.user_login}`);
+        checkbox.checked = !checkbox.checked;
+  
+        // Call the handleCheckboxChange function with the username
+        handleCheckboxChange({ target: checkbox }, stream.user_login);
+      });
+      */
+
+      getStreamPlayer(streamItem);
+
+      // Add the following line to set the streamViewCount property
+      streamItem.streamViewCount = stream.viewer_count;
+      //streamsContainer.appendChild(streamItem);
+    }
+    try {
+      getYouTubeLiveBroadcasts(apiKey);
+    } catch (error) {
+      console.error('YouTube API error:', error);
+      sortStreamsByViewers();
+    }
+  } catch (error) {
+    console.error('Error: ', error);
+  }
+}
+
+function getStreamPlayer(streamItem) {
+
+  document.getElementById('leftNav').addEventListener('click', function (event) {
+
+    const target = event.target;
+    const streamItem = target.closest('.streamerCard'); // Find the closest ancestor with class 'streamerCard'
+
+    if (streamItem) {
+      const userLogin = streamItem.dataset.userLogin;
+      if (userLogin) {
+        const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+        const currentPlayerUserLogin = streamPlayerContainer.dataset.userLogin;
+
+        if (currentPlayerUserLogin === userLogin) {
+          // Player for the same streamer is already embedded, do nothing
+          return;
+        }
+
+        // Remove existing player
+        while (streamPlayerContainer.firstChild) {
+          streamPlayerContainer.removeChild(streamPlayerContainer.firstChild);
+        }
+        // Options for the Twitch embed
+        const options = {
+          width: 1336,
+          height: 751.5,
+          channel: userLogin, // Embed for the clicked streamer
+          parent: ["tykrt.com"],
+        };
+
+        // Create and embed the Twitch player
+        const playerDiv = document.createElement('div');
+        playerDiv.id = `twitch-player-${userLogin}`;
+        streamPlayerContainer.appendChild(playerDiv);
+
+        new Twitch.Player(`twitch-player-${userLogin}`, options);
+
+        // Update the streamPlayerContainer's userLogin attribute
+        streamPlayerContainer.dataset.userLogin = userLogin;
+      }
+    }
+  });
 }
 
 // Function to test the access token by retrieving user information
@@ -296,7 +276,7 @@ function getYouTubeLiveBroadcasts(apiKey) {
   })
     .then(data => {
       const liveStreams = data.items;
-      // const streamsContainer = document.getElementById('allStreams'); // no need of this line
+      // const streamsContainer = document.getElementById('leftNav'); // no need of this line
 
       liveStreams.forEach((stream) => {
         fetch(`https://www.googleapis.com/youtube/v3/videos?id=${stream.id.videoId}&part=liveStreamingDetails,snippet,statistics&key=${apiKey}`)
@@ -310,11 +290,11 @@ function getYouTubeLiveBroadcasts(apiKey) {
             thumbnailElement.src = thumbnailUrl;
             thumbnailElement.className = 'video-thumbnail';
             streamItem.appendChild(thumbnailElement);
-            const streamLink = document.createElement('a');
-            streamLink.href = `https://www.youtube.com/watch?v=${stream.id.videoId}`;
-            streamLink.textContent = stream.snippet.channelTitle; // This will set the text content as the channel/streamer's name
-            streamLink.title = stream.snippet.title;
-            streamLink.className = 'video-link';
+            const streamerCardLink = document.createElement('a');
+            streamerCardLink.href = `https://www.youtube.com/watch?v=${stream.id.videoId}`;
+            streamerCardLink.textContent = stream.snippet.channelTitle; // This will set the text content as the channel/streamer's name
+            streamerCardLink.title = stream.snippet.title;
+            streamerCardLink.className = 'video-link';
 
             const viewerCount = document.createElement('span');
             viewerCount.className = 'video-viewers';
@@ -327,12 +307,11 @@ function getYouTubeLiveBroadcasts(apiKey) {
               streamItem.streamViewCount = 0;
             }
 
-
-            streamItem.appendChild(streamLink);
+            streamItem.appendChild(streamerCardLink);
 
             streamItem.appendChild(viewerCount);
             //streamsContainer.appendChild(streamItem);
-            allStreamsData.push({
+            leftNavData.push({
               element: streamItem,
               viewCount: parseInt(streamItem.streamViewCount) // Push stream to array
             });
@@ -353,8 +332,8 @@ function getYouTubeLiveBroadcasts(apiKey) {
 }
 
 function sortStreamsByViewers() {
-  // Sort the allStreamsData in place
-  allStreamsData.sort((a, b) => {
+  // Sort the leftNavData in place
+  leftNavData.sort((a, b) => {
     return b.viewCount - a.viewCount;
   });
 
@@ -364,7 +343,7 @@ function sortStreamsByViewers() {
 
 // New function to render the sorted streams into the DOM
 function renderToDOM() {
-  const streamsContainer = document.getElementById('allStreams');
+  const streamsContainer = document.getElementById('leftNav');
 
   // Clear all child elements first
   while (streamsContainer.firstChild) {
@@ -372,7 +351,7 @@ function renderToDOM() {
   }
 
   // Append sorted stream elements to the list
-  allStreamsData.forEach(streamData => {
+  leftNavData.forEach(streamData => {
     streamsContainer.appendChild(streamData.element);
   });
 }
@@ -433,8 +412,22 @@ async function init() {
   logoutBtn.addEventListener('click', logout);
 }
 
+async function updateSidebarData() {
+  try {
+    const sidebarData = await getFollowedLiveStreams(accessToken, userId);
+
+    const gameName = sidebarData.gameName;
+    const viewerCount = sidebarData.viewerCount;
+
+    document.getElementById('gameName').textContent = gameName;
+    document.getElementById('viewerCount').textContent = viewerCount;
+  } catch (error) {
+    console.error('Error updating sidebar data:', error);
+  }
+}
 
 window.onload = function () {
+
   // First, Initialize your app by calling init
   init().then(() => {
     // Then, make sure accessToken and userId are set before using them
@@ -442,13 +435,12 @@ window.onload = function () {
       setTimeout(function () {
         getFollowedLiveStreams(accessToken, userId);
       }, 1000); // give a delay of 1 second (adjust as needed)
+
+      // Set up the interval for updating sidebar data
+      setInterval(updateSidebarData, 30000); // Adjust the interval as needed
     }
   });
 }
 
-
 // Call the init function on page load
 window.addEventListener('load', init);
-
-// Call the init function when the DOM content is loaded
-//document.addEventListener('DOMContentLoaded', init);

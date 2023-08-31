@@ -1,4 +1,4 @@
-.stream-item {
+.streamerCard {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
@@ -6,26 +6,28 @@
     justify-content: space-between;
 }
 
-#playerContainer {
+#streamPlayerContainer {
     flex-grow: 1;
-    min-width: 0;  /* prevent flexbox from overflowing */
-    padding-left: 10px; /* add some space between the containers */
+    min-width: 0;
+    /* prevent flexbox from overflowing */
+    padding-left: 10px;
+    /* add some space between the containers */
     height: 100vh;
     overflow-y: auto;
 }
 
-
-#contentContainer {
+#sidebarAndStreamPlayer {
     display: flex;
     justify-content: flex-start;
 }
 
-#allStreamsContainer, #playerContainer {
+#leftNavContainer,
+#streamPlayerContainer {
     /*flex: 1 1 0;*/
     margin-right: 10px;
 }
 
-#allStreamsContainer {
+#leftNavContainer {
     width: 240px;
 }
 
@@ -33,18 +35,20 @@
     display: flex;
 }
 
-#allStreams, #playerContainer {
+#leftNav,
+#streamPlayerContainer {
     width: calc(50% - 10px);
 }
 
-.stream-item:hover {
-    background-color: #2c3542; 
+.streamerCard:hover {
+    background-color: #2c3542;
 }
 
-.left{
+.streamerCardLeftDetails {
     display: flex;
     align-items: center;
 }
+
 .text {
     display: flex;
     flex-direction: column;
@@ -55,11 +59,12 @@
     text-overflow: ellipsis;
 }
 
-.streamer-name, .game-name {
+.streamer-name,
+.game-name {
     line-height: 1.2;
 }
 
-.game-name{
+.game-name {
     font-size: 12px;
     overflow-wrap: break-word;
     max-width: 150px;
@@ -105,7 +110,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.container {
+.topNav {
     justify-content: left;
     display: flex;
     align-items: center;
@@ -141,9 +146,7 @@ body {
     /* Adjust the font color */
 }
 
-
-
-#allStreams {
+#leftNav {
     background-color: #1F2833;
     width: 240px;
     height: 100vh;
@@ -151,11 +154,4 @@ body {
     padding-left: 8px;
     padding-right: 8px;
     overflow-y: auto;
-    /*(padding-top: 10px;
-    padding-left: 8px;
-    padding-right: 8px;
-    display: inline-block;
-    background-color: #1F2833;
-    width: 240px;
-    height: 100vh;  */
 }
