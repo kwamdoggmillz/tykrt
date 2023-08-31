@@ -3,8 +3,8 @@ const clientId = 'clzeuervlptjtp304d1ulqxbdb633z';
 const redirectUri = 'https://tykrt.com/callback.html';
 const apiKey = 'AIzaSyCxRdb7Bhr0z9-iSTf_OpRTTAMk2ChMqsc';
 const scope = 'user:read:follows';
+let initialized = false;
 let leftNavData = []; // add this line to keep all streams data together before they are available
-let streamItems = [];
 let accessToken = null;
 let userId = null;
 let streamPlayerContainer = '';
@@ -202,7 +202,6 @@ async function getFollowedLiveStreams(accessToken, userId) {
       getYouTubeLiveBroadcasts(apiKey);
     } catch (error) {
       console.error('YouTube API error:', error);
-      sortStreamsByViewers();
     }
   } catch (error) {
     console.error('Error: ', error);
@@ -277,6 +276,7 @@ async function testAccessToken(accessToken) {
 
 // Function to fetch top 20 live broadcasts from YouTube sorted by view count
 function getYouTubeLiveBroadcasts(apiKey) {
+
   const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&key=${apiKey}`;
 
   fetch(youtubeLiveStreamsUrl)
@@ -329,11 +329,7 @@ function getYouTubeLiveBroadcasts(apiKey) {
           .catch(error => {
             // Catch error and display message to user
             console.error('Error fetching YouTube live broadcasts:', error);
-            sortStreamsByViewers(); // Sort the streams after adding YouTube streams
           })
-          .finally(() => {
-            sortStreamsByViewers(); // Sort the streams here
-          });
       });
     })
     .catch(error => {
@@ -406,40 +402,42 @@ async function init() {
     userId = await testAccessToken(accessToken); // Test the access token
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('logoutBtn').style.display = 'block';
-    updateSidebarData();
+
+    if (!initialized) {
+    updateLeftNav();
+    initialized = true;
+    }
 
   } catch (error) {
     console.error('Error during initialization:', error);
   }
 }
 
-async function updateSidebarData() {
+async function updateLeftNav() {
   try {
 
-    const leftNav = document.getElementById('leftNav');
-    leftNav.innerHTML = '';
+    leftNavData = []; // Reset the array before fetching new data
 
-    const sidebarData = await getFollowedLiveStreams(accessToken, userId);
+    await getFollowedLiveStreams(accessToken, userId);
 
-    const gameName = sidebarData.gameName;
-    const viewerCount = sidebarData.viewerCount;
+    sortStreamsByViewers();
 
-    document.getElementById('gameName').textContent = gameName;
-    document.getElementById('viewerCount').textContent = viewerCount;
   } catch (error) {
     console.error('Error updating sidebar data:', error);
   }
 }
 
 window.onload = function () {
-
   // First, Initialize your app by calling init
   init().then(() => {
     // Then, make sure accessToken and userId are set before using them
     if (accessToken && userId) {
-
-      // Set up the interval for updating sidebar data
-      setInterval(updateSidebarData, 30000); // Adjust the interval as needed
+      // Delay the first execution of the function by the interval time
+      setTimeout(() => {
+        updateLeftNav(); // Initial execution
+        // Set up the interval for updating sidebar data
+        setInterval(updateLeftNav, 30000); // Regular interval
+      }, 120000); // Initial delay, same as interval time
     }
   });
 }
