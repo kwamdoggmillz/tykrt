@@ -8,12 +8,7 @@ let streamItems = [];
 let accessToken = null;
 let userId = null;
 let streamPlayerContainer = '';
-const API_BASE_URL = 'https://api.twitch.tv/helix/';
-const headers = {
-  'Authorization': 'Bearer ' + accessToken,
-  'Client-Id': clientId
-};
-const options = { headers };
+const API_BASE_URL = 'https://api.twitch.tv/helix';
 
 // Function to handle Twitch login button click
 function login() {
@@ -29,19 +24,32 @@ function logout() {
 }
 
 async function fetchData(url) {
-  const response = await fetch(url, options);
-  const data = await response.json();
-  return data;
+  try {
+    const headers = {
+      'Authorization': 'Bearer ' + accessToken,
+      'Client-Id': clientId
+    };
+    const options = { headers };
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
 }
 
 async function fetchStreamData(userId) {
-  const url = '${API_BASE_URL}/users?id=${userId}';
+  const url = `${API_BASE_URL}/users?id=${userId}`;
   return await fetchData(url);
 }
 
 async function fetchGameData(gameId) {
-  const url = '${API_BASE_URL}/games?id=${gameId}';
-  return await fetcData(url);
+  const url = `${API_BASE_URL}/games?id=${gameId}`;
+  return await fetchData(url);
 }
 
 // Function to fetch the list of followed live streams using Twitch API
@@ -50,6 +58,8 @@ async function getFollowedLiveStreams(accessToken, userId) {
     // Handle the undefined case if needed
     return;
   }
+
+  leftNavData = []; // Reset the array before fetching new data
 
   try {
     const response = await fetchData(`${API_BASE_URL}/streams/followed?user_id=${userId}`); // Use backticks here
@@ -60,7 +70,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
     const fetchUserAndGameDataPromises = liveStreams.map(async (stream) => {
       const [userData, gameData] = await Promise.all([
-        fetchUserData(stream.user_id),
+        fetchStreamData(stream.user_id),
         fetchGameData(stream.game_id)
       ]);
 
@@ -384,36 +394,31 @@ function getFormattedNumber(number) {
 
 // Function to initialize the application
 async function init() {
-
-  if (accessToken) {
-    document.getElementById('loginContainer').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'block';
-  }
-  else {
-    try {
-      accessToken = localStorage.getItem('accessToken');
-    } catch (error) {
-
+  try {
+    accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      // Redirect the user to login if accessToken is not available
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.addEventListener('click', login);
+      return;
     }
-  }
-
-  if (accessToken) {
 
     userId = await testAccessToken(accessToken); // Test the access token
     document.getElementById('loginContainer').style.display = 'none';
     document.getElementById('logoutBtn').style.display = 'block';
+    updateSidebarData();
 
-  } else {
-    const loginBtn = document.getElementById('loginBtn');
-    loginBtn.addEventListener('click', login);
+  } catch (error) {
+    console.error('Error during initialization:', error);
   }
-
-  const logoutBtn = document.getElementById('logoutBtn');
-  logoutBtn.addEventListener('click', logout);
 }
 
 async function updateSidebarData() {
   try {
+
+    const leftNav = document.getElementById('leftNav');
+    leftNav.innerHTML = '';
+
     const sidebarData = await getFollowedLiveStreams(accessToken, userId);
 
     const gameName = sidebarData.gameName;
@@ -432,9 +437,6 @@ window.onload = function () {
   init().then(() => {
     // Then, make sure accessToken and userId are set before using them
     if (accessToken && userId) {
-      setTimeout(function () {
-        getFollowedLiveStreams(accessToken, userId);
-      }, 1000); // give a delay of 1 second (adjust as needed)
 
       // Set up the interval for updating sidebar data
       setInterval(updateSidebarData, 30000); // Adjust the interval as needed
