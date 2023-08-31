@@ -52,7 +52,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
   }
 
   try {
-    const response = await fetchData('${API_BASE_URL}/streams/followed?user_id=${userId}');
+    const response = await fetchData(`${API_BASE_URL}/streams/followed?user_id=${userId}`); // Use backticks here
     const liveStreams = response.data;
 
     const usersMap = new Map(); // Map to store user data
