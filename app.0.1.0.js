@@ -9,6 +9,7 @@ let accessToken = null;
 let userId = null;
 let streamPlayerContainer = '';
 const selectedStreams = new Set();
+const checkboxStates = {};
 const maxStreamsPerRow = 2;
 const API_BASE_URL = 'https://api.twitch.tv/helix';
 
@@ -113,15 +114,26 @@ async function getFollowedLiveStreams(accessToken, userId) {
       profilePic.src = user.profile_image_url;
       profilePic.className = 'video-thumbnail';
 
-      profilePicContainer.appendChild(profilePic);
-      streamerCardLeftDetails.appendChild(profilePicContainer);
-
       // Inside your loop for creating stream items
+      const checkboxContainer = document.createElement('div');
+      checkboxContainer.className = 'round';
+
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.id = `checkbox-${stream.user_login}`;
       checkbox.dataset.streamer = userLogin;
-      streamerCardLeftDetails.appendChild(checkbox);
+
+      const label = document.createElement('label');
+      label.htmlFor = `checkbox-${stream.user_login}`;
+
+      profilePicContainer.appendChild(checkboxContainer);
+      profilePicContainer.appendChild(profilePic);
+      streamerCardLeftDetails.appendChild(profilePicContainer);
+
+      checkboxContainer.appendChild(checkbox);
+      checkboxContainer.appendChild(label);
+
+      //streamerCardLeftDetails.appendChild(checkboxContainer);
 
       // Attach an event listener to the checkbox
       checkbox.addEventListener('change', function () {
@@ -201,8 +213,10 @@ function handleCheckboxChange(event) {
 
   if (event.target.checked) {
     selectedStreams.add(selectedStreamer);
+    checkboxStates[selectedStreamer] = true; // Checkbox is checked
   } else {
     selectedStreams.delete(selectedStreamer);
+    checkboxStates[selectedStreamer] = false; // Checkbox is not checked
   }
 
   updateStreamLayout();
@@ -217,23 +231,21 @@ function updateStreamLayout() {
 
   // Calculate the width based on the number of selected streams
   let width = '100%'; // Default to full width
+  let height = 751.5; // Default to full height
 
-  /*if (numSelectedStreams === 1) {
-      // If only 1 stream is selected, use full width
-      width = '100%';
-  } else if (numSelectedStreams === 2) {
-      // If 2 streams are selected, split the screen in half
-      width = '50%';
-  }*/
+  if (numSelectedStreams > 1) {
+    // If more than 1 stream is selected, use smaller height
+    height = 375.75;
+  }
 
   for (let i = 0; i < numSelectedStreams; i++) {
-      const username = selectedStreamersArray[i];
-      createStreamPlayer(streamPlayerContainer, username, width, 751.5);
+    const username = selectedStreamersArray[i];
+    createStreamPlayer(streamPlayerContainer, username, width, height);
   }
 
 
-    // Attach the event listener to checkboxes after the layout is updated
-    attachCheckboxListeners();
+  // Attach the event listener to checkboxes after the layout is updated
+  attachCheckboxListeners();
 }
 
 function createStreamPlayer(container, username, width, height) {
@@ -478,9 +490,19 @@ async function updateLeftNav() {
 
     sortStreamsByViewers();
 
+    restoreCheckboxStates();
+
   } catch (error) {
     console.error('Error updating sidebar data:', error);
   }
+}
+
+function restoreCheckboxStates() {
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    const streamer = checkbox.dataset.streamer;
+    checkbox.checked = checkboxStates[streamer] || false;
+  });
 }
 
 window.onload = function () {
