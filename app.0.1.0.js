@@ -218,13 +218,13 @@ function updateStreamLayout() {
   // Calculate the width based on the number of selected streams
   let width = '100%'; // Default to full width
 
-  if (numSelectedStreams === 1) {
+  /*if (numSelectedStreams === 1) {
       // If only 1 stream is selected, use full width
       width = '100%';
   } else if (numSelectedStreams === 2) {
       // If 2 streams are selected, split the screen in half
       width = '50%';
-  }
+  }*/
 
   for (let i = 0; i < numSelectedStreams; i++) {
       const username = selectedStreamersArray[i];
