@@ -8,6 +8,8 @@ let leftNavData = []; // add this line to keep all streams data together before 
 let accessToken = null;
 let userId = null;
 let streamPlayerContainer = '';
+const selectedStreams = new Set();
+const maxStreamsPerRow = 2;
 const API_BASE_URL = 'https://api.twitch.tv/helix';
 
 // Function to handle Twitch login button click
@@ -114,6 +116,33 @@ async function getFollowedLiveStreams(accessToken, userId) {
       profilePicContainer.appendChild(profilePic);
       streamerCardLeftDetails.appendChild(profilePicContainer);
 
+      // Inside your loop for creating stream items
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = `checkbox-${stream.user_login}`;
+      checkbox.dataset.streamer = userLogin;
+      streamerCardLeftDetails.appendChild(checkbox);
+
+      // Attach an event listener to the checkbox
+      checkbox.addEventListener('change', function () {
+        handleCheckboxChange(event, checkbox);
+      });
+
+
+      // Attach an event listener to the stream-item div
+      streamItem.addEventListener('click', function (event) {
+        if (event.target.tagName !== 'INPUT') {
+          // If the clicked element is not the checkbox itself, toggle the checkbox's checked state
+          checkbox.checked = !checkbox.checked;
+
+          // Trigger the change event manually to ensure other logic related to checkbox change is executed
+          const changeEvent = new Event('change');
+          checkbox.dispatchEvent(changeEvent);
+
+          event.stopPropagation(); // Prevent the click from propagating to the parent elements
+        }
+      });
+
       const imageUrl = user.profile_image_url;
 
       const streamerName = document.createElement('div');
@@ -150,58 +179,13 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
       leftNav.appendChild(streamerCardLink);
 
-      /* for checkbox
-      // Track selected streams
-      const selectedStreams = new Set();
-  
-      // Function to handle checkbox change
-      function handleCheckboxChange(event, streamUsername) {
-        if (event.target.checked) {
-          selectedStreams.add(streamUsername);
-        } else {
-          selectedStreams.delete(streamUsername);
-        }
-  
-        // Clear the streamPlayerContainer
-        const streamPlayerContainer = document.getElementById('streamPlayerContainer');
-        while (streamPlayerContainer.firstChild) {
-          streamPlayerContainer.removeChild(streamPlayerContainer.firstChild);
-        }
-  
-        // Embed players for selected streams
-        selectedStreams.forEach(username => {
-          const options = {
-            width: 620,
-            height: 378,
-            channel: username,
-            parent: ["tykrt.com"],
-          };
-  
-          const playerDiv = document.createElement('div');
-          playerDiv.id = `twitch-player-${username}`;
-          streamPlayerContainer.appendChild(playerDiv);
-  
-          new Twitch.Player(`twitch-player-${username}`, options);
-        });
-      }
-  
-      // Inside your loop for creating stream items
-      streamerCardLink.addEventListener('click', function () {
-        // Toggle the checkbox's checked state
-        const checkbox = document.getElementById(`checkbox-${stream.user_login}`);
-        checkbox.checked = !checkbox.checked;
-  
-        // Call the handleCheckboxChange function with the username
-        handleCheckboxChange({ target: checkbox }, stream.user_login);
-      });
-      */
-
       getStreamPlayer(streamItem);
 
       // Add the following line to set the streamViewCount property
       streamItem.streamViewCount = stream.viewer_count;
       //streamsContainer.appendChild(streamItem);
     }
+
     try {
       getYouTubeLiveBroadcasts(apiKey);
     } catch (error) {
@@ -211,6 +195,74 @@ async function getFollowedLiveStreams(accessToken, userId) {
     console.error('Error: ', error);
   }
 }
+
+function handleCheckboxChange(event) {
+  const selectedStreamer = event.target.dataset.streamer;
+
+  if (event.target.checked) {
+    selectedStreams.add(selectedStreamer);
+  } else {
+    selectedStreams.delete(selectedStreamer);
+  }
+
+  updateStreamLayout();
+}
+
+function updateStreamLayout() {
+  const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+  streamPlayerContainer.innerHTML = ''; // Clear the container
+
+  const selectedStreamersArray = Array.from(selectedStreams);
+  const numSelectedStreams = selectedStreamersArray.length;
+
+  // Calculate the width based on the number of selected streams
+  let width = '100%'; // Default to full width
+
+  if (numSelectedStreams === 1) {
+      // If only 1 stream is selected, use full width
+      width = '100%';
+  } else if (numSelectedStreams === 2) {
+      // If 2 streams are selected, split the screen in half
+      width = '50%';
+  }
+
+  for (let i = 0; i < numSelectedStreams; i++) {
+      const username = selectedStreamersArray[i];
+      createStreamPlayer(streamPlayerContainer, username, width, 751.5);
+  }
+
+
+    // Attach the event listener to checkboxes after the layout is updated
+    attachCheckboxListeners();
+}
+
+function createStreamPlayer(container, username, width, height) {
+  const options = {
+    width: width,
+    height: height,
+    channel: username, // Embed for the clicked streamer
+    parent: ["tykrt.com"],
+  };
+
+  // Create and embed the Twitch player
+  const playerDiv = document.createElement('div');
+  playerDiv.id = `twitch-player-${username}`;
+  playerDiv.className = 'stream-player';
+  container.appendChild(playerDiv);
+
+  new Twitch.Player(`twitch-player-${username}`, options);
+}
+
+// After loading the page, attach the event listener to checkboxes
+function attachCheckboxListeners() {
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', handleCheckboxChange);
+  });
+}
+
+// Call the attachCheckboxListeners() function after your page has loaded
+document.addEventListener('DOMContentLoaded', attachCheckboxListeners);
 
 function getStreamPlayer(streamItem) {
 
