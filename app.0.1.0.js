@@ -104,11 +104,15 @@ async function getFollowedLiveStreams(accessToken, userId) {
       streamItem.className = 'streamerCard';
       streamItem.dataset.userLogin = stream.user_login;
 
-      const profilePic = document.createElement('img'); // New Line
-      profilePic.src = user.profile_image_url; // New Line
+      const profilePicContainer = document.createElement('div');
+      profilePicContainer.className = 'profilePicContainer';
+
+      const profilePic = document.createElement('img');
+      profilePic.src = user.profile_image_url;
       profilePic.className = 'video-thumbnail';
 
-      streamerCardLeftDetails.appendChild(profilePic); // New Line
+      profilePicContainer.appendChild(profilePic);
+      streamerCardLeftDetails.appendChild(profilePicContainer);
 
       const imageUrl = user.profile_image_url;
 
@@ -404,8 +408,8 @@ async function init() {
     document.getElementById('logoutBtn').style.display = 'block';
 
     if (!initialized) {
-    updateLeftNav();
-    initialized = true;
+      updateLeftNav();
+      initialized = true;
     }
 
   } catch (error) {
@@ -437,7 +441,7 @@ window.onload = function () {
         updateLeftNav(); // Initial execution
         // Set up the interval for updating sidebar data
         setInterval(updateLeftNav, 30000); // Regular interval
-      }, 120000); // Initial delay, same as interval time
+      }, 30000); // Initial delay, same as interval time
     }
   });
 }

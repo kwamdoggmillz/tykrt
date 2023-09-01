@@ -127,11 +127,29 @@ body {
 }
 
 .video-thumbnail {
-    width: 30px;
-    height: 30px;
+    /*width: 30px;
+    height: 30px;*/
     border-radius: 50%;
-    margin-right: 10px;
+    width: 30px;
+    height: auto;
 }
+
+.profilePicContainer {
+    display: inline-flex;
+    margin-right: 6px;
+    /* Ensure the container takes only the space it needs */
+    border: 3px solid #A172F7;
+    /* Change this color to the desired outline color */
+    border-radius: 50%;
+    /* Make the container circular */
+    padding: 2px;
+    /*Add some spacing between the outline and the image */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+}
+
 
 .video-link {
     text-decoration: none;
