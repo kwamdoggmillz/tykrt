@@ -1,17 +1,16 @@
 // Twitch API configuration
 const clientId = 'clzeuervlptjtp304d1ulqxbdb633z';
 const redirectUri = 'https://tykrt.com/callback.html';
+const API_BASE_URL = 'https://api.twitch.tv/helix';
 const apiKey = 'AIzaSyCxRdb7Bhr0z9-iSTf_OpRTTAMk2ChMqsc';
 const scope = 'user:read:follows';
-let initialized = false;
-let leftNavData = []; // add this line to keep all streams data together before they are available
 let accessToken = null;
 let userId = null;
-let streamPlayerContainer = '';
+let initialized = false;
+let leftNavData = []; // add this line to keep all streams data together before they are available
 const selectedStreams = new Set();
 const checkboxStates = {};
 const maxStreamsPerRow = 2;
-const API_BASE_URL = 'https://api.twitch.tv/helix';
 
 // Function to handle Twitch login button click
 function login() {
@@ -55,6 +54,45 @@ async function fetchGameData(gameId) {
   return await fetchData(url);
 }
 
+// Function to fetch user and game data for live streams
+async function fetchUserAndGameDataPromises(liveStreams) {
+  const usersMap = new Map();
+  const gamesMap = new Map();
+
+  const fetchUserAndGameDataPromises = liveStreams.map(async (stream) => {
+    const [userData, gameData] = await Promise.all([
+      fetchStreamData(stream.user_id),
+      fetchGameData(stream.game_id)
+    ]);
+
+    usersMap.set(stream.user_id, userData.data[0]);
+    gamesMap.set(stream.game_id, gameData.data[0]);
+  });
+
+  await Promise.all(fetchUserAndGameDataPromises);
+
+  return { usersMap, gamesMap };
+}
+
+function createElementWithClass(elementType, className, attributes = {}) {
+  const element = document.createElement(elementType);
+  element.className = className;
+
+  // Set attributes if provided
+  for (const key in attributes) {
+    if (attributes.hasOwnProperty(key)) {
+      element.setAttribute(key, attributes[key]);
+    }
+  }
+
+  return element;
+}
+
+// Function to attach event listeners to checkboxes and stream-item divs
+function attachEventListeners(streamItem, checkbox) {
+
+}
+
 // Function to fetch the list of followed live streams using Twitch API
 async function getFollowedLiveStreams(accessToken, userId) {
   if (userId === undefined) {
@@ -68,20 +106,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
     const response = await fetchData(`${API_BASE_URL}/streams/followed?user_id=${userId}`); // Use backticks here
     const liveStreams = response.data;
 
-    const usersMap = new Map(); // Map to store user data
-    const gamesMap = new Map(); // Map to store game data
-
-    const fetchUserAndGameDataPromises = liveStreams.map(async (stream) => {
-      const [userData, gameData] = await Promise.all([
-        fetchStreamData(stream.user_id),
-        fetchGameData(stream.game_id)
-      ]);
-
-      usersMap.set(stream.user_id, userData.data[0]); // Store user data with stream ID as the key
-      gamesMap.set(stream.game_id, gameData.data[0]); // Store game data with game ID as the key
-    });
-
-    await Promise.all(fetchUserAndGameDataPromises);
+    const { usersMap, gamesMap } = await fetchUserAndGameDataPromises(liveStreams);
 
     const leftNav = document.getElementById('leftNav');
 
@@ -91,40 +116,34 @@ async function getFollowedLiveStreams(accessToken, userId) {
       const user = usersMap.get(stream.user_id);
       const game = gamesMap.get(stream.game_id);
 
-      const streamerCardLink = document.createElement('a');
-      streamerCardLink.href = `javascript:void(0);`;  //this makes link inactive
-      streamerCardLink.dataset.streamer = `${stream.user_login}`;
+      const streamerCardLink = createElementWithClass('a', 'streamerCardLink', {
+        href: `javascript:void(0);`,
+        'data-streamer': stream.user_login
+      });
 
-      const userLogin = stream.user_login; // Store the user_login value
+      const streamItem = createElementWithClass('div', 'streamerCard', {
+        'dataset.userLogin': stream.user_login
+      });
 
-      streamerCardLink.dataset.streamer = userLogin;
+      const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails');
 
-      const streamItem = document.createElement('div');
+      const profilePicContainer = createElementWithClass('div', 'profilePicContainer');
 
-      const streamerCardLeftDetails = document.createElement('div');
-      streamerCardLeftDetails.className = 'streamerCardLeftDetails';
+      const profilePic = createElementWithClass('img', 'video-thumbnail', {
+        src: user.profile_image_url
+      })
 
-      streamItem.className = 'streamerCard';
-      streamItem.dataset.userLogin = stream.user_login;
+      const checkboxContainer = createElementWithClass('div', 'round');
 
-      const profilePicContainer = document.createElement('div');
-      profilePicContainer.className = 'profilePicContainer';
+      const checkbox = createElementWithClass('input', 'checkbox', {
+        type: 'checkbox',
+        id: `checkbox-${stream.user_login}`,
+        'data-streamer': stream.user_login
+      })
 
-      const profilePic = document.createElement('img');
-      profilePic.src = user.profile_image_url;
-      profilePic.className = 'video-thumbnail';
-
-      // Inside your loop for creating stream items
-      const checkboxContainer = document.createElement('div');
-      checkboxContainer.className = 'round';
-
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.id = `checkbox-${stream.user_login}`;
-      checkbox.dataset.streamer = userLogin;
-
-      const label = document.createElement('label');
-      label.htmlFor = `checkbox-${stream.user_login}`;
+      const label = createElementWithClass('label', 'checkbox-label', {
+        'for': `checkbox-${stream.user_login}`
+      })
 
       profilePicContainer.appendChild(checkboxContainer);
       profilePicContainer.appendChild(profilePic);
@@ -133,15 +152,10 @@ async function getFollowedLiveStreams(accessToken, userId) {
       checkboxContainer.appendChild(checkbox);
       checkboxContainer.appendChild(label);
 
-      //streamerCardLeftDetails.appendChild(checkboxContainer);
-
-      // Attach an event listener to the checkbox
       checkbox.addEventListener('change', function () {
         handleCheckboxChange(event, checkbox);
       });
 
-
-      // Attach an event listener to the stream-item div
       streamItem.addEventListener('click', function (event) {
         if (event.target.tagName !== 'INPUT') {
           // If the clicked element is not the checkbox itself, toggle the checkbox's checked state
@@ -155,23 +169,18 @@ async function getFollowedLiveStreams(accessToken, userId) {
         }
       });
 
-      const imageUrl = user.profile_image_url;
+      //attachEventListeners(checkbox, streamItem);
 
-      const streamerName = document.createElement('div');
-      streamerName.textContent = user.display_name
+      const streamerName = createElementWithClass('div', 'stream-link')
+      streamerName.textContent = user.display_name;
 
-      const gameDiv = document.createElement('div');
+      const gameDiv = createElementWithClass('div', 'game-name')
       gameDiv.textContent = game.name;
-      gameDiv.className = 'game-name';
 
-      streamerName.className = 'stream-link';
+      const textView = createElementWithClass('div', 'text');
 
-      const textView = document.createElement('div');
-      textView.className = 'text';
-
-      const viewerCount = document.createElement('span');
+      const viewerCount = createElementWithClass('span', 'stream-viewers')
       viewerCount.textContent = `${getFormattedNumber(stream.viewer_count)}`;
-      viewerCount.className = 'stream-viewers';
 
       textView.appendChild(streamerName);
       textView.appendChild(gameDiv);
@@ -195,7 +204,6 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
       // Add the following line to set the streamViewCount property
       streamItem.streamViewCount = stream.viewer_count;
-      //streamsContainer.appendChild(streamItem);
     }
 
     try {
