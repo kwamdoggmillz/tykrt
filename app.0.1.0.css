@@ -74,7 +74,7 @@
 .game-name {
     font-size: 12px;
     overflow-wrap: break-word;
-    max-width: 120px;
+    max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -164,7 +164,7 @@ body {
 }
 
 .profilePicContainer label {
-    background-color: transparent;
+    background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 50%;
     cursor: pointer;
