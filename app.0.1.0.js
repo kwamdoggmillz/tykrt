@@ -216,19 +216,45 @@ async function getFollowedLiveStreams(accessToken, userId) {
   }
 }
 
+// Store chat iframes in an object for easy management
+const chatIframes = {};
+
 function handleCheckboxChange(event) {
   const selectedStreamer = event.target.dataset.streamer;
 
   if (event.target.checked) {
     selectedStreams.add(selectedStreamer);
     checkboxStates[selectedStreamer] = true; // Checkbox is checked
+    createOrUpdateChatEmbed(selectedStreamer);
   } else {
     selectedStreams.delete(selectedStreamer);
     checkboxStates[selectedStreamer] = false; // Checkbox is not checked
+    removeChatEmbed(selectedStreamer);
   }
 
   updateStreamLayout();
 }
+
+function createOrUpdateChatEmbed(channelName) {
+  if (!chatIframes[channelName]) {
+    // Create and embed the chat iframe if it doesn't exist
+    const chatIframe = createChatEmbed(channelName);
+    chatIframes[channelName] = chatIframe;
+  } else {
+    // If it exists, make it visible or adjust its properties as needed
+    chatIframes[channelName].style.display = 'block'; // Adjust as needed
+  }
+}
+
+function removeChatEmbed(channelName) {
+  if (chatIframes[channelName]) {
+    // If the chat iframe exists, hide or remove it
+    chatIframes[channelName].style.display = 'none'; // Hide it for now, adjust as needed
+    // You can also completely remove it if desired
+    // chatIframes[channelName].remove();
+  }
+}
+
 
 function updateStreamLayout() {
   const streamPlayerContainer = document.getElementById('streamPlayerContainer');
@@ -249,8 +275,9 @@ function updateStreamLayout() {
   for (let i = 0; i < numSelectedStreams; i++) {
     const username = selectedStreamersArray[i];
     createStreamPlayer(streamPlayerContainer, username, width, height);
-  }
+    // Call the function to create and embed Twitch chat
 
+  }
 
   // Attach the event listener to checkboxes after the layout is updated
   attachCheckboxListeners();
@@ -265,13 +292,33 @@ function createStreamPlayer(container, username, width, height) {
   };
 
   // Create and embed the Twitch player
-  const playerDiv = document.createElement('div');
-  playerDiv.id = `twitch-player-${username}`;
-  playerDiv.className = 'stream-player';
+  const playerDiv = createElementWithClass('div', 'stream-player', {
+    id: `twitch-player-${username}`
+  });
   container.appendChild(playerDiv);
+
+createChatEmbed(username);
 
   new Twitch.Player(`twitch-player-${username}`, options);
 }
+
+function createChatEmbed(channelName) {
+  // Define the chat embed URL with the channel name and parent domain(s)
+  const chatEmbedUrl = `https://www.twitch.tv/embed/${channelName}/chat?parent=tykrt.com`;
+
+  // Create the iframe element for embedding the chat
+  const chatIframe = document.createElement('iframe');
+  chatIframe.id = `twitch-chat-embed-${channelName}`;
+  chatIframe.src = chatEmbedUrl;
+  chatIframe.height = '500'; // Adjust the height as needed
+  chatIframe.width = '350'; // Adjust the width as needed
+
+  // Append the chat iframe to the specified container (e.g., streamPlayerContainer)
+  streamPlayerContainer.appendChild(chatIframe);
+
+  return chatIframe;
+}
+
 
 // After loading the page, attach the event listener to checkboxes
 function attachCheckboxListeners() {
@@ -315,8 +362,9 @@ function getStreamPlayer(streamItem) {
         };
 
         // Create and embed the Twitch player
-        const playerDiv = document.createElement('div');
-        playerDiv.id = `twitch-player-${userLogin}`;
+        const playerDiv = createElementWithClass('div', 'stream-player', {
+          id: `twitch-player-${userLogin}`
+        });
         streamPlayerContainer.appendChild(playerDiv);
 
         new Twitch.Player(`twitch-player-${userLogin}`, options);
@@ -369,21 +417,24 @@ function getYouTubeLiveBroadcasts(apiKey) {
           .then(response => response.json())
           .then(videoData => {
             const video = videoData.items[0];
-            const streamItem = document.createElement('div');
-            streamItem.className = 'video-item';
+
+            const streamItem = createElementWithClass('div', 'video-item');
+
             const thumbnailUrl = stream.snippet.thumbnails.medium.url;
             const thumbnailElement = document.createElement('img');
             thumbnailElement.src = thumbnailUrl;
             thumbnailElement.className = 'video-thumbnail';
-            streamItem.appendChild(thumbnailElement);
-            const streamerCardLink = document.createElement('a');
-            streamerCardLink.href = `https://www.youtube.com/watch?v=${stream.id.videoId}`;
-            streamerCardLink.textContent = stream.snippet.channelTitle; // This will set the text content as the channel/streamer's name
-            streamerCardLink.title = stream.snippet.title;
-            streamerCardLink.className = 'video-link';
 
-            const viewerCount = document.createElement('span');
-            viewerCount.className = 'video-viewers';
+            streamItem.appendChild(thumbnailElement);
+
+            const streamerCardLink = createElementWithClass('a', 'video-link', {
+              href: `https://www.youtube.com/watch?v=${stream.id.videoId}`,
+              title: stream.snippet.title
+            });
+            streamerCardLink.textContent = stream.snippet.channelTitle;
+
+            const viewerCount = createElementWithClass('span', 'video-viewers');
+
             if (video.liveStreamingDetails && video.liveStreamingDetails.concurrentViewers) {
               viewerCount.textContent = `${getFormattedNumber(video.liveStreamingDetails.concurrentViewers)}`;
               streamItem.streamViewCount = video.liveStreamingDetails.concurrentViewers;
@@ -394,9 +445,8 @@ function getYouTubeLiveBroadcasts(apiKey) {
             }
 
             streamItem.appendChild(streamerCardLink);
-
             streamItem.appendChild(viewerCount);
-            //streamsContainer.appendChild(streamItem);
+
             leftNavData.push({
               element: streamItem,
               viewCount: parseInt(streamItem.streamViewCount) // Push stream to array
