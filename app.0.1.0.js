@@ -11,6 +11,8 @@ let leftNavData = []; // add this line to keep all streams data together before 
 const selectedStreams = new Set();
 const checkboxStates = {};
 const maxStreamsPerRow = 2;
+const chatIframes = {};
+let tabCount = 0;
 
 // Function to handle Twitch login button click
 function login() {
@@ -216,43 +218,99 @@ async function getFollowedLiveStreams(accessToken, userId) {
   }
 }
 
-// Store chat iframes in an object for easy management
-const chatIframes = {};
+const radioButtons = document.querySelectorAll('input[type="radio"]');
+const glider = document.querySelector('.glider');
 
+radioButtons.forEach((radio, index) => {
+  radio.addEventListener('change', (event) => {
+    const selectedTab = event.target.id; // Get the ID of the selected tab
+    // Update styles or perform other actions based on the selectedTab
+    // You can use CSS classes to apply styles.
+    updateGliderPosition(index);
+  });
+});
+
+function updateGliderPosition(index) {
+  const tabWidth = 200; // Width of each tab
+  glider.style.transform = `translateX(${index * tabWidth}px)`;
+}
+
+// Initially, set the glider's position based on the checked radio button
+const checkedRadio = document.querySelector('input[type="radio"]:checked');
+if (checkedRadio) {
+  const selectedIndex = Array.from(radioButtons).indexOf(checkedRadio);
+  updateGliderPosition(selectedIndex);
+}
+
+function createChatEmbed(channelName) {
+  // Create and configure the chat iframe
+  const chatIframe = document.createElement('iframe');
+  chatIframe.id = `chat-iframe-${channelName}`;
+  chatIframe.src = `https://www.twitch.tv/embed/${channelName}/chat?darkpopout&parent=tykrt.com`;
+  chatIframe.frameborder = '0';
+  chatIframe.scrolling = 'no';
+  chatIframe.allowfullscreen = 'true';
+
+  return chatIframe;
+}
+
+// Function to handle checkbox change
 function handleCheckboxChange(event) {
   const selectedStreamer = event.target.dataset.streamer;
 
   if (event.target.checked) {
     selectedStreams.add(selectedStreamer);
     checkboxStates[selectedStreamer] = true; // Checkbox is checked
-    createOrUpdateChatEmbed(selectedStreamer);
+    createOrUpdateChatTab(selectedStreamer);
   } else {
     selectedStreams.delete(selectedStreamer);
     checkboxStates[selectedStreamer] = false; // Checkbox is not checked
-    removeChatEmbed(selectedStreamer);
+    removeChatTab(selectedStreamer);
   }
 
   updateStreamLayout();
 }
 
-function createOrUpdateChatEmbed(channelName) {
+// Function to create or update a chat tab
+function createOrUpdateChatTab(channelName) {
+  // Check if the chat tab already exists
   if (!chatIframes[channelName]) {
-    // Create and embed the chat iframe if it doesn't exist
-    const chatIframe = createChatEmbed(channelName);
-    chatIframes[channelName] = chatIframe;
-  } else {
-    // If it exists, make it visible or adjust its properties as needed
-    chatIframes[channelName].style.display = 'block'; // Adjust as needed
+    // Create a new tab and chat iframe if it doesn't exist
+    createChatTab(channelName);
   }
+
+  // Show the chat tab and hide others
+  showChatTab(channelName);
 }
 
-function removeChatEmbed(channelName) {
-  if (chatIframes[channelName]) {
-    // If the chat iframe exists, hide or remove it
-    chatIframes[channelName].style.display = 'none'; // Hide it for now, adjust as needed
-    // You can also completely remove it if desired
-    // chatIframes[channelName].remove();
+// Function to remove a chat tab
+function removeChatTab(channelName) {
+// Get the radio button, label, glider span and chat tab content
+const radioInput = document.getElementById(`radio-${channelName}`);
+const label = document.getElementById(`label-${channelName}`);
+const gliderSpan = document.getElementById(`glider-${channelName}`);
+const tabContent = chatIframes[channelName];
+
+// Remove them from the DOM
+if (radioInput && label && tabContent) {
+  radioInput.parentNode.removeChild(radioInput);
+  label.parentNode.removeChild(label);
+  tabContent.parentNode.removeChild(tabContent);
+
+  // Remove the chat iframe from the chatIframes object
+  delete chatIframes[channelName];
+
+    // Decrement the tab count when a tab is removed
+    tabCount--;
+
+    // You can now access the updated tab count using the `tabCount` variable
+    console.log(`Number of tabs: ${tabCount}`);
   }
+
+  if (gliderSpan) {
+    gliderSpan.parentNode.removeChild(gliderSpan);
+  } 
+
 }
 
 
@@ -297,26 +355,82 @@ function createStreamPlayer(container, username, width, height) {
   });
   container.appendChild(playerDiv);
 
-createChatEmbed(username);
+  createOrUpdateChatTab(username); // Use the updated function to create or update the chat tab
 
   new Twitch.Player(`twitch-player-${username}`, options);
 }
 
-function createChatEmbed(channelName) {
-  // Define the chat embed URL with the channel name and parent domain(s)
-  const chatEmbedUrl = `https://www.twitch.tv/embed/${channelName}/chat?parent=tykrt.com`;
+// Function to create a chat tab
+function createChatTab(channelName) {
+  const tabMenu = document.getElementById('tabMenu');
+  const twitchChats = document.getElementById('twitchChats');
+  const tabCount = tabMenu.children.length;
 
-  // Create the iframe element for embedding the chat
-  const chatIframe = document.createElement('iframe');
-  chatIframe.id = `twitch-chat-embed-${channelName}`;
-  chatIframe.src = chatEmbedUrl;
-  chatIframe.height = '500'; // Adjust the height as needed
-  chatIframe.width = '350'; // Adjust the width as needed
+  // Create an input radio button
+  const radioInput = document.createElement('input');
+  radioInput.type = 'radio';
+  radioInput.id = `radio-${channelName}`;
+  radioInput.name = 'tabs';
+  if (tabCount === 0) {
+    radioInput.checked = true;
+  }
 
-  // Append the chat iframe to the specified container (e.g., streamPlayerContainer)
-  streamPlayerContainer.appendChild(chatIframe);
+  // Create a label for the radio button
+  const label = document.createElement('label');
+  label.className = 'tab';
+  label.id = `label-${channelName}`;
+  label.htmlFor = `radio-${channelName}`;
+  label.textContent = channelName;
 
-  return chatIframe;
+  // Create a span for notification (you can add your notification logic here)
+  const gliderSpan = createElementWithClass('span', 'glider');
+  gliderSpan.id = `glider-${channelName}`;
+
+  // Append the radio button and label to the tab menu
+  tabMenu.appendChild(radioInput);
+  tabMenu.appendChild(label);
+
+  // Create the chat content container
+  const tabContent = createElementWithClass('div', 'tab-content');
+  tabContent.id = `content-${channelName}`;
+
+  // Create the chat iframe
+  const chatIframe = createChatEmbed(channelName);
+  chatIframe.width = '300'; // Set the width
+  chatIframe.height = '730'; // Set the height
+  tabContent.appendChild(chatIframe);
+
+  // Append the chat content to the twitchChats container
+  twitchChats.appendChild(tabContent);
+
+  // Store the chat iframe in the chatIframes object
+  chatIframes[channelName] = tabContent;
+
+  // Attach an event listener to the radio button to show the chat tab
+  radioInput.addEventListener('change', () => showChatTab(channelName));
+
+  // Initially show the chat tab
+  showChatTab(channelName);
+
+  // You can now access the updated tab count using the `tabCount` variable
+  console.log(`Number of tabs: ${tabCount + 1}`);
+}
+
+// Function to show a chat tab and hide others
+function showChatTab(channelName) {
+  for (const tabName in chatIframes) {
+    if (chatIframes.hasOwnProperty(tabName)) {
+      const tabContent = chatIframes[tabName];
+      const radioInput = document.getElementById(`radio-${channelName}`);
+
+      if (tabName === channelName) {
+        tabContent.style.display = 'block';
+        radioInput.checked = true; // Check the corresponding radio button
+      } else {
+        tabContent.style.display = 'none';
+      }
+    }
+  }
 }
 
 
@@ -562,6 +676,18 @@ function restoreCheckboxStates() {
     checkbox.checked = checkboxStates[streamer] || false;
   });
 }
+
+// Add event listeners to menu items to toggle active class
+const menuItems = document.querySelectorAll('.menu__item');
+menuItems.forEach((menuItem) => {
+  menuItem.addEventListener('click', () => {
+    // Remove active class from all menu items
+    menuItems.forEach((item) => item.classList.remove('active'));
+
+    // Add active class to the clicked menu item
+    menuItem.classList.add('active');
+  });
+});
 
 window.onload = function () {
   // First, Initialize your app by calling init
