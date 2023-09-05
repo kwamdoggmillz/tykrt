@@ -149,6 +149,7 @@ body {
     /* Use relative positioning */
     width: 30px;
     height: 30px;
+    background-color: transparent;
 }
 
 /* Add these styles to the input[type="checkbox"] and label inside .profilePicContainer */
@@ -165,7 +166,7 @@ body {
 }
 
 .profilePicContainer label {
-    background-color: #fff;
+    background-color: transparent;
     border: 1px solid #ccc;
     border-radius: 50%;
     cursor: pointer;
@@ -277,8 +278,8 @@ body {
     box-shadow: 0 0 1px 0 rgba(24, 94, 224, 0.15), 0 6px 12px 0 rgba(24, 94, 224, 0.15);
     padding: 2%; /* Use percentage-based padding */
     border-radius: 99px; /* just a high number to create pill effect */
-    width: 100%; /* Take up the full width of the parent */
-    max-width: 100%; /* Limit to the parent's width */
+    width: 95%; /* Take up the full width of the parent */
+    max-width: 95%; /* Limit to the parent's width */
 }
 
 /* Target the radio buttons within the dynamically added tabs */
@@ -292,12 +293,13 @@ body {
     align-items: center;
     justify-content: center;
     height: 10%; /* Set the height as a percentage */
-    width: 90%; /* Use percentage-based width */
+    width: 85%; /* Use percentage-based width */
     font-size: 2%; /* Set the font size as a percentage */
     font-weight: 500;
     border-radius: 99px; /* just a high number to create pill effect */
     cursor: pointer;
     transition: color 0.15s ease-in;
+    font-size: 90%;
 }
 
 /* Target the notification spans within the dynamically added tabs */
@@ -333,4 +335,22 @@ body {
     #tabMenu {
         transform: scale(0.6);
     }
+}
+
+.glider {
+    position: absolute;
+    display: flex;
+    height: 60%;
+    width: 15%; 
+    background-color: #E7EEF8;
+    z-index: 0;
+    border-radius: 99px; 
+    transition: 0.25s ease-out;
+}
+
+#tabMenu label {
+    position: relative; /* Position for the labels */
+    cursor: pointer;
+    padding-bottom: 8px;
+    z-index: 1;
 }

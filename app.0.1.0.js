@@ -27,6 +27,20 @@ function logout() {
   document.getElementById('leftNav').innerHTML = '';
 }
 
+function createElementWithClass(elementType, className, attributes = {}) {
+  const element = document.createElement(elementType);
+  element.className = className;
+
+  // Set attributes if provided
+  for (const key in attributes) {
+    if (attributes.hasOwnProperty(key)) {
+      element.setAttribute(key, attributes[key]);
+    }
+  }
+
+  return element;
+}
+
 async function fetchData(url) {
   try {
     const headers = {
@@ -74,25 +88,6 @@ async function fetchUserAndGameDataPromises(liveStreams) {
   await Promise.all(fetchUserAndGameDataPromises);
 
   return { usersMap, gamesMap };
-}
-
-function createElementWithClass(elementType, className, attributes = {}) {
-  const element = document.createElement(elementType);
-  element.className = className;
-
-  // Set attributes if provided
-  for (const key in attributes) {
-    if (attributes.hasOwnProperty(key)) {
-      element.setAttribute(key, attributes[key]);
-    }
-  }
-
-  return element;
-}
-
-// Function to attach event listeners to checkboxes and stream-item divs
-function attachEventListeners(streamItem, checkbox) {
-
 }
 
 // Function to fetch the list of followed live streams using Twitch API
@@ -171,8 +166,6 @@ async function getFollowedLiveStreams(accessToken, userId) {
         }
       });
 
-      //attachEventListeners(checkbox, streamItem);
-
       const streamerName = createElementWithClass('div', 'stream-link')
       streamerName.textContent = user.display_name;
 
@@ -218,127 +211,70 @@ async function getFollowedLiveStreams(accessToken, userId) {
   }
 }
 
-const radioButtons = document.querySelectorAll('input[type="radio"]');
-const glider = document.querySelector('.glider');
+// Function to fetch top 20 live broadcasts from YouTube sorted by view count
+function getYouTubeLiveBroadcasts(apiKey) {
 
-radioButtons.forEach((radio, index) => {
-  radio.addEventListener('change', (event) => {
-    const selectedTab = event.target.id; // Get the ID of the selected tab
-    // Update styles or perform other actions based on the selectedTab
-    // You can use CSS classes to apply styles.
-    updateGliderPosition(index);
-  });
-});
+  const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&key=${apiKey}`;
 
-function updateGliderPosition(index) {
-  const tabWidth = 200; // Width of each tab
-  glider.style.transform = `translateX(${index * tabWidth}px)`;
-}
+  fetch(youtubeLiveStreamsUrl)
+  then(response => {
+    if (!response.ok) throw new Error(response.status);
+    return response.json();
+  })
+    .then(data => {
+      const liveStreams = data.items;
+      // const streamsContainer = document.getElementById('leftNav'); // no need of this line
 
-// Initially, set the glider's position based on the checked radio button
-const checkedRadio = document.querySelector('input[type="radio"]:checked');
-if (checkedRadio) {
-  const selectedIndex = Array.from(radioButtons).indexOf(checkedRadio);
-  updateGliderPosition(selectedIndex);
-}
+      liveStreams.forEach((stream) => {
+        fetch(`https://www.googleapis.com/youtube/v3/videos?id=${stream.id.videoId}&part=liveStreamingDetails,snippet,statistics&key=${apiKey}`)
+          .then(response => response.json())
+          .then(videoData => {
+            const video = videoData.items[0];
 
-function createChatEmbed(channelName) {
-  // Create and configure the chat iframe
-  const chatIframe = document.createElement('iframe');
-  chatIframe.id = `chat-iframe-${channelName}`;
-  chatIframe.src = `https://www.twitch.tv/embed/${channelName}/chat?darkpopout&parent=tykrt.com`;
-  chatIframe.frameborder = '0';
-  chatIframe.scrolling = 'no';
-  chatIframe.allowfullscreen = 'true';
+            const streamItem = createElementWithClass('div', 'video-item');
 
-  return chatIframe;
-}
+            const thumbnailUrl = stream.snippet.thumbnails.medium.url;
 
-// Function to handle checkbox change
-function handleCheckboxChange(event) {
-  const selectedStreamer = event.target.dataset.streamer;
+            const thumbnailElement = createElementWithClass('img', 'video-thumbnail', {
+              src: thumbnailUrl
+            });
 
-  if (event.target.checked) {
-    selectedStreams.add(selectedStreamer);
-    checkboxStates[selectedStreamer] = true; // Checkbox is checked
-    createOrUpdateChatTab(selectedStreamer);
-  } else {
-    selectedStreams.delete(selectedStreamer);
-    checkboxStates[selectedStreamer] = false; // Checkbox is not checked
-    removeChatTab(selectedStreamer);
-  }
+            streamItem.appendChild(thumbnailElement);
 
-  updateStreamLayout();
-}
+            const streamerCardLink = createElementWithClass('a', 'video-link', {
+              href: `https://www.youtube.com/watch?v=${stream.id.videoId}`,
+              title: stream.snippet.title
+            });
+            streamerCardLink.textContent = stream.snippet.channelTitle;
 
-// Function to create or update a chat tab
-function createOrUpdateChatTab(channelName) {
-  // Check if the chat tab already exists
-  if (!chatIframes[channelName]) {
-    // Create a new tab and chat iframe if it doesn't exist
-    createChatTab(channelName);
-  }
+            const viewerCount = createElementWithClass('span', 'video-viewers');
 
-  // Show the chat tab and hide others
-  showChatTab(channelName);
-}
+            if (video.liveStreamingDetails && video.liveStreamingDetails.concurrentViewers) {
+              viewerCount.textContent = `${getFormattedNumber(video.liveStreamingDetails.concurrentViewers)}`;
+              streamItem.streamViewCount = video.liveStreamingDetails.concurrentViewers;
+            }
+            else {
+              viewerCount.textContent = ' - Viewer count unavailable';
+              streamItem.streamViewCount = 0;
+            }
 
-// Function to remove a chat tab
-function removeChatTab(channelName) {
-// Get the radio button, label, glider span and chat tab content
-const radioInput = document.getElementById(`radio-${channelName}`);
-const label = document.getElementById(`label-${channelName}`);
-const gliderSpan = document.getElementById(`glider-${channelName}`);
-const tabContent = chatIframes[channelName];
+            streamItem.appendChild(streamerCardLink);
+            streamItem.appendChild(viewerCount);
 
-// Remove them from the DOM
-if (radioInput && label && tabContent) {
-  radioInput.parentNode.removeChild(radioInput);
-  label.parentNode.removeChild(label);
-  tabContent.parentNode.removeChild(tabContent);
-
-  // Remove the chat iframe from the chatIframes object
-  delete chatIframes[channelName];
-
-    // Decrement the tab count when a tab is removed
-    tabCount--;
-
-    // You can now access the updated tab count using the `tabCount` variable
-    console.log(`Number of tabs: ${tabCount}`);
-  }
-
-  if (gliderSpan) {
-    gliderSpan.parentNode.removeChild(gliderSpan);
-  } 
-
-}
-
-
-function updateStreamLayout() {
-  const streamPlayerContainer = document.getElementById('streamPlayerContainer');
-  streamPlayerContainer.innerHTML = ''; // Clear the container
-
-  const selectedStreamersArray = Array.from(selectedStreams);
-  const numSelectedStreams = selectedStreamersArray.length;
-
-  // Calculate the width based on the number of selected streams
-  let width = '100%'; // Default to full width
-  let height = 751.5; // Default to full height
-
-  if (numSelectedStreams > 1) {
-    // If more than 1 stream is selected, use smaller height
-    height = 375.75;
-  }
-
-  for (let i = 0; i < numSelectedStreams; i++) {
-    const username = selectedStreamersArray[i];
-    createStreamPlayer(streamPlayerContainer, username, width, height);
-    // Call the function to create and embed Twitch chat
-
-  }
-
-  // Attach the event listener to checkboxes after the layout is updated
-  attachCheckboxListeners();
+            leftNavData.push({
+              element: streamItem,
+              viewCount: parseInt(streamItem.streamViewCount) // Push stream to array
+            });
+          })
+          .catch(error => {
+            // Catch error and display message to user
+            console.error('Error fetching YouTube live broadcasts:', error);
+          })
+      });
+    })
+    .catch(error => {
+      console.error('Youtube API error:', error);
+    });
 }
 
 function createStreamPlayer(container, username, width, height) {
@@ -359,91 +295,6 @@ function createStreamPlayer(container, username, width, height) {
 
   new Twitch.Player(`twitch-player-${username}`, options);
 }
-
-// Function to create a chat tab
-function createChatTab(channelName) {
-  const tabMenu = document.getElementById('tabMenu');
-  const twitchChats = document.getElementById('twitchChats');
-  const tabCount = tabMenu.children.length;
-
-  // Create an input radio button
-  const radioInput = document.createElement('input');
-  radioInput.type = 'radio';
-  radioInput.id = `radio-${channelName}`;
-  radioInput.name = 'tabs';
-  if (tabCount === 0) {
-    radioInput.checked = true;
-  }
-
-  // Create a label for the radio button
-  const label = document.createElement('label');
-  label.className = 'tab';
-  label.id = `label-${channelName}`;
-  label.htmlFor = `radio-${channelName}`;
-  label.textContent = channelName;
-
-  // Create a span for notification (you can add your notification logic here)
-  const gliderSpan = createElementWithClass('span', 'glider');
-  gliderSpan.id = `glider-${channelName}`;
-
-  // Append the radio button and label to the tab menu
-  tabMenu.appendChild(radioInput);
-  tabMenu.appendChild(label);
-
-  // Create the chat content container
-  const tabContent = createElementWithClass('div', 'tab-content');
-  tabContent.id = `content-${channelName}`;
-
-  // Create the chat iframe
-  const chatIframe = createChatEmbed(channelName);
-  chatIframe.width = '300'; // Set the width
-  chatIframe.height = '730'; // Set the height
-  tabContent.appendChild(chatIframe);
-
-  // Append the chat content to the twitchChats container
-  twitchChats.appendChild(tabContent);
-
-  // Store the chat iframe in the chatIframes object
-  chatIframes[channelName] = tabContent;
-
-  // Attach an event listener to the radio button to show the chat tab
-  radioInput.addEventListener('change', () => showChatTab(channelName));
-
-  // Initially show the chat tab
-  showChatTab(channelName);
-
-  // You can now access the updated tab count using the `tabCount` variable
-  console.log(`Number of tabs: ${tabCount + 1}`);
-}
-
-// Function to show a chat tab and hide others
-function showChatTab(channelName) {
-  for (const tabName in chatIframes) {
-    if (chatIframes.hasOwnProperty(tabName)) {
-      const tabContent = chatIframes[tabName];
-      const radioInput = document.getElementById(`radio-${channelName}`);
-
-      if (tabName === channelName) {
-        tabContent.style.display = 'block';
-        radioInput.checked = true; // Check the corresponding radio button
-      } else {
-        tabContent.style.display = 'none';
-      }
-    }
-  }
-}
-
-
-// After loading the page, attach the event listener to checkboxes
-function attachCheckboxListeners() {
-  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', handleCheckboxChange);
-  });
-}
-
-// Call the attachCheckboxListeners() function after your page has loaded
-document.addEventListener('DOMContentLoaded', attachCheckboxListeners);
 
 function getStreamPlayer(streamItem) {
 
@@ -490,92 +341,256 @@ function getStreamPlayer(streamItem) {
   });
 }
 
-// Function to test the access token by retrieving user information
-async function testAccessToken(accessToken) {
-  try {
-    const response = await fetch("https://api.twitch.tv/helix/users", {
-      headers: {
-        Authorization: "Bearer " + accessToken,
-        "Client-ID": clientId, // Replace with your Twitch API client ID
-      },
-    });
-    const data = await response.json();
-    if (data.data.length > 0) {
-      const user = data.data[0];
-      return user.id; // Return the user id
-    } else {
-      console.log("No user data received");
-      return null; // Add return null for clearness
-    }
-  } catch (error) {
-    console.log("Error:", error);
+// Function to create or update a chat tab
+function createOrUpdateChatTab(channelName) {
+  // Check if the chat tab already exists
+  if (!chatIframes[channelName]) {
+    // Create a new tab and chat iframe if it doesn't exist
+    createChatTab(channelName);
+  }
+
+  // Show the chat tab and hide others
+  showChatTab(channelName);
+}
+
+// Function to create a chat tab
+function createChatTab(channelName) {
+  const tabMenu = document.getElementById('tabMenu');
+  const twitchChats = document.getElementById('twitchChats');
+  const tabCount = tabMenu.children.length;
+
+  // Create an input radio button
+  const radioInput = createElementWithClass('input', 'tab-radio', {
+    type: 'radio',
+    name: 'tabs',
+    id: `radio-${channelName}`, // Set the id to `radio-${channelName}`
+    'data-translate': tabCount   // Set the data-translate attribute to tabCount
+  });
+  if (tabCount == 1) {
+    radioInput.checked = true;
+  }
+
+  // Create a label for the radio button
+  const label = createElementWithClass('label', 'tab', {
+    id: `label-${channelName}`,
+    for: `radio-${channelName}`
+  });
+  label.textContent = channelName;
+
+  // Append the radio button and label to the tab menu
+  tabMenu.appendChild(radioInput);
+  tabMenu.appendChild(label);
+
+  // Create the chat content container
+  const tabContent = createElementWithClass('div', 'tab-content');
+  tabContent.id = `content-${channelName}`;
+
+  // Create the chat iframe
+  const chatIframe = createChatEmbed(channelName);
+  chatIframe.width = '300'; // Set the width
+  chatIframe.height = '730'; // Set the height
+  tabContent.appendChild(chatIframe);
+
+  // Append the chat content to the twitchChats container
+  twitchChats.appendChild(tabContent);
+
+  // Store the chat iframe in the chatIframes object
+  chatIframes[channelName] = tabContent;
+
+  // Attach an event listener to the radio button to show the chat tab
+  radioInput.addEventListener('change', () => showChatTab(channelName));
+
+  // Initially show the chat tab
+  showChatTab(channelName);
+
+  radioInput.addEventListener('change', () => {
+    radioButtons = document.querySelectorAll('.tab-radio');
+    const selectedIndex = Array.from(radioButtons).indexOf(radioInput);
+    updateGliderPosition(selectedIndex);
+  });
+
+  // You can now access the updated tab count using the `tabCount` variable
+  console.log(`Number of tabs: ${tabCount + 1}`);
+}
+
+function createChatEmbed(channelName) {
+  // Create and configure the chat iframe
+  const chatIframe = createElementWithClass('iframe', 'chat-iframe', {
+    id: `chat-iframe-${channelName}`,
+    src: `https://www.twitch.tv/embed/${channelName}/chat?darkpopout&parent=tykrt.com`,
+    frameborder: '0',
+    scrolling: 'no',
+    allowfullscreen: 'true'
+  });
+
+  return chatIframe;
+}
+
+// Function to remove a chat tab
+function removeChatTab(channelName) {
+  // Get the radio button, label, glider span and chat tab content
+  const radioInput = document.getElementById(`radio-${channelName}`);
+  const label = document.getElementById(`label-${channelName}`);
+  const tabContent = chatIframes[channelName];
+
+  // Remove them from the DOM
+  if (radioInput && label && tabContent) {
+    radioInput.parentNode.removeChild(radioInput);
+    label.parentNode.removeChild(label);
+    tabContent.parentNode.removeChild(tabContent);
+
+    // Remove the chat iframe from the chatIframes object
+    delete chatIframes[channelName];
+
+    // Decrement the tab count when a tab is removed
+    tabCount--;
+
+    // You can now access the updated tab count using the `tabCount` variable
+    console.log(`Number of tabs: ${tabCount}`);
   }
 }
 
-// Function to fetch top 20 live broadcasts from YouTube sorted by view count
-function getYouTubeLiveBroadcasts(apiKey) {
+// Function to show a chat tab and hide others
+function showChatTab(channelName) {
+  for (const tabName in chatIframes) {
+    if (chatIframes.hasOwnProperty(tabName)) {
+      const tabContent = chatIframes[tabName];
+      const radioInput = document.getElementById(`radio-${channelName}`);
 
-  const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&key=${apiKey}`;
-
-  fetch(youtubeLiveStreamsUrl)
-  then(response => {
-    if (!response.ok) throw new Error(response.status);
-    return response.json();
-  })
-    .then(data => {
-      const liveStreams = data.items;
-      // const streamsContainer = document.getElementById('leftNav'); // no need of this line
-
-      liveStreams.forEach((stream) => {
-        fetch(`https://www.googleapis.com/youtube/v3/videos?id=${stream.id.videoId}&part=liveStreamingDetails,snippet,statistics&key=${apiKey}`)
-          .then(response => response.json())
-          .then(videoData => {
-            const video = videoData.items[0];
-
-            const streamItem = createElementWithClass('div', 'video-item');
-
-            const thumbnailUrl = stream.snippet.thumbnails.medium.url;
-            const thumbnailElement = document.createElement('img');
-            thumbnailElement.src = thumbnailUrl;
-            thumbnailElement.className = 'video-thumbnail';
-
-            streamItem.appendChild(thumbnailElement);
-
-            const streamerCardLink = createElementWithClass('a', 'video-link', {
-              href: `https://www.youtube.com/watch?v=${stream.id.videoId}`,
-              title: stream.snippet.title
-            });
-            streamerCardLink.textContent = stream.snippet.channelTitle;
-
-            const viewerCount = createElementWithClass('span', 'video-viewers');
-
-            if (video.liveStreamingDetails && video.liveStreamingDetails.concurrentViewers) {
-              viewerCount.textContent = `${getFormattedNumber(video.liveStreamingDetails.concurrentViewers)}`;
-              streamItem.streamViewCount = video.liveStreamingDetails.concurrentViewers;
-            }
-            else {
-              viewerCount.textContent = ' - Viewer count unavailable';
-              streamItem.streamViewCount = 0;
-            }
-
-            streamItem.appendChild(streamerCardLink);
-            streamItem.appendChild(viewerCount);
-
-            leftNavData.push({
-              element: streamItem,
-              viewCount: parseInt(streamItem.streamViewCount) // Push stream to array
-            });
-          })
-          .catch(error => {
-            // Catch error and display message to user
-            console.error('Error fetching YouTube live broadcasts:', error);
-          })
-      });
-    })
-    .catch(error => {
-      console.error('Youtube API error:', error);
-    });
+      if (tabName === channelName) {
+        tabContent.style.display = 'block';
+        radioInput.checked = true; // Check the corresponding radio button
+      } else {
+        tabContent.style.display = 'none';
+      }
+    }
+  }
 }
+
+function updateGliderPosition(index) {
+  const tabs = document.querySelectorAll('.tab-radio').length;
+  const tabWidth = document.querySelector('.tabs').offsetWidth / tabs;
+  const glider = document.querySelector('.glider');
+  glider.style.transform = `translateX(${tabWidth * index}px)`;
+
+  let selectedLabel; // Declare the variable outside the if block
+  let count = 0;
+
+  const tabMenu = document.getElementById('tabMenu');
+  let labelPosition = 0
+  let tabMenuPosition = 0
+  let gliderPosition = {
+    left: 0,
+    width: 0
+  }
+
+  const tabMenuChildren = Array.from(document.querySelectorAll('.tab-radio'));
+  tabMenuChildren.forEach((tabRadio, tabIndex) => {
+    count++;
+    // Perform actions on each tab here
+    const tab = document.querySelectorAll('.tab')[count - 1];
+    if (tab && tab.tagName === 'LABEL') {
+      const label = tab;
+      if (tabIndex === index) {
+        // Add the "selected-tab" class to the label of the selected radio button
+        label.style.color = 'blue';
+        selectedLabel = label; // Store the selected label
+        labelPosition = selectedLabel.getBoundingClientRect();
+        tabMenuPosition = tabMenu.getBoundingClientRect();
+
+        gliderPosition = {
+          left: labelPosition.left - tabMenuPosition.left,
+          width: labelPosition.width
+        }
+      } else {
+        label.style.color = 'black';
+      }
+    }
+    glider.style.transform = `translateX(${gliderPosition.left}px)`;
+    glider.style.width = `${gliderPosition.width}px`;
+  });
+}
+
+
+// Initially, set the glider's position based on the checked radio button
+const checkedRadio = document.querySelector('input[type="radio"]:checked');
+if (checkedRadio) {
+  const selectedIndex = Array.from(radioButtons).indexOf(checkedRadio);
+  updateGliderPosition(selectedIndex);
+}
+
+// Function to handle checkbox change
+function handleCheckboxChange(event) {
+  const selectedStreamer = event.target.dataset.streamer;
+  let radioButtons = document.querySelectorAll('.tab-radio');
+
+  if (event.target.checked) {
+    selectedStreams.add(selectedStreamer);
+    checkboxStates[selectedStreamer] = true; // Checkbox is checked
+    createOrUpdateChatTab(selectedStreamer);
+  } else {
+    selectedStreams.delete(selectedStreamer);
+    checkboxStates[selectedStreamer] = false; // Checkbox is not checked
+    removeChatTab(selectedStreamer);
+  }
+
+  // Remove the "selected-tab" class from all labels
+  document.querySelectorAll('.tab').forEach(label => {
+    label.classList.remove('selected-tab');
+  });
+
+  updateStreamLayout();
+
+  // Check radio button of the selected stream
+  const checkedRadio = document.querySelector(`input[id="radio-${selectedStreamer}"]`);
+  checkedRadio.checked = true;
+
+  // Add the "selected-tab" class to the label of the selected radio button
+  const label = document.querySelector(`label[for="radio-${selectedStreamer}"]`);
+  label.classList.add('selected-tab');
+
+  // Get the selectedIndex of the clicked button
+  const selectedIndex = Array.from(radioButtons).findIndex(radio => radio.id === `radio-${selectedStreamer}`);
+  // Update the glider position
+  updateGliderPosition(selectedIndex);
+}
+
+function updateStreamLayout() {
+  const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+  streamPlayerContainer.innerHTML = ''; // Clear the container
+
+  const selectedStreamersArray = Array.from(selectedStreams);
+  const numSelectedStreams = selectedStreamersArray.length;
+
+  // Calculate the width based on the number of selected streams
+  let width = '100%'; // Default to full width
+  let height = 751.5; // Default to full height
+
+  if (numSelectedStreams > 1) {
+    // If more than 1 stream is selected, use smaller height
+    height = 375.75;
+  }
+
+  for (let i = 0; i < numSelectedStreams; i++) {
+    const username = selectedStreamersArray[i];
+    createStreamPlayer(streamPlayerContainer, username, width, height);
+    // Call the function to create and embed Twitch chat
+  }
+
+  // Attach the event listener to checkboxes after the layout is updated
+  attachCheckboxListeners();
+}
+
+// After loading the page, attach the event listener to checkboxes
+function attachCheckboxListeners() {
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', handleCheckboxChange);
+  });
+}
+
+// Call the attachCheckboxListeners() function after your page has loaded
+document.addEventListener('DOMContentLoaded', attachCheckboxListeners);
 
 function sortStreamsByViewers() {
   // Sort the leftNavData in place
@@ -650,6 +665,28 @@ async function init() {
 
   } catch (error) {
     console.error('Error during initialization:', error);
+  }
+}
+
+// Function to test the access token by retrieving user information
+async function testAccessToken(accessToken) {
+  try {
+    const response = await fetch("https://api.twitch.tv/helix/users", {
+      headers: {
+        Authorization: "Bearer " + accessToken,
+        "Client-ID": clientId, // Replace with your Twitch API client ID
+      },
+    });
+    const data = await response.json();
+    if (data.data.length > 0) {
+      const user = data.data[0];
+      return user.id; // Return the user id
+    } else {
+      console.log("No user data received");
+      return null; // Add return null for clearness
+    }
+  } catch (error) {
+    console.log("Error:", error);
   }
 }
 
