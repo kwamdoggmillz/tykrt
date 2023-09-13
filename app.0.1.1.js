@@ -7,11 +7,12 @@ const scope = 'user:read:follows';
 let accessToken = null;
 let userId = null;
 let initialized = false;
+let isFirstRun = true;
 let leftNavData = []; // add this line to keep all streams data together before they are available
 const selectedStreams = new Set();
 const checkboxStates = {};
-const maxStreamsPerRow = 2;
 const chatIframes = {};
+const maxStreamsSelected = 4; // Set the maximum number of streams that can be selected
 let tabCount = 0;
 
 // Function to handle Twitch login button click
@@ -351,13 +352,27 @@ function createOrUpdateChatTab(channelName) {
 
   // Show the chat tab and hide others
   showChatTab(channelName);
+
+  // Find the radio button with id="channelname"
+  const radioInput = document.querySelector(`input#radio-${channelName}`);
+
+  if (radioInput && chatIframes[channelName]) {
+    // Get all the radio buttons
+    const radioButtons = document.querySelectorAll('.tab-radio');
+
+    // Find the index of the radio button with id="channelname" among the radio buttons
+    const selectedIndex = Array.from(radioButtons).indexOf(radioInput);
+
+    updateGliderPosition(selectedIndex);
+
+  }
 }
 
 // Function to create a chat tab
 function createChatTab(channelName) {
   const tabMenu = document.getElementById('tabMenu');
   const twitchChats = document.getElementById('twitchChats');
-  const tabCount = tabMenu.children.length;
+  tabCount = tabMenu.children.length;
 
   // Create an input radio button
   const radioInput = createElementWithClass('input', 'tab-radio', {
@@ -369,6 +384,8 @@ function createChatTab(channelName) {
   if (tabCount == 1) {
     radioInput.checked = true;
   }
+
+  document.getElementById('sidebarContent').style.display = 'block';
 
   // Create a label for the radio button
   const label = createElementWithClass('label', 'tab', {
@@ -387,8 +404,25 @@ function createChatTab(channelName) {
 
   // Create the chat iframe
   const chatIframe = createChatEmbed(channelName);
-  chatIframe.width = '300'; // Set the width
-  chatIframe.height = '730'; // Set the height
+  chatIframe.width = '100%'; // Set the width
+
+  // Get the height of the leftNavContainer div
+  const sidebar = document.getElementById('sidebar');
+  const sidebarHeight = sidebar.offsetHeight;
+
+  // Get the height of the leftNavContainer div
+  const sidebarContent = document.getElementById('sidebarContent');
+  const sidebarContentHeight = sidebarContent.offsetHeight;
+
+  const tabContainer = document.querySelector('.tabContainer');
+  const tabContainerHeight = tabContainer.offsetHeight;
+
+  const topNav = document.querySelector('.topNav');
+  const topNavHeight = topNav.offsetHeight;
+
+  // Set the chatIframe height to match the leftNavContainer height
+  chatIframe.height = (sidebarHeight - tabContainerHeight - topNavHeight - sidebarContentHeight) + 'px';
+
   tabContent.appendChild(chatIframe);
 
   // Append the chat content to the twitchChats container
@@ -445,6 +479,20 @@ function removeChatTab(channelName) {
     // Decrement the tab count when a tab is removed
     tabCount--;
 
+    const tabMenu = document.getElementById('tabMenu');
+    let count = 0;
+
+    for (let i = 0; i < tabMenu.children.length; i++) {
+      const child = tabMenu.children[i];
+      if (child.tagName === 'LABEL') {
+        count++;
+      }
+    }
+
+    if (count === 0) {
+      document.getElementById('sidebarContent').style.display = 'none';
+    }
+
     // You can now access the updated tab count using the `tabCount` variable
     console.log(`Number of tabs: ${tabCount}`);
   }
@@ -476,9 +524,8 @@ function updateGliderPosition(index) {
   let selectedLabel; // Declare the variable outside the if block
   let count = 0;
 
-  const tabMenu = document.getElementById('tabMenu');
+  const tabMenu = document.querySelector('.tabContainer');
   let labelPosition = 0
-  let tabMenuPosition = 0
   let gliderPosition = {
     left: 0,
     width: 0
@@ -491,23 +538,42 @@ function updateGliderPosition(index) {
     const tab = document.querySelectorAll('.tab')[count - 1];
     if (tab && tab.tagName === 'LABEL') {
       const label = tab;
+      let fontSize = 90 // Initial font size percentage
+      let minFontSize = 50 // Minimum font size percentage
+
+      // Check if the tab's content overflows
+      while ((tab.scrollWidth > tab.clientWidth) && (fontSize > minFontSize)) {
+        fontSize -= 5; // Reduce the font size by 5%
+        tab.style.fontSize = `${fontSize}%`;
+      }
+
+      // Check if the tab's content overflows
+      if (tab.scrollWidth < tab.clientWidth) {
+        tab.style.fontSize = "90%"; // Set the original font size
+      }
+
       if (tabIndex === index) {
         // Add the "selected-tab" class to the label of the selected radio button
-        label.style.color = 'blue';
+        label.style.color = '#A0ADCD';
         selectedLabel = label; // Store the selected label
         labelPosition = selectedLabel.getBoundingClientRect();
-        tabMenuPosition = tabMenu.getBoundingClientRect();
 
         gliderPosition = {
-          left: labelPosition.left - tabMenuPosition.left,
+          left: labelPosition.width * index,
           width: labelPosition.width
         }
       } else {
-        label.style.color = 'black';
+        label.style.color = 'white';
       }
     }
     glider.style.transform = `translateX(${gliderPosition.left}px)`;
-    glider.style.width = `${gliderPosition.width}px`;
+
+    if (tabs === 1) {
+      glider.style.width = 0;
+    } else {
+      glider.style.width = `${gliderPosition.width}px`;
+    }
+
   });
 }
 
@@ -521,7 +587,9 @@ if (checkedRadio) {
 
 // Function to handle checkbox change
 function handleCheckboxChange(event) {
+
   const selectedStreamer = event.target.dataset.streamer;
+
   let radioButtons = document.querySelectorAll('.tab-radio');
 
   if (event.target.checked) {
@@ -575,6 +643,23 @@ function updateStreamLayout() {
     const username = selectedStreamersArray[i];
     createStreamPlayer(streamPlayerContainer, username, width, height);
     // Call the function to create and embed Twitch chat
+  }
+
+  const streamPlayers = document.getElementsByClassName("stream-player");
+
+  for (let i = 0; i < streamPlayers.length; i++) {
+
+    const streamPlayer = streamPlayers[i];
+
+    if (numSelectedStreams > 1) {
+
+      streamPlayer.style.height = '375.75px';
+
+    } else {
+
+      streamPlayer.style.height = '751.5px';
+
+    }
   }
 
   // Attach the event listener to checkboxes after the layout is updated
@@ -646,6 +731,13 @@ function getFormattedNumber(number) {
 // Function to initialize the application
 async function init() {
   try {
+
+    if (tabCount === 0) {
+      document.getElementById('sidebarContent').style.display = 'none';
+    } else {
+      document.getElementById('sidebarContent').style.display = 'block';
+    }
+
     accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
       // Redirect the user to login if accessToken is not available
@@ -706,6 +798,75 @@ async function updateLeftNav() {
   }
 }
 
+function updateMainContent(isSidebarOpen) {
+
+  try {
+    const topNav = document.querySelector('.topNav');
+    const leftNav = document.getElementById('leftNavContainer');
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('streamPlayerContainer');
+
+    if (topNav) {
+
+      const topNavEndPosition = topNav.getBoundingClientRect().bottom;
+
+      if (content) {
+        content.style.marginTop = `${topNav.clientHeight}px`;
+        content.style.marginLeft = `${leftNav.clientWidth}px`;
+        if (isSidebarOpen === 0) {
+          content.style.marginRight = 0;
+        } else {
+          content.style.marginRight = `${sidebarContent.clientWidth}px`;
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+
+  function updateMargins() {
+
+    try {
+      const topNav = document.querySelector('.topNav');
+      const leftNav = document.getElementById('leftNavContainer');
+      const sidebar = document.getElementById('sidebar');
+      const content = document.getElementById('streamPlayerContainer');
+
+      if (topNav) {
+
+        const topNavEndPosition = topNav.getBoundingClientRect().bottom;
+
+        if (leftNav) {
+          leftNav.style.top = `${topNavEndPosition}px`;
+        }
+        if (sidebar) {
+          sidebar.style.top = `${topNavEndPosition}px`;
+        }
+        if (content) {
+          content.style.marginTop = `${topNav.clientHeight}px`;
+          content.style.marginLeft = `${leftNav.clientWidth}px`;
+          if (!isFirstRun) {
+            content.style.marginRight = `${sidebarContent.clientWidth}px`;
+          }
+        }
+      }
+
+      isFirstRun = false;
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+
+  }
+
+  window.addEventListener('resize', updateMargins);
+  window.addEventListener('load', updateMargins);
+});
+
 function restoreCheckboxStates() {
   const checkboxes = document.querySelectorAll('input[type="checkbox"]');
   checkboxes.forEach(checkbox => {
@@ -743,3 +904,45 @@ window.onload = function () {
 
 // Call the init function on page load
 window.addEventListener('load', init);
+
+jQuery(function ($) {
+
+  $(".sidebar-dropdown > a").click(function () {
+    $(".sidebar-submenu").slideUp(200);
+    if (
+      $(this)
+        .parent()
+        .hasClass("active")
+    ) {
+      $(".sidebar-dropdown").removeClass("active");
+      $(this)
+        .parent()
+        .removeClass("active");
+    } else {
+      $(".sidebar-dropdown").removeClass("active");
+      $(this)
+        .next(".sidebar-submenu")
+        .slideDown(200);
+      $(this)
+        .parent()
+        .addClass("active");
+    }
+  });
+
+  $("#close-sidebar").click(function () {
+    $(".page-wrapper").removeClass("toggled");
+
+    updateMainContent(0);
+
+  });
+  $("#show-sidebar").click(function () {
+    $(".page-wrapper").addClass("toggled");
+
+    updateMainContent(1);
+
+  });
+
+
+
+
+});
