@@ -36,6 +36,10 @@
     z-index: 99;
 }
 
+#leftNavContainer.expanded {
+  width: 14%;
+}
+
 #streamContainer {
     display: flex;
 }
@@ -312,7 +316,7 @@ body {
     /* just a high number to create pill effect */
     cursor: pointer;
     transition: color 0.15s ease-in;
-    font-size: 90%;
+    font-size: 80%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1057,10 +1061,6 @@ button, select {
   text-transform: none;
 }
 
-[type="button"], [type="reset"], [type="submit"] {
-  -webkit-appearance: button;
-}
-
 [type="button"]::-moz-focus-inner, [type="reset"]::-moz-focus-inner, [type="submit"]::-moz-focus-inner {
   padding: 0;
   border-style: none;
@@ -1069,10 +1069,6 @@ button, select {
 input[type="radio"], input[type="checkbox"] {
   box-sizing: border-box;
   padding: 0;
-}
-
-input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"] {
-  -webkit-appearance: listbox;
 }
 
 textarea {
@@ -1105,11 +1101,6 @@ progress {
 
 [type="number"]::-webkit-inner-spin-button, [type="number"]::-webkit-outer-spin-button {
   height: auto;
-}
-
-[type="search"] {
-  outline-offset: -2px;
-  -webkit-appearance: none;
 }
 
 [type="search"]::-webkit-search-cancel-button, [type="search"]::-webkit-search-decoration {
@@ -1285,37 +1276,9 @@ template {
     }
 }
 
-.fa-rotate-90 {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
-    -webkit-transform: rotate(90deg);
-    transform: rotate(90deg)
-}
-
-.fa-rotate-180 {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";
-    -webkit-transform: rotate(180deg);
-    transform: rotate(180deg)
-}
-
-.fa-rotate-270 {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";
-    -webkit-transform: rotate(270deg);
-    transform: rotate(270deg)
-}
-
-.fa-flip-horizontal {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)";
-    -webkit-transform: scaleX(-1);
-    transform: scaleX(-1)
-}
-
 .fa-flip-vertical {
     -webkit-transform: scaleY(-1);
     transform: scaleY(-1)
-}
-
-.fa-flip-horizontal.fa-flip-vertical,.fa-flip-vertical {
-    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)"
 }
 
 .fa-flip-horizontal.fa-flip-vertical {
@@ -1403,4 +1366,132 @@ template {
 .fa-bars:before {
     content: "\f0c9";
     font-size: 30px;
+}
+
+#leftNavContainer {
+  -webkit-transition: all 0.1s ease-in-out;
+  -moz-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+}
+
+#leftNavContainer.collapsed {
+  width: 54px;
+}
+
+#leftNavContainer.collapsed .glyphicon {
+  font-size: 22px;
+}
+
+/*#leftNavContainer.collapsed {
+  display: none;
+}*/
+
+.btn-expand-collapse {
+    display: flex;
+    left: 0px;
+    bottom:0;
+    height: 2%;
+    width: 100%;
+    padding: 8px 0;
+    border-bottom:solid 1px #666;
+    font-size: 20px;
+    text-align: center;
+    background-color: #1F2833;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+}
+
+.btn-expand-collapse:hover,
+.btn-expand-collapse:focus {
+    background-color: #2c3542;
+    color: white;
+
+}
+
+.btn-expand-collapse:active {
+    background-color: #1F2833;
+}
+
+#leftNavContainer-menu,
+#leftNavContainer-menu li {
+  margin:0; padding:0;
+  list-style: none;
+}
+
+#leftNavContainer-menu li a {
+  display: block;
+  padding: 10px 18px;
+  text-align: left;
+  border-bottom:solid 1px #444;
+  color: #ccc;
+}
+
+#leftNavContainer-menu li a:hover {
+  background-color: #2c3542;
+  text-decoration: none;
+  color: white;
+}
+
+#leftNavContainer-menu li a .glyphicon {
+  margin-right: 6px;
+}
+
+#leftNavContainer-menu li a:hover .glyphicon {
+  color: orchid;
+}
+
+.collapsed + #streamPlayerContainer {
+  margin-left: 60px;
+}
+
+:root {
+  --animation-bounce: bounce;
+  --animation-bounce-right: bounceRight;
+}
+
+@import "compass/css3";
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: rotate(90deg) translateY(0);
+  }
+  40% {
+    transform: rotate(90deg) translateY(-30px);
+  }
+  60% {
+    transform: rotate(90deg) translateY(-15px);
+  }
+}
+
+@keyframes bounceRight {
+  0%, 20%, 50%, 80%, 100% {
+    transform: rotate(-90deg) translateY(0);
+  }
+  40% {
+    transform: rotate(-90deg) translateY(-30px);
+  }
+  60% {
+    transform: rotate(-90deg) translateY(-15px);
+  }
+}
+
+.btn-expand-collapse:hover .arrow {
+  animation: bounce 2s infinite;
+}
+
+.btn-expand-collapse:hover .arrow {
+  animation: bounceRight 2s infinite;
+}
+
+body {
+  background: black;
+}
+
+.arrow {
+  width: 20px;
+  height: 20px;
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNi4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEycHgiIGhlaWdodD0iNTEycHgiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCA1MTIgNTEyIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwYXRoIGZpbGw9IiNGRkZGRkYiIGQ9Ik0yOTMuNzUxLDQ1NS44NjhjLTIwLjE4MSwyMC4xNzktNTMuMTY1LDE5LjkxMy03My42NzMtMC41OTVsMCwwYy0yMC41MDgtMjAuNTA4LTIwLjc3My01My40OTMtMC41OTQtNzMuNjcyICBsMTg5Ljk5OS0xOTBjMjAuMTc4LTIwLjE3OCw1My4xNjQtMTkuOTEzLDczLjY3MiwwLjU5NWwwLDBjMjAuNTA4LDIwLjUwOSwyMC43NzIsNTMuNDkyLDAuNTk1LDczLjY3MUwyOTMuNzUxLDQ1NS44Njh6Ii8+DQo8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjIwLjI0OSw0NTUuODY4YzIwLjE4LDIwLjE3OSw1My4xNjQsMTkuOTEzLDczLjY3Mi0wLjU5NWwwLDBjMjAuNTA5LTIwLjUwOCwyMC43NzQtNTMuNDkzLDAuNTk2LTczLjY3MiAgbC0xOTAtMTkwYy0yMC4xNzgtMjAuMTc4LTUzLjE2NC0xOS45MTMtNzMuNjcxLDAuNTk1bDAsMGMtMjAuNTA4LDIwLjUwOS0yMC43NzIsNTMuNDkyLTAuNTk1LDczLjY3MUwyMjAuMjQ5LDQ1NS44Njh6Ii8+DQo8L3N2Zz4=);
+  background-size: contain;
+  transform: rotate(90deg);
 }

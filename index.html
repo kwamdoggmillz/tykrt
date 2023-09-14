@@ -2,74 +2,91 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-    <link rel="icon" href="thumbnail.png" type="image/png">
-    <link rel="shortcut icon" href="thumbnail.png" type="image/png">
-    <div class="topNav">
-        <a href="https://tykrt.com" id="imageLink">
-            <img src="Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
-        </a>
-    </div>
-    <title>Tykrt</title>
-    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-    <link rel="stylesheet" href="app.0.1.1.css" id="bootstrap-css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="thumbnail.png" type="image/png">
+  <link rel="shortcut icon" href="thumbnail.png" type="image/png">
+  <div class="topNav">
+    <a href="https://tykrt.com" id="imageLink">
+      <img src="Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
+    </a>
+  </div>
+  <title>Tykrt</title>
+  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+  <link rel="stylesheet" href="app.0.1.1.css" id="bootstrap-css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
-<div class="page-wrapper chiller-theme toggled">
-  <a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
-    <i class="fas fa-bars"></i>
-  </a>
-  <nav id="sidebar" class="sidebar-wrapper">
-    <div id="sidebarContent" class="sidebarContent">
-      <div class="sidebar-brand">
-        <div id="close-sidebar">
-          <i class="fas fa-times"></i>
+  <div class="page-wrapper chiller-theme toggled">
+    <a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
+      <i class="fas fa-bars"></i>
+    </a>
+    <nav id="sidebar" class="sidebar-wrapper">
+      <div id="sidebarContent" class="sidebarContent">
+        <div class="sidebar-brand">
+          <div id="close-sidebar">
+            <i class="fas fa-times"></i>
+          </div>
         </div>
       </div>
-    </div>
-            <div class="tabContainer">
-                <div class="tabs" id="tabMenu">
-                    <span class="glider"></span>
-                </div>
-            </div>
-            <div class="twitchChatContainer">
-                <div class="twitchChats" id="twitchChats"></div>
-            </div>
-</nav>
-<main class="page-content">
-  <div class="container-fluid">
-    <div id="sidebarAndStreamPlayer">
-        <div id="leftNavContainer">
+      <div class="tabContainer">
+        <div class="tabs" id="tabMenu">
+          <span class="glider"></span>
+        </div>
+      </div>
+      <div class="twitchChatContainer">
+        <div class="twitchChats" id="twitchChats"></div>
+      </div>
+    </nav>
+    <main class="page-content">
+      <div class="container-fluid">
+        <div id="sidebarAndStreamPlayer">
+          <div id="leftNavContainer">
+            <!--<div id="expandCollapseLeftNav" class="expandCollapseLeftNav">-->
+            <a href="#" class="btn-expand-collapse"><span class="glyphicon glyphicon-menu-left"></span>
+              <div class="arrow bounce">
+              </div>
+            </a>
+            <!--</div>-->
             <div id="leftNav"></div>
-        </div>
-        <div id="streamPlayerContainer">
+          </div>
+          <div id="streamPlayerContainer">
             <div id="loginContainer">
-                <button id="loginBtn">Login with Twitch</button>
-                <button id="logoutBtn" style="display:none">Logout</button>
+              <button id="loginBtn">Login with Twitch</button>
+              <button id="logoutBtn" style="display:none">Logout</button>
             </div>
+          </div>
+
         </div>
+      </div>
 
-    </div>
+    </main>
+    <!-- page-content" -->
   </div>
-
-</main>
-<!-- page-content" -->
-</div>
-<!-- page-wrapper -->
+  <!-- page-wrapper -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-      crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-      crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
 
-    <script src="app.0.1.1.js"></script>
+  <script src="app.0.1.1.js"></script>
+  <script>// Use event delegation to handle checkbox changes
+    document.addEventListener('change', function (event) {
+      const target = event.target;
+
+      if (target.type === 'checkbox') {
+        handleCheckboxChange(event);
+      }
+    });</script>
+
 </body>
 
 </html>

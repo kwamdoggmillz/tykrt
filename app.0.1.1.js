@@ -120,15 +120,19 @@ async function getFollowedLiveStreams(accessToken, userId) {
       });
 
       const streamItem = createElementWithClass('div', 'streamerCard', {
-        'dataset.userLogin': stream.user_login
+        'dataset.userLogin': stream.user_login,
+        'data-streamer': stream.user_login
       });
 
-      const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails');
+      const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails', {
+        'data-streamer': stream.user_login
+      });
 
       const profilePicContainer = createElementWithClass('div', 'profilePicContainer');
 
       const profilePic = createElementWithClass('img', 'video-thumbnail', {
-        src: user.profile_image_url
+        src: user.profile_image_url,
+        'data-streamer': stream.user_login
       })
 
       const checkboxContainer = createElementWithClass('div', 'round');
@@ -140,7 +144,8 @@ async function getFollowedLiveStreams(accessToken, userId) {
       })
 
       const label = createElementWithClass('label', 'checkbox-label', {
-        'for': `checkbox-${stream.user_login}`
+        'for': `checkbox-${stream.user_login}`,
+        'data-streamer': stream.user_login
       })
 
       profilePicContainer.appendChild(checkboxContainer);
@@ -150,32 +155,34 @@ async function getFollowedLiveStreams(accessToken, userId) {
       checkboxContainer.appendChild(checkbox);
       checkboxContainer.appendChild(label);
 
-      checkbox.addEventListener('change', function () {
-        handleCheckboxChange(event, checkbox);
-      });
-
       streamItem.addEventListener('click', function (event) {
-        if (event.target.tagName !== 'INPUT') {
-          // If the clicked element is not the checkbox itself, toggle the checkbox's checked state
-          checkbox.checked = !checkbox.checked;
+        if (event.target.tagName !== 'LABEL') {
+
+          if (event.target.tagName !== 'INPUT') {
+            // If the clicked element is not the checkbox itself, toggle the checkbox's checked state
+            checkbox.checked = !checkbox.checked;
+          }
 
           // Trigger the change event manually to ensure other logic related to checkbox change is executed
-          const changeEvent = new Event('change');
-          checkbox.dispatchEvent(changeEvent);
-
-          event.stopPropagation(); // Prevent the click from propagating to the parent elements
+          handleCheckboxChange(event, checkbox.checked);
         }
       });
 
-      const streamerName = createElementWithClass('div', 'stream-link')
+      const streamerName = createElementWithClass('div', 'stream-link', {
+        'data-streamer': stream.user_login
+      });
       streamerName.textContent = user.display_name;
 
-      const gameDiv = createElementWithClass('div', 'game-name')
+      const gameDiv = createElementWithClass('div', 'game-name', {
+        'data-streamer': stream.user_login
+      });
       gameDiv.textContent = game.name;
 
       const textView = createElementWithClass('div', 'text');
 
-      const viewerCount = createElementWithClass('span', 'stream-viewers')
+      const viewerCount = createElementWithClass('span', 'stream-viewers', {
+        'data-streamer': stream.user_login
+      });
       viewerCount.textContent = `${getFormattedNumber(stream.viewer_count)}`;
 
       textView.appendChild(streamerName);
@@ -200,7 +207,10 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
       // Add the following line to set the streamViewCount property
       streamItem.streamViewCount = stream.viewer_count;
+
     }
+
+    updateMargins();
 
     try {
       getYouTubeLiveBroadcasts(apiKey);
@@ -299,47 +309,41 @@ function createStreamPlayer(container, username, width, height) {
 
 function getStreamPlayer(streamItem) {
 
-  document.getElementById('leftNav').addEventListener('click', function (event) {
+  if (streamItem) {
+    const userLogin = streamItem.dataset.userLogin;
+    if (userLogin) {
+      const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+      const currentPlayerUserLogin = streamPlayerContainer.dataset.userLogin;
 
-    const target = event.target;
-    const streamItem = target.closest('.streamerCard'); // Find the closest ancestor with class 'streamerCard'
-
-    if (streamItem) {
-      const userLogin = streamItem.dataset.userLogin;
-      if (userLogin) {
-        const streamPlayerContainer = document.getElementById('streamPlayerContainer');
-        const currentPlayerUserLogin = streamPlayerContainer.dataset.userLogin;
-
-        if (currentPlayerUserLogin === userLogin) {
-          // Player for the same streamer is already embedded, do nothing
-          return;
-        }
-
-        // Remove existing player
-        while (streamPlayerContainer.firstChild) {
-          streamPlayerContainer.removeChild(streamPlayerContainer.firstChild);
-        }
-        // Options for the Twitch embed
-        const options = {
-          width: 1336,
-          height: 751.5,
-          channel: userLogin, // Embed for the clicked streamer
-          parent: ["tykrt.com"],
-        };
-
-        // Create and embed the Twitch player
-        const playerDiv = createElementWithClass('div', 'stream-player', {
-          id: `twitch-player-${userLogin}`
-        });
-        streamPlayerContainer.appendChild(playerDiv);
-
-        new Twitch.Player(`twitch-player-${userLogin}`, options);
-
-        // Update the streamPlayerContainer's userLogin attribute
-        streamPlayerContainer.dataset.userLogin = userLogin;
+      if (currentPlayerUserLogin === userLogin) {
+        // Player for the same streamer is already embedded, do nothing
+        return;
       }
+
+      // Remove existing player
+      while (streamPlayerContainer.firstChild) {
+        streamPlayerContainer.removeChild(streamPlayerContainer.firstChild);
+      }
+      // Options for the Twitch embed
+      const options = {
+        width: 1336,
+        height: 751.5,
+        channel: userLogin, // Embed for the clicked streamer
+        parent: ["tykrt.com"],
+      };
+
+      // Create and embed the Twitch player
+      const playerDiv = createElementWithClass('div', 'stream-player', {
+        id: `twitch-player-${userLogin}`
+      });
+      streamPlayerContainer.appendChild(playerDiv);
+
+      new Twitch.Player(`twitch-player-${userLogin}`, options);
+
+      // Update the streamPlayerContainer's userLogin attribute
+      streamPlayerContainer.dataset.userLogin = userLogin;
     }
-  });
+  }
 }
 
 // Function to create or update a chat tab
@@ -549,7 +553,7 @@ function updateGliderPosition(index) {
 
       // Check if the tab's content overflows
       if (tab.scrollWidth < tab.clientWidth) {
-        tab.style.fontSize = "90%"; // Set the original font size
+        tab.style.fontSize = "80%"; // Set the original font size
       }
 
       if (tabIndex === index) {
@@ -586,13 +590,17 @@ if (checkedRadio) {
 }
 
 // Function to handle checkbox change
-function handleCheckboxChange(event) {
+function handleCheckboxChange(event, checked) {
+
+  if (checked === undefined) {
+    return;
+  }
 
   const selectedStreamer = event.target.dataset.streamer;
 
   let radioButtons = document.querySelectorAll('.tab-radio');
 
-  if (event.target.checked) {
+  if (checked) {
     selectedStreams.add(selectedStreamer);
     checkboxStates[selectedStreamer] = true; // Checkbox is checked
     createOrUpdateChatTab(selectedStreamer);
@@ -621,6 +629,8 @@ function handleCheckboxChange(event) {
   const selectedIndex = Array.from(radioButtons).findIndex(radio => radio.id === `radio-${selectedStreamer}`);
   // Update the glider position
   updateGliderPosition(selectedIndex);
+
+  updateMargins()
 }
 
 function updateStreamLayout() {
@@ -628,7 +638,11 @@ function updateStreamLayout() {
   streamPlayerContainer.innerHTML = ''; // Clear the container
 
   const selectedStreamersArray = Array.from(selectedStreams);
-  const numSelectedStreams = selectedStreamersArray.length;
+
+  // Filter out undefined items from the array
+  const filteredStreamersArray = selectedStreamersArray.filter(item => item !== undefined);
+
+  const numSelectedStreams = filteredStreamersArray.length;
 
   // Calculate the width based on the number of selected streams
   let width = '100%'; // Default to full width
@@ -661,21 +675,7 @@ function updateStreamLayout() {
 
     }
   }
-
-  // Attach the event listener to checkboxes after the layout is updated
-  attachCheckboxListeners();
 }
-
-// After loading the page, attach the event listener to checkboxes
-function attachCheckboxListeners() {
-  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', handleCheckboxChange);
-  });
-}
-
-// Call the attachCheckboxListeners() function after your page has loaded
-document.addEventListener('DOMContentLoaded', attachCheckboxListeners);
 
 function sortStreamsByViewers() {
   // Sort the leftNavData in place
@@ -826,42 +826,80 @@ function updateMainContent(isSidebarOpen) {
 
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+function updateMargins() {
 
-  function updateMargins() {
+  try {
+    const topNav = document.querySelector('.topNav');
+    const leftNavContainer = document.getElementById('leftNavContainer');
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('streamPlayerContainer');
 
-    try {
-      const topNav = document.querySelector('.topNav');
-      const leftNav = document.getElementById('leftNavContainer');
-      const sidebar = document.getElementById('sidebar');
-      const content = document.getElementById('streamPlayerContainer');
+    if (topNav) {
 
-      if (topNav) {
+      const topNavEndPosition = topNav.getBoundingClientRect().bottom;
+      const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
 
-        const topNavEndPosition = topNav.getBoundingClientRect().bottom;
+      if (leftNavContainer) {
 
-        if (leftNav) {
-          leftNav.style.top = `${topNavEndPosition}px`;
-        }
-        if (sidebar) {
-          sidebar.style.top = `${topNavEndPosition}px`;
-        }
-        if (content) {
-          content.style.marginTop = `${topNav.clientHeight}px`;
-          content.style.marginLeft = `${leftNav.clientWidth}px`;
-          if (!isFirstRun) {
-            content.style.marginRight = `${sidebarContent.clientWidth}px`;
+        leftNavContainer.style.top = `${topNavEndPosition}px`;
+
+        if (leftNavContainerPercentWidth <= 170) {
+          const spans = document.querySelectorAll('.stream-viewers');
+
+          for (const span of spans) {
+            span.style.visibility = 'hidden';
           }
+
+          leftNavContainer.style.width = '54px';
+
+        } else {
+          const spans = document.querySelectorAll('.stream-viewers');
+          for (const span of spans) {
+            span.style.visibility = 'visible';
+          }
+
+          leftNavContainer.style.width = '14%';
+
         }
       }
-
-      isFirstRun = false;
-
-    } catch (error) {
-      console.error('Error:', error);
+      if (sidebar) {
+        sidebar.style.top = `${topNavEndPosition}px`;
+      }
+      if (content) {
+        content.style.marginTop = `${topNav.clientHeight}px`;
+        content.style.marginLeft = `${leftNavContainer.clientWidth}px`;
+        if (!isFirstRun) {
+          content.style.marginRight = `${sidebarContent.clientWidth}px`;
+        }
+      }
     }
 
+    isFirstRun = false;
+
+  } catch (error) {
+    console.error('Error:', error);
   }
+
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const btnElement = document.querySelector('.btn-expand-collapse');
+  const arrowElement = btnElement.querySelector('.arrow');
+  const leftNavContainer = document.getElementById('leftNavContainer');
+  const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
+
+  btnElement.addEventListener('mouseenter', () => {
+    if (leftNavContainer.classList.contains('collapsed')) {
+      arrowElement.style.animation = 'bounceRight 2s infinite';
+    } else {
+      arrowElement.style.animation = 'bounce 2s infinite';
+    }
+  });
+
+  btnElement.addEventListener('mouseleave', () => {
+    // Reset the animation when the mouse leaves the element if needed
+    arrowElement.style.animation = 'none';
+  });
 
   window.addEventListener('resize', updateMargins);
   window.addEventListener('load', updateMargins);
@@ -907,6 +945,25 @@ window.addEventListener('load', init);
 
 jQuery(function ($) {
 
+  $('.btn-expand-collapse').click(function (e) {
+    console.log('Button clicked');
+
+    const leftNavContainer = document.getElementById('leftNavContainer');
+    const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
+
+    if ($('#leftNavContainer').hasClass('collapsed')) {
+      $('#leftNavContainer').removeClass('collapsed');
+      leftNavContainer.style.width = leftNavContainerPercentWidth + 'px';
+      // Rotate the arrow to face left
+      $('.arrow').css('transform', 'rotate(90deg)');
+    } else {
+      $('#leftNavContainer').toggleClass('collapsed');
+      leftNavContainer.style.width = 54 + 'px';
+      // Rotate the arrow to face right
+      $('.arrow').css('transform', 'rotate(-90deg)');
+    }
+  });
+
   $(".sidebar-dropdown > a").click(function () {
     $(".sidebar-submenu").slideUp(200);
     if (
@@ -941,8 +998,4 @@ jQuery(function ($) {
     updateMainContent(1);
 
   });
-
-
-
-
 });
