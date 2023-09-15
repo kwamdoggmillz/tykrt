@@ -14,6 +14,8 @@ const checkboxStates = {};
 const chatIframes = {};
 const maxStreamsSelected = 4; // Set the maximum number of streams that can be selected
 let tabCount = 0;
+let sidebarOpen = 1;
+let leftNavOpen = 1;
 
 // Function to handle Twitch login button click
 function login() {
@@ -633,46 +635,107 @@ function handleCheckboxChange(event, checked) {
   updateMargins()
 }
 
-function updateStreamLayout() {
+function updateStreamLayout(isLeftNavOpen, isSidebarOpen) {
+
+  if (isSidebarOpen === undefined) {
+    isSidebarOpen = sidebarOpen;
+  }
+
+  if (isLeftNavOpen === undefined) {
+    isLeftNavOpen = leftNavOpen;
+  }
+
   const streamPlayerContainer = document.getElementById('streamPlayerContainer');
   streamPlayerContainer.innerHTML = ''; // Clear the container
 
   const selectedStreamersArray = Array.from(selectedStreams);
+
+  if (selectedStreamersArray.length === 0) {
+    return;
+  }
 
   // Filter out undefined items from the array
   const filteredStreamersArray = selectedStreamersArray.filter(item => item !== undefined);
 
   const numSelectedStreams = filteredStreamersArray.length;
 
-  // Calculate the width based on the number of selected streams
-  let width = '100%'; // Default to full width
-  let height = 751.5; // Default to full height
+  // Calculate the maximum width for a single stream based on the percentage of window.innerWidth
+  const maxSingleStreamWidthPercentage = 0.68; // 68%
+  const maxLeftNavPercentage = 0.14; // 14%
+  const maxSidebarPercentage = 0.18; // 18%
+  const maxLeftNavPx = 250;
+  const maxSidebarPx = 321;
 
-  if (numSelectedStreams > 1) {
-    // If more than 1 stream is selected, use smaller height
-    height = 375.75;
+
+
+  let maxSingleStreamWidth = window.innerWidth * maxSingleStreamWidthPercentage;
+
+  if (isLeftNavOpen === 0 && isSidebarOpen === 0) {
+    maxSingleStreamWidth = window.innerWidth - 54;
+  } else if (isLeftNavOpen === 1 && isSidebarOpen === 0) {
+    maxSingleStreamWidth = window.innerWidth * (1 - maxLeftNavPercentage);
+
+    if (maxLeftNavPercentage * window.innerWidth > maxLeftNavPx) {
+      maxSingleStreamWidth = window.innerWidth - maxLeftNavPx;
+    }
+
+  } else if (isLeftNavOpen === 0 && isSidebarOpen === 1) {
+    maxSingleStreamWidth = (window.innerWidth * (1 - maxSidebarPercentage)) - 54;
+
+    if (maxSidebarPercentage * window.innerWidth > maxSidebarPx) {
+      maxSingleStreamWidth = window.innerWidth - maxSidebarPx - 54;
+    }
+
+  } else {
+
+    if (maxLeftNavPercentage * window.innerWidth > maxLeftNavPx && maxSidebarPercentage * window.innerWidth <= maxSidebarPx) {
+      maxSingleStreamWidth = window.innerWidth - maxLeftNavPx - (window.innerWidth * (1 - maxSidebarPercentage));
+    }
+    if (maxLeftNavPercentage * window.innerWidth <= maxLeftNavPx && maxSidebarPercentage * window.innerWidth > maxSidebarPx) {
+      maxSingleStreamWidth = window.innerWidth - (window.innerWidth * (1 - maxLeftNavPercentage)) - maxSidebarPx;
+    }
+    if (maxLeftNavPercentage * window.innerWidth > maxLeftNavPx && maxSidebarPercentage * window.innerWidth > maxSidebarPx) {
+      maxSingleStreamWidth = window.innerWidth - maxLeftNavPx - maxSidebarPx;
+    }
+    if (maxLeftNavPercentage * window.innerWidth <= maxLeftNavPx && maxSidebarPercentage * window.innerWidth <= maxSidebarPx) {
+      maxSingleStreamWidth = window.innerWidth * (1 - maxLeftNavPercentage - maxSidebarPercentage);
+    }
   }
+
+  if (maxLeftNavPercentage * window.innerWidth > maxLeftNavPx) {
+
+  }
+
+  // Calculate the height based on the aspect ratio
+  const aspectRatioWidth = 1320;
+  const aspectRatioHeight = 742.5;
+  const height = (maxSingleStreamWidth / aspectRatioWidth) * aspectRatioHeight;
 
   for (let i = 0; i < numSelectedStreams; i++) {
     const username = selectedStreamersArray[i];
-    createStreamPlayer(streamPlayerContainer, username, width, height);
-    // Call the function to create and embed Twitch chat
+
+    if (numSelectedStreams === 1) {
+      // Create stream player with maxSingleStreamWidth and calculated height
+      createStreamPlayer(streamPlayerContainer, username, maxSingleStreamWidth + 'px', height + 'px');
+    } else if (i === filteredStreamersArray.length - 1 && numSelectedStreams % 2 === 1) {
+      createStreamPlayer(streamPlayerContainer, username, maxSingleStreamWidth + 'px', height + 'px');
+    } else {
+      createStreamPlayer(streamPlayerContainer, username, (maxSingleStreamWidth / 2) + 'px', (height / 2) + 'px');
+    }
   }
 
   const streamPlayers = document.getElementsByClassName("stream-player");
 
   for (let i = 0; i < streamPlayers.length; i++) {
-
     const streamPlayer = streamPlayers[i];
 
-    if (numSelectedStreams > 1) {
+    if (numSelectedStreams === 1) {
 
-      streamPlayer.style.height = '375.75px';
-
+      streamPlayer.style.height = height + 'px';
+    } else if (i === filteredStreamersArray.length - 1 && numSelectedStreams % 2 === 1) {
+      streamPlayer.style.height = height + 'px';
     } else {
-
-      streamPlayer.style.height = '751.5px';
-
+      streamPlayer.style.height = (height / 2) + 'px';
     }
   }
 }
@@ -802,17 +865,25 @@ function updateMainContent(isSidebarOpen) {
 
   try {
     const topNav = document.querySelector('.topNav');
-    const leftNav = document.getElementById('leftNavContainer');
+    const leftNavContainer = document.getElementById('leftNavContainer');
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('streamPlayerContainer');
 
     if (topNav) {
 
       const topNavEndPosition = topNav.getBoundingClientRect().bottom;
+      const sidebarEndPosition = sidebar.getBoundingClientRect().left;
+      const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
 
       if (content) {
-        content.style.marginTop = `${topNav.clientHeight}px`;
-        content.style.marginLeft = `${leftNav.clientWidth}px`;
+        content.style.marginTop = `${topNavEndPosition}px`;
+
+        if (leftNavContainerPercentWidth <= 170) {
+          content.style.marginLeft = '54px';
+        } else {
+          content.style.marginLeft = `${leftNavContainerPercentWidth}px`;
+        }
+
         if (isSidebarOpen === 0) {
           content.style.marginRight = 0;
         } else {
@@ -826,7 +897,15 @@ function updateMainContent(isSidebarOpen) {
 
 }
 
-function updateMargins() {
+function updateMargins(isLeftNavOpen, isSidebarOpen) {
+
+  if (isLeftNavOpen === undefined) {
+    isLeftNavOpen = leftNavOpen;
+  }
+
+  if (isSidebarOpen === undefined) {
+    isSidebarOpen = sidebarOpen;
+  }
 
   try {
     const topNav = document.querySelector('.topNav');
@@ -837,13 +916,14 @@ function updateMargins() {
     if (topNav) {
 
       const topNavEndPosition = topNav.getBoundingClientRect().bottom;
+      const sidebarEndPosition = sidebar.getBoundingClientRect().left;
       const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
 
       if (leftNavContainer) {
 
         leftNavContainer.style.top = `${topNavEndPosition}px`;
 
-        if (leftNavContainerPercentWidth <= 170) {
+        if (leftNavContainerPercentWidth <= 170 || isLeftNavOpen === 0) {
           const spans = document.querySelectorAll('.stream-viewers');
 
           for (const span of spans) {
@@ -859,17 +939,27 @@ function updateMargins() {
           }
 
           leftNavContainer.style.width = '14%';
-
         }
+
       }
       if (sidebar) {
         sidebar.style.top = `${topNavEndPosition}px`;
       }
       if (content) {
-        content.style.marginTop = `${topNav.clientHeight}px`;
-        content.style.marginLeft = `${leftNavContainer.clientWidth}px`;
+        content.style.marginTop = `${topNavEndPosition}px`;
+
+        if (leftNavContainerPercentWidth <= 170 || isLeftNavOpen === 0) {
+          content.style.marginLeft = '54px';
+        } else {
+          content.style.marginLeft = `${leftNavContainerPercentWidth}px`;
+        }
+
         if (!isFirstRun) {
-          content.style.marginRight = `${sidebarContent.clientWidth}px`;
+          if (isSidebarOpen === 0) {
+            content.style.marginRight = 0;
+          } else {
+            content.style.marginRight = `${sidebar.clientWidth}px`;
+          }
         }
       }
     }
@@ -956,11 +1046,23 @@ jQuery(function ($) {
       leftNavContainer.style.width = leftNavContainerPercentWidth + 'px';
       // Rotate the arrow to face left
       $('.arrow').css('transform', 'rotate(90deg)');
+
+      updateStreamLayout(1);
+
+      updateMargins(1);
+      leftNavOpen = 1;
+
     } else {
       $('#leftNavContainer').toggleClass('collapsed');
       leftNavContainer.style.width = 54 + 'px';
       // Rotate the arrow to face right
       $('.arrow').css('transform', 'rotate(-90deg)');
+
+      updateStreamLayout(0);
+
+      updateMargins(0);
+      leftNavOpen = 0;
+
     }
   });
 
@@ -989,13 +1091,19 @@ jQuery(function ($) {
   $("#close-sidebar").click(function () {
     $(".page-wrapper").removeClass("toggled");
 
-    updateMainContent(0);
+    updateStreamLayout(undefined, 0);
+
+    updateMargins(undefined, 0);
+    sidebarOpen = 0;
 
   });
   $("#show-sidebar").click(function () {
     $(".page-wrapper").addClass("toggled");
 
-    updateMainContent(1);
+    updateStreamLayout(undefined, 1);
+
+    updateMargins(undefined, 1);
+    sidebarOpen = 1;
 
   });
 });
