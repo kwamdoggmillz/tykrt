@@ -12,6 +12,7 @@ let leftNavData = []; // add this line to keep all streams data together before 
 const selectedStreams = new Set();
 const checkboxStates = {};
 const chatIframes = {};
+const tooltipsMap = new Map();
 const maxStreamsSelected = 4; // Set the maximum number of streams that can be selected
 let tabCount = 0;
 let sidebarOpen = 1;
@@ -21,13 +22,6 @@ let leftNavOpen = 1;
 function login() {
   const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
   window.location.href = authUrl;
-}
-
-// Function to handle Twitch logout button click
-function logout() {
-  localStorage.removeItem('accessToken');
-  document.getElementById('loginContainer').style.display = 'block';
-  document.getElementById('leftNav').innerHTML = '';
 }
 
 function createElementWithClass(elementType, className, attributes = {}) {
@@ -121,9 +115,42 @@ async function getFollowedLiveStreams(accessToken, userId) {
         'data-streamer': stream.user_login
       });
 
+      // Create a single tooltip element
+      const tooltip = createElementWithClass('div', 'tooltip');
+
+      const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+
+      streamPlayerContainer.appendChild(tooltip); // Append it to the document body›
+
       const streamItem = createElementWithClass('div', 'streamerCard', {
         'dataset.userLogin': stream.user_login,
-        'data-streamer': stream.user_login
+        'data-streamer': stream.user_login,
+      });
+
+      // Store the tooltip in the tooltipsMap with the streamItem as the key
+      tooltipsMap.set(streamItem, tooltip);
+
+      // Attach event listeners to show/hide tooltips
+      streamItem.addEventListener('mouseover', function (event) {
+        const streamItemRect = streamItem.getBoundingClientRect();
+        const leftNavRect = leftNav.getBoundingClientRect();
+
+        const x = leftNavRect.right + 15; // Adjust the X position as needed
+        const y = streamItemRect.top; // Adjust the Y position as needed
+
+        // Set the tooltip's position
+        tooltip.style.left = `${x}px`;
+        tooltip.style.top = `${y}px`;
+        tooltip.style.height = `${streamItemRect.height - 15}px`;
+
+        // Set the tooltip content
+        tooltip.textContent = stream.title;
+
+        tooltip.style.display = 'block'; // Show the tooltip on mouseover
+      });
+
+      streamItem.addEventListener('mouseout', function () {
+        tooltip.style.display = 'none'; // Hide the tooltip on mouseout
       });
 
       const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails', {
@@ -167,6 +194,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
           // Trigger the change event manually to ensure other logic related to checkbox change is executed
           handleCheckboxChange(event, checkbox.checked);
+          updateLeftNav();
         }
       });
 
@@ -178,7 +206,12 @@ async function getFollowedLiveStreams(accessToken, userId) {
       const gameDiv = createElementWithClass('div', 'game-name', {
         'data-streamer': stream.user_login
       });
-      gameDiv.textContent = game.name;
+
+      try {
+        gameDiv.textContent = game.name;
+      } catch (error) {
+        gameDiv.textContent = 'Just Chatting';
+      }
 
       const textView = createElementWithClass('div', 'text');
 
@@ -216,6 +249,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
     try {
       getYouTubeLiveBroadcasts(apiKey);
+      sortStreamsByViewers();
     } catch (error) {
       console.error('YouTube API error:', error);
     }
@@ -230,10 +264,10 @@ function getYouTubeLiveBroadcasts(apiKey) {
   const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&key=${apiKey}`;
 
   fetch(youtubeLiveStreamsUrl)
-  then(response => {
-    if (!response.ok) throw new Error(response.status);
-    return response.json();
-  })
+    .then(response => {
+      if (!response.ok) throw new Error(response.status);
+      return response.json();
+    })
     .then(data => {
       const liveStreams = data.items;
       // const streamsContainer = document.getElementById('leftNav'); // no need of this line
@@ -248,36 +282,79 @@ function getYouTubeLiveBroadcasts(apiKey) {
 
             const thumbnailUrl = stream.snippet.thumbnails.medium.url;
 
-            const thumbnailElement = createElementWithClass('img', 'video-thumbnail', {
+            const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails', {
+              'data-streamer': stream.snippet.channelTitle
+            });
+
+            const profilePicContainerYT = createElementWithClass('div', 'profilePicContainerYT');
+
+            const profilePic = createElementWithClass('img', 'video-thumbnail', {
               src: thumbnailUrl
             });
 
-            streamItem.appendChild(thumbnailElement);
+            const checkboxContainer = createElementWithClass('div', 'round');
+
+            const checkbox = createElementWithClass('input', 'checkbox', {
+              type: 'checkbox',
+              id: `checkbox-${stream.snippet.channelTitle}`,
+              'data-streamer': stream.snippet.channelTitle
+            })
+
+            const label = createElementWithClass('label', 'checkbox-label', {
+              'for': `checkbox-${stream.snippet.channelTitle}`,
+              'data-streamer': stream.snippet.channelTitle
+            })
+
+            profilePicContainerYT.appendChild(checkboxContainer);
+            profilePicContainerYT.appendChild(profilePic);
+            streamerCardLeftDetails.appendChild(profilePicContainerYT);
 
             const streamerCardLink = createElementWithClass('a', 'video-link', {
               href: `https://www.youtube.com/watch?v=${stream.id.videoId}`,
-              title: stream.snippet.title
+              'data-streamer': stream.snippet.channelTitle
             });
-            streamerCardLink.textContent = stream.snippet.channelTitle;
+
+            const streamerName = createElementWithClass('div', 'stream-link', {
+              'data-streamer': stream.snippet.channelTitle
+            });
+            streamerName.textContent = stream.snippet.channelTitle;
+
+            const textView = createElementWithClass('div', 'text');
 
             const viewerCount = createElementWithClass('span', 'video-viewers');
 
-            if (video.liveStreamingDetails && video.liveStreamingDetails.concurrentViewers) {
-              viewerCount.textContent = `${getFormattedNumber(video.liveStreamingDetails.concurrentViewers)}`;
-              streamItem.streamViewCount = video.liveStreamingDetails.concurrentViewers;
-            }
-            else {
-              viewerCount.textContent = ' - Viewer count unavailable';
-              streamItem.streamViewCount = 0;
+            try {
+              if (video.liveStreamingDetails && video.liveStreamingDetails.concurrentViewers) {
+                viewerCount.textContent = `${getFormattedNumber(video.liveStreamingDetails.concurrentViewers)}`;
+                streamItem.streamViewCount = video.liveStreamingDetails.concurrentViewers;
+              }
+              else {
+                viewerCount.textContent = ' - Viewer count unavailable';
+                streamItem.streamViewCount = 0;
+              }
+            } catch (error) {
+              console.error('Error fetching YouTube live broadcasts:', error);
             }
 
-            streamItem.appendChild(streamerCardLink);
+            textView.appendChild(streamerName);
+            /*textView.appendChild(gameDiv);*/
+
+            streamerCardLeftDetails.appendChild(textView);
+            streamItem.appendChild(streamerCardLeftDetails);
+
             streamItem.appendChild(viewerCount);
 
             leftNavData.push({
               element: streamItem,
               viewCount: parseInt(streamItem.streamViewCount) // Push stream to array
             });
+
+            const leftNav = document.getElementById('leftNav');
+
+            streamerCardLink.appendChild(streamItem);
+
+            leftNav.appendChild(streamerCardLink);
+
           })
           .catch(error => {
             // Catch error and display message to user
@@ -350,6 +427,10 @@ function getStreamPlayer(streamItem) {
 
 // Function to create or update a chat tab
 function createOrUpdateChatTab(channelName) {
+
+  const sidebar = document.getElementById('sidebar');
+  sidebar.style.display = 'block';
+
   // Check if the chat tab already exists
   if (!chatIframes[channelName]) {
     // Create a new tab and chat iframe if it doesn't exist
@@ -497,6 +578,8 @@ function removeChatTab(channelName) {
 
     if (count === 0) {
       document.getElementById('sidebarContent').style.display = 'none';
+      const sidebar = document.getElementById('sidebar');
+      sidebar.style.display = 'none';
     }
 
     // You can now access the updated tab count using the `tabCount` variable
@@ -810,8 +893,20 @@ async function init() {
     }
 
     userId = await testAccessToken(accessToken); // Test the access token
-    document.getElementById('loginContainer').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'block';
+
+    if (document.getElementById('sign-in-container').style.display == ! 'none') {
+
+      document.getElementById('sign-in-container').style.display = 'none';
+
+      const leftNavContainer = document.getElementById('leftNavContainer');
+      leftNavContainer.style.display = 'block';
+
+      const topNav = document.getElementById('topNav');
+      topNav.style.display = 'flex';
+
+      updateMargins();
+
+    }
 
     if (!initialized) {
       updateLeftNav();
@@ -848,53 +943,28 @@ async function testAccessToken(accessToken) {
 async function updateLeftNav() {
   try {
 
+    try {
+
+      // Iterate through the tooltipsMap and hide each tooltip
+      for (const tooltip of tooltipsMap.values()) {
+        tooltip.style.display = 'none'; // or remove it from the DOM: tooltip.remove();
+      }
+
+    } catch (error) { }
+
     leftNavData = []; // Reset the array before fetching new data
 
     await getFollowedLiveStreams(accessToken, userId);
 
     sortStreamsByViewers();
 
+    renderToDOM();
+
     restoreCheckboxStates();
 
   } catch (error) {
     console.error('Error updating sidebar data:', error);
   }
-}
-
-function updateMainContent(isSidebarOpen) {
-
-  try {
-    const topNav = document.querySelector('.topNav');
-    const leftNavContainer = document.getElementById('leftNavContainer');
-    const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('streamPlayerContainer');
-
-    if (topNav) {
-
-      const topNavEndPosition = topNav.getBoundingClientRect().bottom;
-      const sidebarEndPosition = sidebar.getBoundingClientRect().left;
-      const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
-
-      if (content) {
-        content.style.marginTop = `${topNavEndPosition}px`;
-
-        if (leftNavContainerPercentWidth <= 170) {
-          content.style.marginLeft = '54px';
-        } else {
-          content.style.marginLeft = `${leftNavContainerPercentWidth}px`;
-        }
-
-        if (isSidebarOpen === 0) {
-          content.style.marginRight = 0;
-        } else {
-          content.style.marginRight = `${sidebarContent.clientWidth}px`;
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-
 }
 
 function updateMargins(isLeftNavOpen, isSidebarOpen) {
@@ -932,13 +1002,24 @@ function updateMargins(isLeftNavOpen, isSidebarOpen) {
 
           leftNavContainer.style.width = '54px';
 
+          if (leftNavContainerPercentWidth <= 170) {
+            const leftNavExpandCollapse = document.querySelector(".btn-expand-collapse");
+            leftNavExpandCollapse.style.display = 'none';
+
+          }
+
         } else {
           const spans = document.querySelectorAll('.stream-viewers');
           for (const span of spans) {
             span.style.visibility = 'visible';
           }
 
-          leftNavContainer.style.width = '14%';
+          leftNavContainer.style.width = '24rem';
+
+          if (leftNavContainerPercentWidth > 170) {
+            const leftNavExpandCollapse = document.querySelector(".btn-expand-collapse");
+            leftNavExpandCollapse.style.display = 'flex';
+          }
         }
 
       }
@@ -1039,13 +1120,18 @@ jQuery(function ($) {
     console.log('Button clicked');
 
     const leftNavContainer = document.getElementById('leftNavContainer');
-    const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
+    const leftNavContainerPercentWidth = 24;
 
     if ($('#leftNavContainer').hasClass('collapsed')) {
       $('#leftNavContainer').removeClass('collapsed');
-      leftNavContainer.style.width = leftNavContainerPercentWidth + 'px';
+      leftNavContainer.style.width = leftNavContainerPercentWidth + 'rem';
       // Rotate the arrow to face left
       $('.arrow').css('transform', 'rotate(90deg)');
+
+      const btnElement = document.querySelector('.btn-expand-collapse');
+      const arrowElement = btnElement.querySelector('.arrow');
+
+      arrowElement.style.animation = 'bounce 2s infinite';
 
       updateStreamLayout(1);
 
@@ -1057,6 +1143,11 @@ jQuery(function ($) {
       leftNavContainer.style.width = 54 + 'px';
       // Rotate the arrow to face right
       $('.arrow').css('transform', 'rotate(-90deg)');
+
+      const btnElement = document.querySelector('.btn-expand-collapse');
+      const arrowElement = btnElement.querySelector('.arrow');
+
+      arrowElement.style.animation = 'bounceRight 2s infinite';
 
       updateStreamLayout(0);
 
