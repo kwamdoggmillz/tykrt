@@ -11,9 +11,10 @@
   flex-grow: 1;
   min-width: 0;
   /* prevent flexbox from overflowing */
-  padding-left: 10px;
+  padding-left: 20px;
   /* add some space between the containers */
-  height: 100vh;
+  height: auto;
+  max-height: none;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
@@ -26,17 +27,6 @@
 #sidebarAndStreamPlayer {
   display: flex;
   justify-content: flex-start;
-}
-
-#leftNavContainer {
-  display: none;
-  width: 24rem;
-  max-width: 250px;
-  height: 92%;
-  position: fixed;
-  left: 0;
-  overscroll-behavior: contain;
-  z-index: 99;
 }
 
 #leftNavContainer.expanded {
@@ -121,8 +111,10 @@
 }
 
 body {
-  background: black;
+  background: linear-gradient(to top right, #0f0f0f, #303530);
   font-family: Arial, sans-serif;
+  margin: 0;
+  text-align: left;
 }
 
 .topNav {
@@ -222,6 +214,9 @@ body {
   padding-left: 8px;
   padding-right: 8px;
   overflow-y: auto;
+  overflow-x: hidden;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 #loginContainer {
@@ -489,7 +484,7 @@ body {
 /*----------------toggeled sidebar----------------*/
 
 .page-wrapper.toggled .sidebar-wrapper {
-  right: 0px;
+  right: 10px;
 }
 
 @media screen and (min-width: 768px) {
@@ -519,12 +514,13 @@ body {
   display: none;
   width: 18%;
   max-width: 321px;
-  height: 100%;
+  height: 89%;
   max-height: 100%;
   position: fixed;
   top: 0;
-  right: -300px;
+  right: -330px;
   z-index: 99;
+  border-radius: 10px;
 }
 
 .sidebar-wrapper ul {
@@ -934,11 +930,6 @@ main,
 nav,
 section {
   display: block;
-}
-
-body {
-  margin: 0;
-  text-align: left;
 }
 
 [tabindex="-1"]:focus {
@@ -1461,6 +1452,14 @@ template {
   -webkit-transition: all 0.1s ease-in-out;
   -moz-transition: all 0.1s ease-in-out;
   transition: all 0.1s ease-in-out;
+  display: none;
+  width: 24rem;
+  max-width: 250px;
+  height: calc(88% - 3.674rem);
+  position: fixed;
+  left: 10px;
+  overscroll-behavior: contain;
+  z-index: 99;
 }
 
 #leftNavContainer.collapsed {
@@ -1489,6 +1488,8 @@ template {
   text-decoration: none;
   color: white;
   align-items: center;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
 }
 
 .btn-expand-collapse:hover,
@@ -1586,10 +1587,6 @@ template {
 
 .btn-expand-collapse:hover .arrow {
   animation: bounceRight 2s infinite;
-}
-
-body {
-  background: black;
 }
 
 .arrow {
@@ -1734,4 +1731,10 @@ svg:not(:host).svg-inline--fa {
     border-right-color: #2D2C2C;
     /* Arrow color */
   }
+}
+
+#bottomTwitchContainer {
+  position: absolute;
+  width: 100%; /* Make it full-width */
+  /* Add any other styles you want for bottomTwitchContainer */
 }

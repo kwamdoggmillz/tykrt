@@ -17,6 +17,7 @@ const maxStreamsSelected = 4; // Set the maximum number of streams that can be s
 let tabCount = 0;
 let sidebarOpen = 1;
 let leftNavOpen = 1;
+let previousWindowWidth = window.innerWidth;
 
 // Function to handle Twitch login button click
 function login() {
@@ -87,6 +88,134 @@ async function fetchUserAndGameDataPromises(liveStreams) {
   return { usersMap, gamesMap };
 }
 
+function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePicture, gameName, viewCount, platform) {
+
+  const streamElements = {};
+
+  const streamerCardLink = createElementWithClass('a', 'streamerCardLink', {
+    href: `javascript:void(0);`,
+    'data-streamer': streamerUserLogin
+  });
+
+  streamElements.streamerCardLink = streamerCardLink;
+
+  // Create a single tooltip element
+  const tooltip = createElementWithClass('div', 'tooltip');
+
+  streamElements.tooltip = tooltip;
+
+
+  const streamItem = createElementWithClass('div', 'streamerCard', {
+    'dataset.userLogin': streamerUserLogin,
+    'data-streamer': streamerUserLogin
+  });
+
+  // Store the tooltip in the tooltipsMap with the streamItem as the key
+  tooltipsMap.set(streamItem, tooltip);
+
+  const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails', {
+    'data-streamer': streamerUserLogin
+  });
+
+  streamElements.streamerCardLeftDetails = streamerCardLeftDetails;
+
+  const profilePicContainer = createElementWithClass('div', 'profilePicContainer');
+
+  streamElements.profilePicContainer = profilePicContainer;
+
+  const profilePic = createElementWithClass('img', 'video-thumbnail', {
+    src: profilePicture,
+    'data-streamer': streamerUserLogin
+  });
+
+  streamElements.profilePic = profilePic;
+
+  const checkboxContainer = createElementWithClass('div', 'round');
+
+  streamElements.checkboxContainer = checkboxContainer;
+
+  const checkbox = createElementWithClass('input', 'checkbox', {
+    type: 'checkbox',
+    id: `checkbox-${streamerUserLogin}`,
+    'data-streamer': streamerUserLogin
+  });
+
+  streamElements.checkbox = checkbox;
+
+  const label = createElementWithClass('label', 'checkbox-label', {
+    'for': `checkbox-${streamerUserLogin}`,
+    'data-streamer': streamerUserLogin
+  });
+
+  streamElements.label = label;
+
+  const streamerName = createElementWithClass('div', 'stream-link', {
+    'data-streamer': streamerUserLogin
+  });
+  streamerName.textContent = streamerDisplayName;
+
+  streamElements.streamerName = streamerName;
+
+  const gameDiv = createElementWithClass('div', 'game-name', {
+    'data-streamer': streamerUserLogin
+  });
+
+  gameDiv.textContent = gameName;
+
+  streamElements.gameDiv = gameDiv;
+
+  const textView = createElementWithClass('div', 'text');
+
+  streamElements.textView = textView;
+
+  const viewerCount = createElementWithClass('span', 'stream-viewers', {
+    'data-streamer': streamerUserLogin
+  });
+
+  if (platform === 'twitch') {
+    viewerCount.textContent = `${getFormattedNumber(viewCount)}`;
+
+    // Add the following line to set the streamViewCount property
+    streamItem.streamViewCount = viewCount;
+  }
+
+  streamElements.viewerCount = viewerCount;
+
+  streamElements.streamItem = streamItem;
+
+  return streamElements;
+
+}
+
+// Function to add and configure a tooltip for a stream item
+function addTooltip(streamItem, tooltip, streamTitle, leftNav) {
+  const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+  streamPlayerContainer.appendChild(tooltip);
+
+  // Attach event listeners to show/hide tooltips
+  streamItem.addEventListener('mouseover', function (event) {
+    const streamItemRect = streamItem.getBoundingClientRect();
+    const leftNavRect = leftNav.getBoundingClientRect();
+
+    const x = leftNavRect.right + 15; // Adjust the X position as needed
+    const y = streamItemRect.top; // Adjust the Y position as needed
+
+    // Set the tooltip's position
+    tooltip.style.left = `${x}px`;
+    tooltip.style.top = `${y}px`;
+    tooltip.style.height = `${streamItemRect.height - 15}px`;
+
+    // Set the tooltip content
+    tooltip.textContent = streamTitle;
+
+    tooltip.style.display = 'block'; // Show the tooltip on mouseover
+  });
+
+  streamItem.addEventListener('mouseout', function () {
+    tooltip.style.display = 'none'; // Hide the tooltip on mouseout
+  });
+}
+
 // Function to fetch the list of followed live streams using Twitch API
 async function getFollowedLiveStreams(accessToken, userId) {
   if (userId === undefined) {
@@ -110,72 +239,31 @@ async function getFollowedLiveStreams(accessToken, userId) {
       const user = usersMap.get(stream.user_id);
       const game = gamesMap.get(stream.game_id);
 
-      const streamerCardLink = createElementWithClass('a', 'streamerCardLink', {
-        href: `javascript:void(0);`,
-        'data-streamer': stream.user_login
-      });
+      let gameName = 'Just Chatting';
 
-      // Create a single tooltip element
-      const tooltip = createElementWithClass('div', 'tooltip');
+      try {
+        gameName = game.name;
+      } catch (error) {
+        console.error('Error fetching game name:', error);
+      }
 
-      const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+      const streamElements = createStreamerCards(stream.user_login, user.display_name, user.profile_image_url, gameName, stream.viewer_count, 'twitch');
+      const streamerCardLink = streamElements.streamerCardLink;
+      const tooltip = streamElements.tooltip;
+      const streamerCardLeftDetails = streamElements.streamerCardLeftDetails;
+      const profilePicContainer = streamElements.profilePicContainer;
+      const profilePic = streamElements.profilePic;
+      const checkboxContainer = streamElements.checkboxContainer;
+      const checkbox = streamElements.checkbox;
+      const label = streamElements.label;
+      const streamerName = streamElements.streamerName;
+      const gameDiv = streamElements.gameDiv;
+      const textView = streamElements.textView;
+      const viewerCount = streamElements.viewerCount;
+      const streamItem = streamElements.streamItem;
 
-      streamPlayerContainer.appendChild(tooltip); // Append it to the document body›
-
-      const streamItem = createElementWithClass('div', 'streamerCard', {
-        'dataset.userLogin': stream.user_login,
-        'data-streamer': stream.user_login,
-      });
-
-      // Store the tooltip in the tooltipsMap with the streamItem as the key
-      tooltipsMap.set(streamItem, tooltip);
-
-      // Attach event listeners to show/hide tooltips
-      streamItem.addEventListener('mouseover', function (event) {
-        const streamItemRect = streamItem.getBoundingClientRect();
-        const leftNavRect = leftNav.getBoundingClientRect();
-
-        const x = leftNavRect.right + 15; // Adjust the X position as needed
-        const y = streamItemRect.top; // Adjust the Y position as needed
-
-        // Set the tooltip's position
-        tooltip.style.left = `${x}px`;
-        tooltip.style.top = `${y}px`;
-        tooltip.style.height = `${streamItemRect.height - 15}px`;
-
-        // Set the tooltip content
-        tooltip.textContent = stream.title;
-
-        tooltip.style.display = 'block'; // Show the tooltip on mouseover
-      });
-
-      streamItem.addEventListener('mouseout', function () {
-        tooltip.style.display = 'none'; // Hide the tooltip on mouseout
-      });
-
-      const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails', {
-        'data-streamer': stream.user_login
-      });
-
-      const profilePicContainer = createElementWithClass('div', 'profilePicContainer');
-
-      const profilePic = createElementWithClass('img', 'video-thumbnail', {
-        src: user.profile_image_url,
-        'data-streamer': stream.user_login
-      })
-
-      const checkboxContainer = createElementWithClass('div', 'round');
-
-      const checkbox = createElementWithClass('input', 'checkbox', {
-        type: 'checkbox',
-        id: `checkbox-${stream.user_login}`,
-        'data-streamer': stream.user_login
-      })
-
-      const label = createElementWithClass('label', 'checkbox-label', {
-        'for': `checkbox-${stream.user_login}`,
-        'data-streamer': stream.user_login
-      })
+      removeTooltip();
+      addTooltip(streamItem, tooltip, stream.title, leftNav);
 
       profilePicContainer.appendChild(checkboxContainer);
       profilePicContainer.appendChild(profilePic);
@@ -198,28 +286,6 @@ async function getFollowedLiveStreams(accessToken, userId) {
         }
       });
 
-      const streamerName = createElementWithClass('div', 'stream-link', {
-        'data-streamer': stream.user_login
-      });
-      streamerName.textContent = user.display_name;
-
-      const gameDiv = createElementWithClass('div', 'game-name', {
-        'data-streamer': stream.user_login
-      });
-
-      try {
-        gameDiv.textContent = game.name;
-      } catch (error) {
-        gameDiv.textContent = 'Just Chatting';
-      }
-
-      const textView = createElementWithClass('div', 'text');
-
-      const viewerCount = createElementWithClass('span', 'stream-viewers', {
-        'data-streamer': stream.user_login
-      });
-      viewerCount.textContent = `${getFormattedNumber(stream.viewer_count)}`;
-
       textView.appendChild(streamerName);
       textView.appendChild(gameDiv);
 
@@ -238,14 +304,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
       leftNav.appendChild(streamerCardLink);
 
-      getStreamPlayer(streamItem);
-
-      // Add the following line to set the streamViewCount property
-      streamItem.streamViewCount = stream.viewer_count;
-
     }
-
-    updateMargins();
 
     try {
       getYouTubeLiveBroadcasts(apiKey);
@@ -270,7 +329,6 @@ function getYouTubeLiveBroadcasts(apiKey) {
     })
     .then(data => {
       const liveStreams = data.items;
-      // const streamsContainer = document.getElementById('leftNav'); // no need of this line
 
       liveStreams.forEach((stream) => {
         fetch(`https://www.googleapis.com/youtube/v3/videos?id=${stream.id.videoId}&part=liveStreamingDetails,snippet,statistics&key=${apiKey}`)
@@ -278,50 +336,31 @@ function getYouTubeLiveBroadcasts(apiKey) {
           .then(videoData => {
             const video = videoData.items[0];
 
-            const streamItem = createElementWithClass('div', 'video-item');
-
-            const thumbnailUrl = stream.snippet.thumbnails.medium.url;
-
-            const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails', {
-              'data-streamer': stream.snippet.channelTitle
-            });
-
-            const profilePicContainerYT = createElementWithClass('div', 'profilePicContainerYT');
-
-            const profilePic = createElementWithClass('img', 'video-thumbnail', {
-              src: thumbnailUrl
-            });
-
-            const checkboxContainer = createElementWithClass('div', 'round');
-
-            const checkbox = createElementWithClass('input', 'checkbox', {
-              type: 'checkbox',
-              id: `checkbox-${stream.snippet.channelTitle}`,
-              'data-streamer': stream.snippet.channelTitle
-            })
-
-            const label = createElementWithClass('label', 'checkbox-label', {
-              'for': `checkbox-${stream.snippet.channelTitle}`,
-              'data-streamer': stream.snippet.channelTitle
-            })
-
-            profilePicContainerYT.appendChild(checkboxContainer);
-            profilePicContainerYT.appendChild(profilePic);
-            streamerCardLeftDetails.appendChild(profilePicContainerYT);
-
+            const streamElements = createStreamerCards(stream.snippet.channelTitle, stream.snippet.channelTitle, stream.snippet.thumbnails.medium.url, '', video.liveStreamingDetails.concurrentViewers, 'youtube');
             const streamerCardLink = createElementWithClass('a', 'video-link', {
               href: `https://www.youtube.com/watch?v=${stream.id.videoId}`,
               'data-streamer': stream.snippet.channelTitle
             });
+            const tooltip = streamElements.tooltip;
+            const streamerCardLeftDetails = streamElements.streamerCardLeftDetails;
+            const profilePicContainerYT = createElementWithClass('div', 'profilePicContainerYT');
+            const profilePic = streamElements.profilePic;
+            const checkboxContainer = streamElements.checkboxContainer;
+            const checkbox = streamElements.checkbox;
+            const label = streamElements.label;
+            const streamerName = streamElements.streamerName;
+            const gameDiv = streamElements.gameDiv;
+            const textView = streamElements.textView;
+            const viewerCount = streamElements.viewerCount;
+            const streamItem = streamElements.streamItem;
 
-            const streamerName = createElementWithClass('div', 'stream-link', {
-              'data-streamer': stream.snippet.channelTitle
-            });
-            streamerName.textContent = stream.snippet.channelTitle;
+            const leftNav = document.getElementById('leftNav');
+            removeTooltip();
+            addTooltip(streamItem, tooltip, stream.snippet.title, leftNav);
 
-            const textView = createElementWithClass('div', 'text');
-
-            const viewerCount = createElementWithClass('span', 'video-viewers');
+            profilePicContainerYT.appendChild(checkboxContainer);
+            profilePicContainerYT.appendChild(profilePic);
+            streamerCardLeftDetails.appendChild(profilePicContainerYT);
 
             try {
               if (video.liveStreamingDetails && video.liveStreamingDetails.concurrentViewers) {
@@ -348,8 +387,6 @@ function getYouTubeLiveBroadcasts(apiKey) {
               element: streamItem,
               viewCount: parseInt(streamItem.streamViewCount) // Push stream to array
             });
-
-            const leftNav = document.getElementById('leftNav');
 
             streamerCardLink.appendChild(streamItem);
 
@@ -386,50 +423,18 @@ function createStreamPlayer(container, username, width, height) {
   new Twitch.Player(`twitch-player-${username}`, options);
 }
 
-function getStreamPlayer(streamItem) {
-
-  if (streamItem) {
-    const userLogin = streamItem.dataset.userLogin;
-    if (userLogin) {
-      const streamPlayerContainer = document.getElementById('streamPlayerContainer');
-      const currentPlayerUserLogin = streamPlayerContainer.dataset.userLogin;
-
-      if (currentPlayerUserLogin === userLogin) {
-        // Player for the same streamer is already embedded, do nothing
-        return;
-      }
-
-      // Remove existing player
-      while (streamPlayerContainer.firstChild) {
-        streamPlayerContainer.removeChild(streamPlayerContainer.firstChild);
-      }
-      // Options for the Twitch embed
-      const options = {
-        width: 1336,
-        height: 751.5,
-        channel: userLogin, // Embed for the clicked streamer
-        parent: ["tykrt.com"],
-      };
-
-      // Create and embed the Twitch player
-      const playerDiv = createElementWithClass('div', 'stream-player', {
-        id: `twitch-player-${userLogin}`
-      });
-      streamPlayerContainer.appendChild(playerDiv);
-
-      new Twitch.Player(`twitch-player-${userLogin}`, options);
-
-      // Update the streamPlayerContainer's userLogin attribute
-      streamPlayerContainer.dataset.userLogin = userLogin;
-    }
-  }
-}
-
 // Function to create or update a chat tab
 function createOrUpdateChatTab(channelName) {
 
+  const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
   const sidebar = document.getElementById('sidebar');
-  sidebar.style.display = 'block';
+
+  if (leftNavContainerPercentWidth <= 170) {
+    sidebar.style.display = 'none';
+  }
+  else {
+    sidebar.style.display = 'block';
+  }
 
   // Check if the chat tab already exists
   if (!chatIframes[channelName]) {
@@ -507,13 +512,31 @@ function createChatTab(channelName) {
   const topNav = document.querySelector('.topNav');
   const topNavHeight = topNav.offsetHeight;
 
+  const leftNavContainer = document.getElementById('leftNavContainer');
+
+  const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+
   // Set the chatIframe height to match the leftNavContainer height
-  chatIframe.height = (sidebarHeight - tabContainerHeight - topNavHeight - sidebarContentHeight) + 'px';
+  chatIframe.height = (sidebarHeight - tabContainerHeight - sidebarContentHeight - 10) + 'px';
 
   tabContent.appendChild(chatIframe);
 
   // Append the chat content to the twitchChats container
   twitchChats.appendChild(tabContent);
+
+  const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
+  const bottomTwitchContainer = document.getElementById('bottomTwitchContainer');
+
+  if (leftNavContainerPercentWidth <= 170) {
+    bottomTwitchContainer.appendChild(twitchChats);
+
+    bottomTwitchContainer.style.marginTop = streamPlayerContainer.offsetHeight + topNav.offsetHeight + 'px';
+    bottomTwitchContainer.style.marginLeft = leftNavContainer.offsetWidth + 'px';
+    bottomTwitchContainer.style.marginRight = '0px';
+
+  } else {
+    bottomTwitchContainer.style.display = 'none';
+  }
 
   // Store the chat iframe in the chatIframes object
   chatIframes[channelName] = tabContent;
@@ -702,14 +725,6 @@ function handleCheckboxChange(event, checked) {
 
   updateStreamLayout();
 
-  // Check radio button of the selected stream
-  const checkedRadio = document.querySelector(`input[id="radio-${selectedStreamer}"]`);
-  checkedRadio.checked = true;
-
-  // Add the "selected-tab" class to the label of the selected radio button
-  const label = document.querySelector(`label[for="radio-${selectedStreamer}"]`);
-  label.classList.add('selected-tab');
-
   // Get the selectedIndex of the clicked button
   const selectedIndex = Array.from(radioButtons).findIndex(radio => radio.id === `radio-${selectedStreamer}`);
   // Update the glider position
@@ -718,18 +733,32 @@ function handleCheckboxChange(event, checked) {
   updateMargins()
 }
 
-function updateStreamLayout(isLeftNavOpen, isSidebarOpen) {
+function calculateNavOpenState() {
 
-  if (isSidebarOpen === undefined) {
-    isSidebarOpen = sidebarOpen;
+  const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
+
+  if (leftNavContainerPercentWidth <= 170) {
+    return [0, 0];
+  } else {
+    return [leftNavOpen, sidebarOpen];
   }
+}
 
-  if (isLeftNavOpen === undefined) {
-    isLeftNavOpen = leftNavOpen;
+function updateStreamLayout() {
+
+  let [isLeftNavOpen, isSidebarOpen] = [leftNavOpen, sidebarOpen];
+
+  // Get all the child elements of the streamPlayerContainer
+  const children = Array.from(streamPlayerContainer.children);
+
+  // Loop through the child elements
+  for (const child of children) {
+    // Check if the child element is a tooltip
+    if (!child.classList.contains('tooltip')) {
+      // If it's not a tooltip, remove it
+      streamPlayerContainer.removeChild(child);
+    }
   }
-
-  const streamPlayerContainer = document.getElementById('streamPlayerContainer');
-  streamPlayerContainer.innerHTML = ''; // Clear the container
 
   const selectedStreamersArray = Array.from(selectedStreams);
 
@@ -743,50 +772,23 @@ function updateStreamLayout(isLeftNavOpen, isSidebarOpen) {
   const numSelectedStreams = filteredStreamersArray.length;
 
   // Calculate the maximum width for a single stream based on the percentage of window.innerWidth
-  const maxSingleStreamWidthPercentage = 0.68; // 68%
-  const maxLeftNavPercentage = 0.14; // 14%
-  const maxSidebarPercentage = 0.18; // 18%
-  const maxLeftNavPx = 250;
-  const maxSidebarPx = 321;
+  const sidebarPercentageWidth = 0.18; // 18%
+  const leftNavPxWidth = 24 * parseFloat(getComputedStyle(leftNavContainer).fontSize); // 24rem
+  const maxSidebarPxWidth = 321;
 
-
-
-  let maxSingleStreamWidth = window.innerWidth * maxSingleStreamWidthPercentage;
+  let maxSingleStreamWidth = window.innerWidth - leftNavPxWidth - 10 - maxSidebarPxWidth - 10 - 20;
 
   if (isLeftNavOpen === 0 && isSidebarOpen === 0) {
-    maxSingleStreamWidth = window.innerWidth - 54;
+    maxSingleStreamWidth = window.innerWidth - 54 - 10 - 10 - 20;
   } else if (isLeftNavOpen === 1 && isSidebarOpen === 0) {
-    maxSingleStreamWidth = window.innerWidth * (1 - maxLeftNavPercentage);
-
-    if (maxLeftNavPercentage * window.innerWidth > maxLeftNavPx) {
-      maxSingleStreamWidth = window.innerWidth - maxLeftNavPx;
-    }
+    maxSingleStreamWidth = window.innerWidth - leftNavPxWidth - 10 - 10 - 20;
 
   } else if (isLeftNavOpen === 0 && isSidebarOpen === 1) {
-    maxSingleStreamWidth = (window.innerWidth * (1 - maxSidebarPercentage)) - 54;
+    maxSingleStreamWidth = (window.innerWidth * (1 - sidebarPercentageWidth)) - 54 - 10 - 10 - 20;
 
-    if (maxSidebarPercentage * window.innerWidth > maxSidebarPx) {
-      maxSingleStreamWidth = window.innerWidth - maxSidebarPx - 54;
+    if (sidebarPercentageWidth * window.innerWidth > maxSidebarPxWidth) {
+      maxSingleStreamWidth = window.innerWidth - maxSidebarPxWidth - 54 - 10 - 10 - 20;
     }
-
-  } else {
-
-    if (maxLeftNavPercentage * window.innerWidth > maxLeftNavPx && maxSidebarPercentage * window.innerWidth <= maxSidebarPx) {
-      maxSingleStreamWidth = window.innerWidth - maxLeftNavPx - (window.innerWidth * (1 - maxSidebarPercentage));
-    }
-    if (maxLeftNavPercentage * window.innerWidth <= maxLeftNavPx && maxSidebarPercentage * window.innerWidth > maxSidebarPx) {
-      maxSingleStreamWidth = window.innerWidth - (window.innerWidth * (1 - maxLeftNavPercentage)) - maxSidebarPx;
-    }
-    if (maxLeftNavPercentage * window.innerWidth > maxLeftNavPx && maxSidebarPercentage * window.innerWidth > maxSidebarPx) {
-      maxSingleStreamWidth = window.innerWidth - maxLeftNavPx - maxSidebarPx;
-    }
-    if (maxLeftNavPercentage * window.innerWidth <= maxLeftNavPx && maxSidebarPercentage * window.innerWidth <= maxSidebarPx) {
-      maxSingleStreamWidth = window.innerWidth * (1 - maxLeftNavPercentage - maxSidebarPercentage);
-    }
-  }
-
-  if (maxLeftNavPercentage * window.innerWidth > maxLeftNavPx) {
-
   }
 
   // Calculate the height based on the aspect ratio
@@ -940,17 +942,19 @@ async function testAccessToken(accessToken) {
   }
 }
 
-async function updateLeftNav() {
+function removeTooltip() {
   try {
 
-    try {
+    // Iterate through the tooltipsMap and hide each tooltip
+    for (const tooltip of tooltipsMap.values()) {
+      tooltip.style.display = 'none'; // or remove it from the DOM: tooltip.remove();
+    }
 
-      // Iterate through the tooltipsMap and hide each tooltip
-      for (const tooltip of tooltipsMap.values()) {
-        tooltip.style.display = 'none'; // or remove it from the DOM: tooltip.remove();
-      }
+  } catch (error) { }
+}
 
-    } catch (error) { }
+async function updateLeftNav() {
+  try {
 
     leftNavData = []; // Reset the array before fetching new data
 
@@ -967,15 +971,26 @@ async function updateLeftNav() {
   }
 }
 
-function updateMargins(isLeftNavOpen, isSidebarOpen) {
+// Function to update the UI based on window size
+function updateWindowSize() {
+  const currentWindowWidth = window.innerWidth;
 
-  if (isLeftNavOpen === undefined) {
-    isLeftNavOpen = leftNavOpen;
+  // Check if the window size has increased and leftNav is closed
+  if (currentWindowWidth > previousWindowWidth && leftNavOpen === 0) {
+    leftNavOpen = 1;
   }
 
-  if (isSidebarOpen === undefined) {
-    isSidebarOpen = sidebarOpen;
+  if (currentWindowWidth > previousWindowWidth && sidebarOpen === 0) {
+    sidebarOpen = 1;
   }
+
+  // Update the previous window width
+  previousWindowWidth = currentWindowWidth;
+}
+
+function updateMargins() {
+
+  let [isLeftNavOpen, isSidebarOpen] = [leftNavOpen, sidebarOpen];
 
   try {
     const topNav = document.querySelector('.topNav');
@@ -988,17 +1003,25 @@ function updateMargins(isLeftNavOpen, isSidebarOpen) {
       const topNavEndPosition = topNav.getBoundingClientRect().bottom;
       const sidebarEndPosition = sidebar.getBoundingClientRect().left;
       const leftNavContainerPercentWidth = 0.14 * window.innerWidth;
+      const leftNavContainerWidth = 24 * parseFloat(getComputedStyle(leftNavContainer).fontSize); // 24rem
 
       if (leftNavContainer) {
 
-        leftNavContainer.style.top = `${topNavEndPosition}px`;
+        const spans = document.querySelectorAll('.stream-viewers');
 
-        if (leftNavContainerPercentWidth <= 170 || isLeftNavOpen === 0) {
-          const spans = document.querySelectorAll('.stream-viewers');
+        leftNavContainer.style.top = `${topNavEndPosition + 13}px`;
+
+        if (isLeftNavOpen === 0) {
+
+          leftNavContainer.style.width = '54px';
 
           for (const span of spans) {
             span.style.visibility = 'hidden';
           }
+
+        } else if (leftNavContainerPercentWidth <= 170) {
+
+          leftNavOpen = 0;
 
           leftNavContainer.style.width = '54px';
 
@@ -1006,9 +1029,17 @@ function updateMargins(isLeftNavOpen, isSidebarOpen) {
             const leftNavExpandCollapse = document.querySelector(".btn-expand-collapse");
             leftNavExpandCollapse.style.display = 'none';
 
+            sidebar.style.display = 'none';
+
+            for (const span of spans) {
+              span.style.visibility = 'hidden';
+            }
+
           }
 
         } else {
+          leftNavOpen = 1;
+
           const spans = document.querySelectorAll('.stream-viewers');
           for (const span of spans) {
             span.style.visibility = 'visible';
@@ -1024,23 +1055,54 @@ function updateMargins(isLeftNavOpen, isSidebarOpen) {
 
       }
       if (sidebar) {
-        sidebar.style.top = `${topNavEndPosition}px`;
+        sidebar.style.top = `${topNavEndPosition + 13}px`;
       }
       if (content) {
-        content.style.marginTop = `${topNavEndPosition}px`;
+        content.style.marginTop = `${topNavEndPosition + 13}px`;
 
         if (leftNavContainerPercentWidth <= 170 || isLeftNavOpen === 0) {
           content.style.marginLeft = '54px';
         } else {
-          content.style.marginLeft = `${leftNavContainerPercentWidth}px`;
+          content.style.marginLeft = `${leftNavContainerWidth}px`;
         }
 
         if (!isFirstRun) {
-          if (isSidebarOpen === 0) {
+
+          updateStreamLayout();
+
+          if (isSidebarOpen === 0 || leftNavContainerPercentWidth <= 170) {
+            sidebarOpen = 0;
             content.style.marginRight = 0;
           } else {
-            content.style.marginRight = `${sidebar.clientWidth}px`;
+            sidebarOpen = 1;
+
+            try{
+            if (sidebar) {
+              if (sidebar.style.display == ! 'none') {
+                content.style.marginRight = `${sidebar.clientWidth}px`;
+              }
+            }
+          } catch (error) {
+            console.error('Error:', error);
           }
+          }
+        }
+
+        const topNav = document.querySelector('.topNav');
+
+        const leftNavContainer = document.getElementById('leftNavContainer');
+
+        const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+
+        const bottomTwitchContainer = document.getElementById('bottomTwitchContainer');
+
+        if (leftNavContainerPercentWidth <= 170) {
+          bottomTwitchContainer.style.marginTop = streamPlayerContainer.offsetHeight + topNav.offsetHeight + 'px';
+          bottomTwitchContainer.style.marginLeft = leftNavContainer.offsetWidth + 'px';
+          bottomTwitchContainer.style.marginRight = '0px';
+
+        } else {
+          bottomTwitchContainer.style.display = 'none';
         }
       }
     }
@@ -1072,9 +1134,14 @@ document.addEventListener('DOMContentLoaded', function () {
     arrowElement.style.animation = 'none';
   });
 
-  window.addEventListener('resize', updateMargins);
+  window.addEventListener('resize', handleResize);
   window.addEventListener('load', updateMargins);
 });
+
+function handleResize() {
+  updateWindowSize();
+  updateMargins();
+}
 
 function restoreCheckboxStates() {
   const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -1133,10 +1200,10 @@ jQuery(function ($) {
 
       arrowElement.style.animation = 'bounce 2s infinite';
 
-      updateStreamLayout(1);
-
-      updateMargins(1);
       leftNavOpen = 1;
+
+      updateMargins();
+      updateStreamLayout();
 
     } else {
       $('#leftNavContainer').toggleClass('collapsed');
@@ -1149,10 +1216,10 @@ jQuery(function ($) {
 
       arrowElement.style.animation = 'bounceRight 2s infinite';
 
-      updateStreamLayout(0);
-
-      updateMargins(0);
       leftNavOpen = 0;
+
+      updateMargins();
+      updateStreamLayout();
 
     }
   });
@@ -1182,19 +1249,19 @@ jQuery(function ($) {
   $("#close-sidebar").click(function () {
     $(".page-wrapper").removeClass("toggled");
 
-    updateStreamLayout(undefined, 0);
-
-    updateMargins(undefined, 0);
     sidebarOpen = 0;
+
+    updateMargins();
+    updateStreamLayout();
 
   });
   $("#show-sidebar").click(function () {
     $(".page-wrapper").addClass("toggled");
 
-    updateStreamLayout(undefined, 1);
-
-    updateMargins(undefined, 1);
     sidebarOpen = 1;
+
+    updateMargins();
+    updateStreamLayout();
 
   });
 });
