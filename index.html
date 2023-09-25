@@ -22,14 +22,32 @@
 </head>
 
 <body>
+  <div id="loginContainer">
+    <div class="login">
+      <div class="left-content">
+        <img src="Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
+      </div>
+      <div class="right-content">
+        <h2>Log in</h2>
+        <div class="divider"><span class="line"></span>
+        </div> <button type="button" id="loginButton" class="btn btn-secondary btn-block"><svg data-v-3d466c9c=""
+            aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitch" role="img"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="me-2 svg-inline--fa fa-twitch">
+            <path data-v-3d466c9c="" fill="currentColor"
+              d="M391.17,103.47H352.54v109.7h38.63ZM285,103H246.37V212.75H285ZM120.83,0,24.31,91.42V420.58H140.14V512l96.53-91.42h77.25L487.69,256V0ZM449.07,237.75l-77.22,73.12H294.61l-67.6,64v-64H140.14V36.58H449.07Z"
+              class=""></path>
+          </svg> Twitch</button>
+      </div>
+    </div>
+  </div>
   <div class="page-wrapper chiller-theme toggled">
-    <a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
+    <a id="show-rightNav" class="btn btn-sm btn-dark" href="#">
       <i class="fas fa-bars"></i>
     </a>
-    <nav id="sidebar" class="sidebar-wrapper" style="display: none;">
+    <nav id="rightNav" class="rightNav" style="display: none;">
       <div id="sidebarContent" class="sidebarContent">
-        <div class="sidebar-brand">
-          <div id="close-sidebar">
+        <div class="rightNav-brand">
+          <div id="close-rightNav">
             <i class="fas fa-times"></i>
           </div>
         </div>
@@ -39,47 +57,29 @@
           <span class="glider"></span>
         </div>
       </div>
-      <div class="twitchChatContainer">
+      <div class="twitchChatContainer" id="twitchChatContainer">
         <div class="twitchChats" id="twitchChats"></div>
       </div>
     </nav>
-    <main class="page-content">
-      <div class="container-fluid">
-        <div id="sidebarAndStreamPlayer">
-          <div id="leftNavContainer">
-            <!--<div id="expandCollapseLeftNav" class="expandCollapseLeftNav">-->
-            <a href="#" class="btn-expand-collapse"><span class="glyphicon glyphicon-menu-left"></span>
-              <div class="arrow bounce">
-              </div>
-            </a>
-            <!--</div>-->
-            <div id="leftNav"></div>
+    <div id="sidebarAndStreamPlayer">
+      <div id="leftNavContainer">
+        <a href="#" class="leftNavToggle" id="leftNavToggle"><span class="glyphicon glyphicon-menu-left"></span>
+          <div class="leftNavToggleArrow bounce">
           </div>
-          <div id="streamPlayerContainer">
-            <div id="sign-in-container">
-              <div class="sign-in">
-                <div class="left-content">
-                  <img src="Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
-                </div>
-                <div class="right-content">
-                  <h2>Log in</h2>
-                  <div class="divider"><span class="line"></span>
-                  </div> <button type="button" id="loginBtn" class="btn btn-secondary btn-block"><svg data-v-3d466c9c=""
-                      aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitch" role="img"
-                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="me-2 svg-inline--fa fa-twitch">
-                      <path data-v-3d466c9c="" fill="currentColor"
-                        d="M391.17,103.47H352.54v109.7h38.63ZM285,103H246.37V212.75H285ZM120.83,0,24.31,91.42V420.58H140.14V512l96.53-91.42h77.25L487.69,256V0ZM449.07,237.75l-77.22,73.12H294.61l-67.6,64v-64H140.14V36.58H449.07Z"
-                        class=""></path>
-                    </svg> Twitch</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div id="bottomTwitchContainer"></div>
+        </a>
+        <div id="leftNav"></div>
+      </div>
+      <div id="streamPlayerContainer">
+      </div>
+    </div>
+    <div id="bottomContainer" style="display: none;">
+      <div class="bottomTabContainer">
+        <div class="bottomTabs" id="bottomTabMenu">
+          <span class="bottomGlider"></span>
         </div>
-
-    </main>
-    <!-- page-content" -->
+      </div>
+      <div id="bottomTwitchContainer"></div>
+    </div>
   </div>
   <!-- page-wrapper -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -91,6 +91,7 @@
     crossorigin="anonymous"></script>
 
   <script src="app.0.1.1.js"></script>
+  <script type="module" src="app.0.1.1.js"></script>
   <script>// Use event delegation to handle checkbox changes
     document.addEventListener('change', function (event) {
       const target = event.target;
