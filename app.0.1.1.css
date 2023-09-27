@@ -25,9 +25,10 @@
   margin-right: 18%;
 }
 
-#sidebarAndStreamPlayer {
+#leftNavAndStreamPlayer {
   display: flex;
   justify-content: flex-start;
+  overflow-x: hidden;
 }
 
 #leftNavContainer.expanded {
@@ -77,12 +78,12 @@
   text-overflow: ellipsis;
 }
 
-.stream-viewers,
-.video-viewers {
+.stream-viewers {
   margin-left: 10px;
   min-width: fit-content;
   font-size: 1.3rem;
   position: relative;
+  color: white;
 }
 
 .streamer-img {
@@ -102,13 +103,6 @@
 .video-link {
   text-decoration: none;
   color: white;
-}
-
-.stream-viewers,
-.video-viewers {
-  margin-left: 10px;
-  color: white;
-  font-size: 1.3rem;
 }
 
 body {
@@ -280,7 +274,8 @@ body {
   opacity: 1;
 }
 
-.tabContainer, .bottomTabContainer {
+.tabContainer,
+.bottomTabContainer {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -299,7 +294,8 @@ body {
   border-top-left-radius: 10px;
 }
 
-.tabContainer *, .bottomTabContainer * {
+.tabContainer *,
+.bottomTabContainer * {
   --primary-color: #185ee0;
   --secondary-color: #e6eef9;
 }
@@ -325,6 +321,11 @@ body {
   max-width: 96%;
   /* Limit to the parent's width */
   align-items: center;
+}
+
+#bottomTabMenu {
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
 }
 
 /* Target the radio buttons within the dynamically added tabs */
@@ -449,17 +450,17 @@ body {
   }
 }
 
-.page-wrapper .rightNav,
-.rightNav .rightNav-brand>a,
+.pageWrapper .rightNav,
+.rightNav .rightNavBrand>a,
 .rightNav .rightNav-dropdown>a:after,
 .rightNav .rightNav-menu .rightNav-dropdown .rightNav-submenu li a:before,
 .rightNav ul li a i,
-.page-wrapper,
+.pageWrapper,
 .rightNav .rightNav-search input.search-menu,
 .rightNav .rightNav-search .input-group-text,
 .rightNav .rightNav-menu ul li a,
-#show-rightNav,
-#close-rightNav {
+#showRightNav,
+#closeRightNav {
   -webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
   -ms-transition: all 0.3s ease;
@@ -467,16 +468,16 @@ body {
   transition: all 0.3s ease;
 }
 
-/*----------------page-wrapper----------------*/
+/*----------------pageWrapper----------------*/
 
-.page-wrapper {
+.pageWrapper {
   display: flex;
   height: 100vh;
   overflow-x: hidden;
   flex-direction: column;
 }
 
-.page-wrapper .theme {
+.pageWrapper .theme {
   width: 40px;
   height: 40px;
   display: inline-block;
@@ -484,24 +485,24 @@ body {
   margin: 2px;
 }
 
-.page-wrapper .theme.chiller-theme {
+.pageWrapper .theme.chillerTheme {
   background: #1e2229;
 }
 
 /*----------------toggeled rightNav----------------*/
 
-.page-wrapper.toggled .rightNav {
+.pageWrapper.toggled .rightNav {
   right: 10px;
 }
 
 @media screen and (min-width: 768px) {
-  .page-wrapper.toggled {
+  .pageWrapper.toggled {
     padding-right: 300px;
   }
 }
 
 /*----------------show rightNav button----------------*/
-#show-rightNav {
+#showRightNav {
   position: fixed;
   right: 1.5%;
   top: 2.3%;
@@ -511,7 +512,7 @@ body {
   z-index: 10000;
 }
 
-.page-wrapper.toggled #show-rightNav {
+.pageWrapper.toggled #showRightNav {
   right: -40px;
 }
 
@@ -553,22 +554,22 @@ body {
   overflow-y: hidden;
 }
 
-/*--------------------rightNav-brand----------------------*/
+/*--------------------rightNavBrand----------------------*/
 
-.rightNav .rightNav-brand {
+.rightNav .rightNavBrand {
   padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: right;
 }
 
-.rightNav .rightNav-brand>a {
+.rightNav .rightNavBrand>a {
   text-transform: uppercase;
   font-weight: bold;
   flex-grow: .05;
 }
 
-.rightNav .rightNav-brand #close-rightNav {
+.rightNav .rightNavBrand #closeRightNav {
   cursor: pointer;
   font-size: 20px;
 }
@@ -768,13 +769,13 @@ body {
   animation: sonar 1.5s infinite;
 }
 
-.page-wrapper {
+.pageWrapper {
   display: inline-block;
   width: 100%;
   padding-left: 0px;
 }
 
-.page-wrapper {
+.pageWrapper {
   overflow-x: hidden;
 }
 
@@ -828,80 +829,80 @@ body::-webkit-scrollbar {
   /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
 }
 
-/*-----------------------------chiller-theme-------------------------------------------------*/
+/*-----------------------------chillerTheme-------------------------------------------------*/
 
-.chiller-theme .rightNav {
+.chillerTheme .rightNav {
   background: #18181B;
 }
 
-.chiller-theme .rightNav .rightNav-header,
-.chiller-theme .rightNav .rightNav-search,
-.chiller-theme .rightNav .rightNav-menu {
+.chillerTheme .rightNav .rightNav-header,
+.chillerTheme .rightNav .rightNav-search,
+.chillerTheme .rightNav .rightNav-menu {
   border-top: 1px solid #3a3f48;
 }
 
-.chiller-theme .rightNav .rightNav-search input.search-menu,
-.chiller-theme .rightNav .rightNav-search .input-group-text {
+.chillerTheme .rightNav .rightNav-search input.search-menu,
+.chillerTheme .rightNav .rightNav-search .input-group-text {
   border-color: transparent;
   box-shadow: none;
 }
 
-.chiller-theme .rightNav .rightNav-header .user-info .user-role,
-.chiller-theme .rightNav .rightNav-header .user-info .user-status,
-.chiller-theme .rightNav .rightNav-search input.search-menu,
-.chiller-theme .rightNav .rightNav-search .input-group-text,
-.chiller-theme .rightNav .rightNav-brand>a,
-.chiller-theme .rightNav .rightNav-menu ul li a,
-.chiller-theme .rightNav-footer>a {
+.chillerTheme .rightNav .rightNav-header .user-info .user-role,
+.chillerTheme .rightNav .rightNav-header .user-info .user-status,
+.chillerTheme .rightNav .rightNav-search input.search-menu,
+.chillerTheme .rightNav .rightNav-search .input-group-text,
+.chillerTheme .rightNav .rightNavBrand>a,
+.chillerTheme .rightNav .rightNav-menu ul li a,
+.chillerTheme .rightNav-footer>a {
   color: white;
 }
 
-.chiller-theme .rightNav .rightNav-menu ul li:hover>a,
-.chiller-theme .rightNav .rightNav-menu .rightNav-dropdown.active>a,
-.chiller-theme .rightNav .rightNav-header .user-info,
-.chiller-theme .rightNav .rightNav-brand>a:hover,
-.chiller-theme .rightNav-footer>a:hover i {
+.chillerTheme .rightNav .rightNav-menu ul li:hover>a,
+.chillerTheme .rightNav .rightNav-menu .rightNav-dropdown.active>a,
+.chillerTheme .rightNav .rightNav-header .user-info,
+.chillerTheme .rightNav .rightNavBrand>a:hover,
+.chillerTheme .rightNav-footer>a:hover i {
   color: #b8bfce;
 }
 
-.page-wrapper.chiller-theme.toggled #close-rightNav {
+.pageWrapper.chillerTheme.toggled #closeRightNav {
   color: #bdbdbd;
 }
 
-.page-wrapper.chiller-theme.toggled #close-rightNav:hover {
+.pageWrapper.chillerTheme.toggled #closeRightNav:hover {
   color: #ffffff;
 }
 
-.chiller-theme .rightNav ul li:hover a i,
-.chiller-theme .rightNav .rightNav-dropdown .rightNav-submenu li a:hover:before,
-.chiller-theme .rightNav .rightNav-search input.search-menu:focus+span,
-.chiller-theme .rightNav .rightNav-menu .rightNav-dropdown.active a i {
+.chillerTheme .rightNav ul li:hover a i,
+.chillerTheme .rightNav .rightNav-dropdown .rightNav-submenu li a:hover:before,
+.chillerTheme .rightNav .rightNav-search input.search-menu:focus+span,
+.chillerTheme .rightNav .rightNav-menu .rightNav-dropdown.active a i {
   color: #16c7ff;
   text-shadow: 0px 0px 10px rgba(22, 199, 255, 0.5);
 }
 
-.chiller-theme .rightNav .rightNav-menu ul li a i,
-.chiller-theme .rightNav .rightNav-menu .rightNav-dropdown div,
-.chiller-theme .rightNav .rightNav-search input.search-menu,
-.chiller-theme .rightNav .rightNav-search .input-group-text {
+.chillerTheme .rightNav .rightNav-menu ul li a i,
+.chillerTheme .rightNav .rightNav-menu .rightNav-dropdown div,
+.chillerTheme .rightNav .rightNav-search input.search-menu,
+.chillerTheme .rightNav .rightNav-search .input-group-text {
   background: #3a3f48;
 }
 
-.chiller-theme .rightNav .rightNav-menu .header-menu span {
+.chillerTheme .rightNav .rightNav-menu .header-menu span {
   color: #6c7b88;
 }
 
-.chiller-theme .rightNav-footer {
+.chillerTheme .rightNav-footer {
   background: #3a3f48;
   box-shadow: 0px -1px 5px #282c33;
   border-top: 1px solid #464a52;
 }
 
-.chiller-theme .rightNav-footer>a:first-child {
+.chillerTheme .rightNav-footer>a:first-child {
   border-left: none;
 }
 
-.chiller-theme .rightNav-footer>a:last-child {
+.chillerTheme .rightNav-footer>a:last-child {
   border-right: none;
 }
 
@@ -1748,8 +1749,11 @@ svg:not(:host).svg-inline--fa {
   display: none;
   left: 74px;
   border-radius: 10px;
-  padding-top: 10px;
+  margin-top: 10px;
   position: absolute;
+  overflow-x: hidden;
+  background-color: #18181B;
+  padding-bottom: 19px;
 }
 
 /* Rounded overlay styles for creating rounded edges */

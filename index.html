@@ -40,14 +40,14 @@
       </div>
     </div>
   </div>
-  <div class="page-wrapper chiller-theme toggled">
-    <a id="show-rightNav" class="btn btn-sm btn-dark" href="#">
+  <div class="pageWrapper chillerTheme toggled">
+    <a id="showRightNav" class="btn btn-sm btn-dark" href="#">
       <i class="fas fa-bars"></i>
     </a>
     <nav id="rightNav" class="rightNav" style="display: none;">
       <div id="sidebarContent" class="sidebarContent">
-        <div class="rightNav-brand">
-          <div id="close-rightNav">
+        <div class="rightNavBrand">
+          <div id="closeRightNav">
             <i class="fas fa-times"></i>
           </div>
         </div>
@@ -61,9 +61,9 @@
         <div class="twitchChats" id="twitchChats"></div>
       </div>
     </nav>
-    <div id="sidebarAndStreamPlayer">
+    <div id="leftNavAndStreamPlayer">
       <div id="leftNavContainer">
-        <a href="#" class="leftNavToggle" id="leftNavToggle"><span class="glyphicon glyphicon-menu-left"></span>
+        <a href="#" class="leftNavToggle" id="leftNavToggle"><span class="glyphicon glyphiconMenuLeft"></span>
           <div class="leftNavToggleArrow bounce">
           </div>
         </a>
@@ -81,7 +81,7 @@
       <div id="bottomTwitchContainer"></div>
     </div>
   </div>
-  <!-- page-wrapper -->
+  <!-- pageWrapper -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
     integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
@@ -92,15 +92,6 @@
 
   <script src="app.0.1.1.js"></script>
   <script type="module" src="app.0.1.1.js"></script>
-  <script>// Use event delegation to handle checkbox changes
-    document.addEventListener('change', function (event) {
-      const target = event.target;
-
-      if (target.type === 'checkbox') {
-        handleCheckboxChange(event);
-      }
-    });</script>
-
 </body>
 
 </html>

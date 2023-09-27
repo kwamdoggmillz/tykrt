@@ -199,11 +199,20 @@ function updateMargins() {
           rightNav.style.display = 'none';
           bottomContainer.style.width = window.innerWidth - 54 - 10 - 10 - 10 - 10;
 
+          updateChatSize();
+
           const chatIframe = document.querySelector('.chatIframe');
 
           if (chatIframe) {
             bottomContainer.style.width = chatIframe.style.width;
           }
+
+          /*const currentHeight = parseFloat(getComputedStyle(bottomContainer).height);
+
+          if (!isNaN(currentHeight)) { // Ensure the current height is a valid number
+            const newHeight = currentHeight + 30; // Add 30 to the current height
+            bottomContainer.style.height = `${newHeight}px`; // Set the new height as a string with 'px' unit
+          }*/
 
           showHideStreamViewers('hidden');
         }
@@ -461,7 +470,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
 }
 
 // Function to fetch top 20 live broadcasts from YouTube sorted by view count
-function getYouTubeLiveBroadcasts(apiKey) {
+async function getYouTubeLiveBroadcasts(apiKey) {
 
   const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&key=${apiKey}`;
 
@@ -523,7 +532,15 @@ function getYouTubeLiveBroadcasts(apiKey) {
             streamerCardLeftDetails.appendChild(textView);
             streamItem.appendChild(streamerCardLeftDetails);
 
-            streamItem.appendChild(viewerCount);
+
+
+            if (leftNavOpen === 0) {
+
+            } else {
+              streamItem.appendChild(viewerCount);
+            }
+
+
 
             leftNavData.push({
               element: streamItem,
@@ -670,6 +687,14 @@ function handleCheckboxChange(event, checked) {
     label.classList.remove('selected-tab');
   });
 
+  const leftNavContainerAutoCollapseWidth = 170;
+
+  if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
+
+  updateChatSize();
+
+  }
+
   updateStreamLayout();
 
   // Get the selectedIndex of the clicked button
@@ -789,8 +814,6 @@ function createChatTab(channelName) {
   const chatIframe = createChatEmbed(channelName);
   chatIframe.width = '100%'; // Set the width
 
-  const [maxSingleStreamWidth, height] = calculateStreamHeightAndWidth();
-
   // Get the height of the leftNavContainer div
   const rightNav = document.getElementById('rightNav');
   const sidebarHeight = rightNav.offsetHeight;
@@ -814,7 +837,10 @@ function createChatTab(channelName) {
   chatIframe.height = (sidebarHeight - tabContainerHeight - sidebarContentHeight - 10) + 'px';
 
   if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
-    chatIframe.height = (leftNavContainer.offsetHeight - height - (window.innerHeight * 0.032) - 10) + 'px';
+
+    const streamHeight = updateChatSize();
+
+    chatIframe.height = (leftNavContainer.offsetHeight - streamHeight - (window.innerHeight * 0.032) - 10) - 30 + 'px';
     chatIframe.width = (window.innerWidth - 54 - 10 - 10 - 10 - 10) + 'px';
   }
 
@@ -879,6 +905,35 @@ function showChatTab(channelName) {
       }
     }
   }
+}
+
+function updateChatSize() {
+
+  const [maxSingleStreamWidth, height] = calculateStreamHeightAndWidth();
+
+  const radioButtons = document.querySelectorAll('.tab-radio');
+  const radioLength = Array.from(radioButtons).length
+
+  let streamHeight = height
+
+  if (radioLength === 2) {
+    streamHeight = height / 2
+  } else if (radioLength === 3) {
+    streamHeight = (height / 2 + height)
+  } else if (radioLength === 4) {
+    streamHeight = height
+  }
+
+  const elements = document.querySelectorAll('.chat-iframe');
+
+  elements.forEach(element => {
+
+    element.style.height = (leftNavContainer.offsetHeight - streamHeight - (window.innerHeight * 0.032) - 10) - 30 + 'px';
+
+  });
+
+return streamHeight
+
 }
 
 function removeAllChats() {
@@ -1292,8 +1347,8 @@ jQuery(function ($) {
     }
   });
 
-  $("#close-rightNav").click(function () {
-    $(".page-wrapper").removeClass("toggled");
+  $("#closeRightNav").click(function () {
+    $(".pageWrapper").removeClass("toggled");
 
     sidebarOpen = 0;
 
@@ -1301,8 +1356,8 @@ jQuery(function ($) {
     updateStreamLayout();
 
   });
-  $("#show-rightNav").click(function () {
-    $(".page-wrapper").addClass("toggled");
+  $("#showRightNav").click(function () {
+    $(".pageWrapper").addClass("toggled");
 
     sidebarOpen = 1;
 
