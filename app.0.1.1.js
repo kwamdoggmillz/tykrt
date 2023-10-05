@@ -152,6 +152,7 @@ function updateWindowSize() {
   previousWindowWidth = currentWindowWidth;
 }
 
+
 function updateMargins() {
   try {
 
@@ -166,11 +167,13 @@ function updateMargins() {
     const bottomContainer = document.getElementById('bottomContainer');
     const loginContainer = document.getElementById('loginContainer');
 
-    if (loginContainer) {
+    if (loginContainer && loginContainer.style.display !== 'none') {
       const marginTop = window.innerHeight / 2 - loginContainer.offsetHeight / 2 + 'px';
       const marginLeft = window.innerWidth / 2 - loginContainer.offsetWidth / 2 + 'px';
       loginContainer.style.marginTop = marginTop;
       loginContainer.style.marginLeft = marginLeft;
+
+      return;
     }
 
     if (topNav && leftNavContainer && rightNav && streamPlayerContainer) {
@@ -178,8 +181,6 @@ function updateMargins() {
       const leftNavContainerExpandedWidth = 24 * parseFloat(getComputedStyle(leftNavContainer).fontSize); // 24rem
       const leftNavContainerAutoCollapseWidth = 170;
       const leftNavContainerCollapsedWidth = '54px';
-
-      leftNavContainer.style.top = `${topNavEndPosition + 13}px`;
 
       if (isLeftNavOpen === 0) {
         leftNavContainer.style.width = leftNavContainerCollapsedWidth;
@@ -193,9 +194,9 @@ function updateMargins() {
         if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
           const leftNavExpandCollapse = document.querySelector(".leftNavToggle");
           leftNavExpandCollapse.style.display = 'none';
-          leftNavContainer.style.height = '88%';
-          leftNav.style.borderTopLeftRadius = '10px';
-          leftNav.style.borderTopRightRadius = '10px';
+          leftNav.style.height = leftNavContainer.getBoundingClientRect().height - 11 + 'px';
+          leftNav.style.borderTopLeftRadius = '12px';
+          leftNav.style.borderTopRightRadius = '12px';
           rightNav.style.display = 'none';
           bottomContainer.style.width = window.innerWidth - 54 - 10 - 10 - 10 - 10;
 
@@ -207,18 +208,11 @@ function updateMargins() {
             bottomContainer.style.width = chatIframe.style.width;
           }
 
-          /*const currentHeight = parseFloat(getComputedStyle(bottomContainer).height);
-
-          if (!isNaN(currentHeight)) { // Ensure the current height is a valid number
-            const newHeight = currentHeight + 30; // Add 30 to the current height
-            bottomContainer.style.height = `${newHeight}px`; // Set the new height as a string with 'px' unit
-          }*/
-
           showHideStreamViewers('hidden');
         }
       } else {
         leftNavOpen = 1;
-        leftNavContainer.style.height = (window.innerHeight * 0.88) - (3.674 * parseFloat(getComputedStyle(leftNavContainer).fontSize)) + 'px';
+        leftNav.style.height = '';
         leftNav.style.borderTopLeftRadius = '0px';
         leftNav.style.borderTopRightRadius = '0px';
         bottomContainer.style.display = 'none';
@@ -232,19 +226,9 @@ function updateMargins() {
         }
       }
 
-      rightNav.style.top = `${topNavEndPosition + 13}px`;
-      streamPlayerContainer.style.marginTop = `${topNavEndPosition + 13}px`;
-
-      if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth || isLeftNavOpen === 0) {
-        streamPlayerContainer.style.marginLeft = leftNavContainerCollapsedWidth;
-      } else {
-        streamPlayerContainer.style.marginLeft = `${leftNavContainerExpandedWidth}px`;
-      }
-
       if (!isFirstRun) {
         if (isSidebarOpen === 0 || leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
           sidebarOpen = 0;
-          streamPlayerContainer.style.marginRight = 0;
         } else {
           sidebarOpen = 1;
 
@@ -255,7 +239,6 @@ function updateMargins() {
               if (globalPreviousWindowWidth !== window.innerWidth && (wasAutoCollapsed !== isAutoCollapsed)) {
                 rightNav.style.display = 'block';
               }
-              streamPlayerContainer.style.marginRight = `${rightNav.clientWidth}px`;
             }
           } catch (error) {
             console.error('Error:', error);
@@ -273,6 +256,7 @@ function updateMargins() {
   } catch (error) {
     console.error('Error:', error);
   }
+
 }
 
 
@@ -305,12 +289,14 @@ function calculateStreamHeightAndWidth() {
   const leftNavPxWidth = 24 * parseFloat(getComputedStyle(leftNavContainer).fontSize); // 24rem
   const maxSidebarPxWidth = 321;
 
+  const navContainer = document.querySelector('.navContainer');
+
   let maxSingleStreamWidth = window.innerWidth - leftNavPxWidth - 10 - maxSidebarPxWidth - 10 - 20;
 
   if (leftNavOpen === 0 && sidebarOpen === 0) {
     maxSingleStreamWidth = window.innerWidth - 54 - 10 - 10 - 20;
   } else if (leftNavOpen === 1 && sidebarOpen === 0) {
-    maxSingleStreamWidth = window.innerWidth - leftNavPxWidth - 10 - 10 - 20;
+    maxSingleStreamWidth = window.innerWidth - navContainer.getBoundingClientRect().width - 20;
   } else if (leftNavOpen === 0 && sidebarOpen === 1) {
     const availableWidth = window.innerWidth * (1 - sidebarPercentageWidth);
     maxSingleStreamWidth = Math.min(availableWidth - 54 - 10 - 10 - 20, window.innerWidth - maxSidebarPxWidth - 54 - 10 - 10 - 20);
@@ -345,8 +331,8 @@ function updateStreamLayout() {
   for (let i = 0; i < numSelectedStreams; i++) {
     const username = selectedStreamersArray[i];
     const streamWidth = numSelectedStreams === 1 || (i === numSelectedStreams - 1 && numSelectedStreams % 2 === 1)
-      ? maxSingleStreamWidth + 'px'
-      : (maxSingleStreamWidth / 2) + 'px';
+      ? maxSingleStreamWidth - 20 + 'px'
+      : ((maxSingleStreamWidth - 40) / 2) + 'px';
     const streamHeight = numSelectedStreams === 1 || (i === numSelectedStreams - 1 && numSelectedStreams % 2 === 1)
       ? height + 'px'
       : (height / 2) + 'px';
@@ -358,13 +344,17 @@ function updateStreamLayout() {
 
   Array.from(streamPlayers).forEach((streamPlayer, i) => {
     const streamWidth = numSelectedStreams === 1 || (i === numSelectedStreams - 1 && numSelectedStreams % 2 === 1)
-      ? maxSingleStreamWidth + 'px'
-      : (maxSingleStreamWidth / 2) + 'px';
+      ? maxSingleStreamWidth - 20 + 'px'
+      : ((maxSingleStreamWidth - 40) / 2) + 'px';
     const streamHeight = numSelectedStreams === 1 || (i === numSelectedStreams - 1 && numSelectedStreams % 2 === 1)
       ? height + 'px'
       : (height / 2) + 'px';
 
-    streamPlayer.style.height = streamHeight;
+    streamPlayer.style.height = streamHeight + 20 + 'px';
+    streamPlayer.style.width = streamWidth;
+
+    const handle = streamPlayer.querySelector('.handle');
+    handle.style.width = parseInt(streamWidth);
   });
 }
 
@@ -691,7 +681,7 @@ function handleCheckboxChange(event, checked) {
 
   if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
 
-  updateChatSize();
+    updateChatSize();
 
   }
 
@@ -713,15 +703,53 @@ function createStreamPlayer(container, username, width, height) {
     parent: ["tykrt.com"],
   };
 
+  const handle = createElementWithClass('div', 'handle')
+  handle.textContent = 'Drag/Resize Me';
+
   // Create and embed the Twitch player
   const playerDiv = createElementWithClass('div', 'stream-player', {
     id: `twitch-player-${username}`
   });
+
+  playerDiv.appendChild(handle);
   container.appendChild(playerDiv);
 
-  // Create the rounded overlay
-  const roundedOverlay = createRoundedOverlay();
-  container.appendChild(roundedOverlay);
+  handle.style.width = parseInt(width);
+
+  // Initialize draggable and resizable right after adding the playerDiv
+  $(playerDiv).draggable({
+    handle: '.handle',
+    containment: '#streamPlayerContainer',
+    scroll: false,
+    start: function (event, ui) {
+      $(this).find('iframe').css('pointer-events', 'none');  // Disable pointer events for iframe
+    },
+    stop: function (event, ui) {
+      $(this).find('iframe').css('pointer-events', 'auto');  // Re-enable pointer events
+    }
+  }).resizable({
+    handles: "all",
+    containment: '#streamPlayerContainer',
+    minHeight: 50,
+    minWidth: 50,
+    start: function (event, ui) {
+      $(this).find('iframe').css('pointer-events', 'none');  // Disable pointer events for iframe
+    },
+    stop: function (event, ui) {
+      $(this).find('iframe').css('pointer-events', 'auto');  // Re-enable pointer events
+    },
+    resize: function (event, ui) {
+      const newWidth = ui.size.width;
+      const newHeight = ui.size.height;
+
+      // Get the embedded Twitch iframe inside the .stream-player div
+      const iframe = $(this).find('iframe');
+
+      // Set the new width and height to the iframe
+      iframe.width(newWidth);
+      iframe.height(newHeight);
+    }
+  });
 
   createOrUpdateChatTab(username); // Use the updated function to create or update the chat tab
 
@@ -747,7 +775,10 @@ function createOrUpdateChatTab(channelName) {
     rightNav.style.display = 'none';
     bottomContainer.style.display = 'block';
   } else {
-    rightNav.style.display = 'block';
+
+    if (sidebarOpen == 1) {
+      rightNav.style.display = 'block';
+    }
     bottomContainer.style.display = 'none';
   }
 
@@ -810,6 +841,8 @@ function createChatTab(channelName) {
   const tabContent = createElementWithClass('div', 'tab-content');
   tabContent.id = `content-${channelName}`;
 
+  const mainContent = document.getElementById('mainContent');
+
   // Create the chat iframe
   const chatIframe = createChatEmbed(channelName);
   chatIframe.width = '100%'; // Set the width
@@ -834,7 +867,7 @@ function createChatTab(channelName) {
   const streamPlayerContainerHeight = streamPlayerContainer.offsetHeight;
 
   // Set the chatIframe height to match the leftNavContainer height
-  chatIframe.height = (sidebarHeight - tabContainerHeight - sidebarContentHeight - 10) + 'px';
+  chatIframe.height = (sidebarHeight - tabContainerHeight - sidebarContentHeight - 30) + 'px';
 
   if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
 
@@ -932,7 +965,7 @@ function updateChatSize() {
 
   });
 
-return streamHeight
+  return streamHeight
 
 }
 
@@ -1228,12 +1261,6 @@ function createElementWithClass(elementType, className, attributes = {}) {
   return element;
 }
 
-function createRoundedOverlay() {
-  const overlay = document.createElement('div');
-  overlay.classList.add('rounded-overlay');
-  return overlay;
-}
-
 async function fetchData(url) {
   try {
     const headers = {
@@ -1282,6 +1309,26 @@ async function fetchUserAndGameDataPromises(liveStreams) {
 
   return { usersMap, gamesMap };
 }
+
+const avatar = document.getElementById('avatarProfPic');
+const dropdownMenu = document.querySelector('.avatarDropdownMenu');
+
+// Add a click event listener to the avatar
+avatar.addEventListener('click', function () {
+  // Toggle the "show" class on the dropdown menu
+  dropdownMenu.classList.toggle('show');
+});
+// Close the dropdown if the user clicks outside of it
+window.addEventListener('click', function (event) {
+  if (!event.target.matches('.avatarDropdown')) {
+    const dropdowns = document.querySelectorAll(' .avatarDropdownMenu');
+    dropdowns.forEach(function (dropdown) {
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+      }
+    });
+  }
+});
 
 jQuery(function ($) {
 
@@ -1348,7 +1395,18 @@ jQuery(function ($) {
   });
 
   $("#closeRightNav").click(function () {
-    $(".pageWrapper").removeClass("toggled");
+    $("#rightNav").addClass("slideOut");
+    $("#showRightNav").addClass("slideIn");
+    $("#avatarProfPic").addClass("moveLeft")
+
+    const rightNav = document.getElementById('rightNav');
+
+    setTimeout(() => {
+      rightNav.style.right = '-330px';
+      rightNav.style.position = 'absolute';
+    }, 302); // Adjust the duration to match your animation duration
+
+
 
     sidebarOpen = 0;
 
@@ -1357,7 +1415,13 @@ jQuery(function ($) {
 
   });
   $("#showRightNav").click(function () {
-    $(".pageWrapper").addClass("toggled");
+    $("#rightNav").removeClass("slideOut");
+    $("#showRightNav").removeClass("slideIn");
+    $("#avatarProfPic").removeClass("moveLeft")
+
+    const rightNav = document.getElementById('rightNav');
+    rightNav.style.right = '';
+    rightNav.style.position = '';
 
     sidebarOpen = 1;
 

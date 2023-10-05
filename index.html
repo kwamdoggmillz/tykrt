@@ -2,30 +2,37 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
-  <link rel="icon" href="thumbnail.png" type="image/png">
-  <link rel="shortcut icon" href="thumbnail.png" type="image/png">
-  <div class="topNav" id="topNav" style="display: none;">
-    <a href="https://tykrt.com" id="imageLink">
-      <img src="Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
-    </a>
-  </div>
-  <title>Tykrt</title>
-  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="app.0.1.1.css" id="bootstrap-css">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <link rel="icon" href="images/thumbnail.png" type="image/png">
+  <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
+
+  <title>Tykrt</title>
+
+  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
 </head>
 
+
 <body>
+
   <div id="loginContainer">
     <div class="login">
       <div class="left-content">
-        <img src="Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
+        <img src="images/Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
       </div>
       <div class="right-content">
         <h2>Log in</h2>
@@ -40,57 +47,89 @@
       </div>
     </div>
   </div>
-  <div class="pageWrapper chillerTheme toggled">
-    <a id="showRightNav" class="btn btn-sm btn-dark" href="#">
-      <i class="fas fa-bars"></i>
-    </a>
-    <nav id="rightNav" class="rightNav" style="display: none;">
-      <div id="sidebarContent" class="sidebarContent">
-        <div class="rightNavBrand">
-          <div id="closeRightNav">
-            <i class="fas fa-times"></i>
+
+  <div class="mainContainer">
+    <nav class="topNav" id="topNav" style="display: none;">
+      <a href="https://tykrt.com" id="imageLink">
+        <img src="images/Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
+      </a>
+      <div id="topNavRightContent">
+        <img src="images/avatarProfPic.jpg" width="32" height="32" id="avatarProfPic" class="avatarDropdown">
+        <div class="avatarDropdownMenu">
+          <div class="appsMenu">
+            <a href="#" class="appsMenuLink">
+              <img src="images/profileIcon.png" width="20" height="20" class="appsMenuIcon">
+              Profile
+            </a>
+            <a href="terms.html" class="appsMenuLink">
+              <img src="images/termsIcon.png" width="20" height="20" class="appsMenuIcon">
+              Terms of Service
+            </a>
+            <a href="privacy.html" class="appsMenuLink">
+              <img src="images/privacyIcon.png" width="20" height="20" class="appsMenuIcon">
+              Privacy Policy
+            </a>
+            <a href="#" class="appsMenuLink">
+              <img src="images/signOutIcon.png" width="20" height="20" class="appsMenuIcon">
+              Sign Out
+            </a>
           </div>
         </div>
-      </div>
-      <div class="tabContainer">
-        <div class="tabs" id="tabMenu">
-          <span class="glider"></span>
-        </div>
-      </div>
-      <div class="twitchChatContainer" id="twitchChatContainer">
-        <div class="twitchChats" id="twitchChats"></div>
+        <a id="showRightNav" class="btn btn-sm btn-dark" href="#">
+          <i class="fas fa-bars"></i>
+        </a>
       </div>
     </nav>
-    <div id="leftNavAndStreamPlayer">
-      <div id="leftNavContainer">
-        <a href="#" class="leftNavToggle" id="leftNavToggle"><span class="glyphicon glyphiconMenuLeft"></span>
-          <div class="leftNavToggleArrow bounce">
-          </div>
-        </a>
-        <div id="leftNav"></div>
-      </div>
-      <div id="streamPlayerContainer">
-      </div>
-    </div>
-    <div id="bottomContainer" style="display: none;">
-      <div class="bottomTabContainer">
-        <div class="bottomTabs" id="bottomTabMenu">
-          <span class="bottomGlider"></span>
-        </div>
-      </div>
-      <div id="bottomTwitchContainer"></div>
-    </div>
-  </div>
-  <!-- pageWrapper -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
 
-  <script src="app.0.1.1.js"></script>
+    <div class="contentContainer">
+
+      <div class="navContainer">
+        <nav id="leftNavContainer" class="nav">
+          <a href="#" class="leftNavToggle" id="leftNavToggle"><span class="glyphicon glyphiconMenuLeft"></span>
+            <div class="leftNavToggleArrow bounce">
+            </div>
+          </a>
+          <div id="leftNav"></div>
+        </nav>
+      </div>
+
+      <div class="mainContent">
+        <div id="streamPlayerContainer" class="streamPlayerContainer"></div>
+        <nav id="bottomContainer" style="display: none;">
+          <div class="bottomTabContainer">
+            <div class="bottomTabs" id="bottomTabMenu">
+              <span class="bottomGlider"></span>
+            </div>
+          </div>
+          <div id="bottomTwitchContainer"></div>
+        </nav>
+      </div>
+
+      <div class="navContainer">
+        <nav id="rightNav" class="nav" style="display: none;">
+          <div id="sidebarContent" class="sidebarContent">
+            <div class="rightNavBrand">
+              <div id="closeRightNav">
+                <i class="fas fa-times"></i>
+              </div>
+            </div>
+          </div>
+          <div class="tabContainer">
+            <div class="tabs" id="tabMenu">
+              <span class="glider"></span>
+            </div>
+          </div>
+          <div class="twitchChatContainer" id="twitchChatContainer">
+            <div class="twitchChats" id="twitchChats"></div>
+          </div>
+        </nav>
+      </div>
+
+    </div>
+
+  </div>
+  </div>
+
   <script type="module" src="app.0.1.1.js"></script>
 </body>
 
