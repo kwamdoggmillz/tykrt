@@ -8,6 +8,7 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="app.0.1.1.css" id="bootstrap-css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
   <link rel="icon" href="images/thumbnail.png" type="image/png">
@@ -18,6 +19,7 @@
   <script src="https://player.twitch.tv/js/embed/v1.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack-all.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
@@ -94,7 +96,11 @@
       </div>
 
       <div class="mainContent">
-        <div id="streamPlayerContainer" class="streamPlayerContainer"></div>
+        <div id="streamPlayerContainer" class="streamPlayerContainer">
+          <div class="grid-stack" data-gs-animate="yes">
+
+          </div>
+        </div>
         <nav id="bottomContainer" style="display: none;">
           <div class="bottomTabContainer">
             <div class="bottomTabs" id="bottomTabMenu">
