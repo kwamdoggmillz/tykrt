@@ -275,6 +275,10 @@
   background-color: #2c3542;
 }
 
+.streamerCardLink {
+  text-decoration: none;
+}
+
 .streamerCardLeftDetails {
   display: flex;
   align-items: center;
@@ -1480,6 +1484,8 @@ svg:not(:host).svg-inline--fa {
 
 .tooltip {
   position: absolute;
+  display: flex;
+  align-items: center;
   display: none;
   color: white;
   font-size: 1.4rem;

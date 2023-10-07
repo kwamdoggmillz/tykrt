@@ -309,19 +309,10 @@ function updateMargins() {
 
 async function updateLeftNav() {
   try {
-
-    leftNavData = []; // Reset the array before fetching new data
-
-    clearTooltips();
-
     await getFollowedLiveStreams(accessToken, userId);
     await getYouTubeLiveBroadcasts(apiKey);
 
     sortStreamsByViewers();
-
-    renderToDOM();
-
-    restoreCheckboxStates();
 
     updateLeftNavUi();
 
@@ -371,11 +362,12 @@ function updateStreamLayout() {
 function positionStreamPlayer(username) {
   const gridContainer = document.querySelector('.grid-stack');
   const playerDiv = document.querySelector(`#twitch-player-${username}`);
-  const numStreams = Array.from(gridContainer.children).length;
+  const existingStreams = Array.from(gridContainer.querySelectorAll('.stream-player'));
+  const i = existingStreams.indexOf(playerDiv); // Index of the current stream
 
   let x = 0, y = 0, width = 12, height = 4;
 
-  switch (numStreams) {
+  switch (existingStreams.length) {
     case 1:
       width = 12;
       height = 4;
@@ -383,20 +375,17 @@ function positionStreamPlayer(username) {
     case 2:
       width = 6;
       height = 4;
-      x = 6;
+      x = (i % 2) * 6; // 0 for the 1st stream and 6 for the 2nd stream
+      y = Math.floor(i / 2) * 4; // Remains 0 for both 1st and 2nd streams
       break;
     case 3:
-      width = 6;
-      height = 2;
-      if (x === 12) { y = 2; x = 0; }
-      else x += 6;
-      break;
     case 4:
       width = 6;
-      height = 2;
-      if (x === 12) { y = 2; x = 0; }
-      else x += 6;
+      height = 2; // Half the original height
+      x = (i % 2) * 6;
+      y = Math.floor(i / 2) * 2; // This will adjust the Y positioning to accommodate the reduced height
       break;
+    // You can continue the pattern for more streams if needed...
   }
 
   gridStackInitialized.then(grid => {
@@ -413,7 +402,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
     return;
   }
 
-  leftNavData = []; // Reset the array before fetching new data
+  const updatedStreams = [];
 
   try {
     const response = await fetchData(`${apiBaseUrl}/streams/followed?user_id=${userId}`); // Use backticks here
@@ -437,11 +426,158 @@ async function getFollowedLiveStreams(accessToken, userId) {
         console.error('Error fetching game name:', error);
       }
 
-      const streamElements = createStreamerCards(stream.user_login, user.display_name, user.profile_image_url, gameName, stream.viewer_count, 'twitch');
+      const existingStream = leftNavData.find(item => item.streamerLogin === stream.user_login);
+
+      if (!existingStream) {
+        const streamDOMElement = addStreamToNav(stream, user, gameName);
+        leftNavData.push({
+          element: streamDOMElement,
+          streamerLogin: stream.user_login,
+          streamTitle: stream.title,
+          streamerName: user.display_name,
+          gameName: gameName,
+          viewerCount: stream.viewer_count,
+          streamerId: stream.user_id,
+          gameId: stream.game_id,
+          streamType: 'twitch'
+        });
+      } else {
+        updateStreamInNav(existingStream, stream, user, gameName);
+      }
+
+      updatedStreams.push(stream.user_login);
+    }
+
+    removeStreamsFromNav(updatedStreams);
+
+  } catch (error) {
+    console.error('Error: ', error);
+  }
+}
+
+function addStreamToNav(stream, user, gameName) {
+  const leftNav = document.getElementById('leftNav');
+  const streamElements = createStreamerCards(stream.user_login, user.display_name, user.profile_image_url, gameName, stream.viewer_count, 'twitch');
+  const streamerCardLink = streamElements.streamerCardLink;
+  const tooltip = streamElements.tooltip;
+  const streamerCardLeftDetails = streamElements.streamerCardLeftDetails;
+  const profilePicContainer = streamElements.profilePicContainer;
+  const profilePic = streamElements.profilePic;
+  const checkboxContainer = streamElements.checkboxContainer;
+  const checkbox = streamElements.checkbox;
+  const label = streamElements.label;
+  const streamerName = streamElements.streamerName;
+  const gameDiv = streamElements.gameDiv;
+  const textView = streamElements.textView;
+  const viewerCount = streamElements.viewerCount;
+  const streamItem = streamElements.streamItem;
+
+  addTooltip(streamItem, tooltip, stream.title, leftNav);
+  profilePicContainer.appendChild(checkboxContainer);
+  profilePicContainer.appendChild(profilePic);
+  streamerCardLeftDetails.appendChild(profilePicContainer);
+  checkboxContainer.appendChild(checkbox);
+  checkboxContainer.appendChild(label);
+
+  streamItem.addEventListener('click', function (event) {
+    if (event.target.tagName !== 'LABEL') {
+      if (event.target.tagName !== 'INPUT') {
+        checkbox.checked = !checkbox.checked;
+      }
+      handleCheckboxChange(event, checkbox.checked);
+    }
+  });
+
+  textView.appendChild(streamerName);
+  textView.appendChild(gameDiv);
+  streamerCardLeftDetails.appendChild(textView);
+  streamItem.appendChild(streamerCardLeftDetails);
+  streamItem.appendChild(viewerCount);
+  streamerCardLink.appendChild(streamItem);
+  leftNav.appendChild(streamerCardLink);
+
+  return streamerCardLink;
+}
+
+function updateStreamInNav(existingStream, stream, user, gameName) {
+  // Logic to update existing stream details
+  // For now, let's assume you want to update the viewer count and game name
+
+  const streamElement = existingStream.element; // This assumes that each item in `leftNavData` has an associated DOM element
+  const viewerElement = streamElement.querySelector('.stream-viewers');
+  const gameElement = streamElement.querySelector('.game-name');
+
+  if (viewerElement) viewerElement.textContent = `${getFormattedNumber(stream.viewer_count)}`;
+  if (gameElement) gameElement.textContent = gameName;
+}
+
+function removeStreamsFromNav(updatedStreams) {
+  // First, get an array of the streamerLogin values from leftNavData
+  const existingStreamLogins = leftNavData
+    .filter(item => item.streamerLogin) // Only get items that have a streamerLogin
+    .map(item => item.streamerLogin);   // Convert to an array of streamerLogin values
+
+  // Now, determine which streams need to be removed
+  const streamsToRemoveLogins = existingStreamLogins.filter(login => !updatedStreams.includes(login));
+
+  // Remove the related DOM elements and data for these streams
+  for (let login of streamsToRemoveLogins) {
+    const index = leftNavData.findIndex(item => item.streamerLogin === login);
+
+    // Remove the data for this stream
+    if (index !== -1) {
+      const streamElement = leftNavData[index - 1].element;
+      if (streamElement) streamElement.parentNode.removeChild(streamElement);
+      leftNavData.splice(index - 1, 2); // Remove the element and its associated data
+    }
+  }
+}
+
+// Function to fetch top 20 live broadcasts from YouTube sorted by view count
+async function getYouTubeLiveBroadcasts(apiKey) {
+  try {
+
+    fetch('/fetch_quota.php')
+    .then(response => response.json())
+    .then(data => {
+      if (data.percentageUsed > 90) {
+       return
+      }
+    });
+
+    const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&relevanceLanguage=en&key=${apiKey}`;
+
+    const liveStreamsResponse = await fetch(youtubeLiveStreamsUrl);
+    const data = await liveStreamsResponse.json();
+    const liveStreams = data.items;
+
+    // Gather all video IDs and create a single comma-separated string
+    const videoIds = liveStreams.map(stream => stream.id.videoId).join(',');
+
+    // Fetch details for all videos in a single request
+    const detailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoIds}&part=liveStreamingDetails,snippet,statistics&key=${apiKey}`);
+    const detailsData = await detailsResponse.json();
+
+    const leftNav = document.getElementById('leftNav');
+
+    // Iterate over details for each video and process
+    for (let video of detailsData.items) {
+      const matchingStream = liveStreams.find(s => s.id.videoId === video.id);
+      if (!matchingStream) continue;
+
+      const streamElements = createStreamerCards(
+        matchingStream.snippet.channelTitle,
+        matchingStream.snippet.channelTitle,
+        matchingStream.snippet.thumbnails.medium.url,
+        '',
+        video.liveStreamingDetails.concurrentViewers,
+        'youtube'
+      );
+
       const streamerCardLink = streamElements.streamerCardLink;
       const tooltip = streamElements.tooltip;
       const streamerCardLeftDetails = streamElements.streamerCardLeftDetails;
-      const profilePicContainer = streamElements.profilePicContainer;
+      const profilePicContainerYT = createElementWithClass('div', 'profilePicContainerYT');
       const profilePic = streamElements.profilePic;
       const checkboxContainer = streamElements.checkboxContainer;
       const checkbox = streamElements.checkbox;
@@ -452,144 +588,29 @@ async function getFollowedLiveStreams(accessToken, userId) {
       const viewerCount = streamElements.viewerCount;
       const streamItem = streamElements.streamItem;
 
-      addTooltip(streamItem, tooltip, stream.title, leftNav);
-
-      profilePicContainer.appendChild(checkboxContainer);
-      profilePicContainer.appendChild(profilePic);
-      streamerCardLeftDetails.appendChild(profilePicContainer);
-
+      addTooltip(streamItem, tooltip, matchingStream.snippet.title, leftNav);
+      profilePicContainerYT.appendChild(checkboxContainer);
+      profilePicContainerYT.appendChild(profilePic);
+      streamerCardLeftDetails.appendChild(profilePicContainerYT);
       checkboxContainer.appendChild(checkbox);
       checkboxContainer.appendChild(label);
-
-      streamItem.addEventListener('click', function (event) {
-        if (event.target.tagName !== 'LABEL') {
-
-          if (event.target.tagName !== 'INPUT') {
-            // If the clicked element is not the checkbox itself, toggle the checkbox's checked state
-            checkbox.checked = !checkbox.checked;
-          }
-
-          // Trigger the change event manually to ensure other logic related to checkbox change is executed
-          handleCheckboxChange(event, checkbox.checked);
-        }
-      });
-
       textView.appendChild(streamerName);
-      textView.appendChild(gameDiv);
-
       streamerCardLeftDetails.appendChild(textView);
       streamItem.appendChild(streamerCardLeftDetails);
-
       streamItem.appendChild(viewerCount);
 
-      // Push the stream item to the global array with viewer count
       leftNavData.push({
         element: streamItem,
-        viewCount: parseInt(stream.viewer_count) // Push stream to array
+        viewCount: parseInt(streamItem.streamViewCount)
       });
 
       streamerCardLink.appendChild(streamItem);
-
       leftNav.appendChild(streamerCardLink);
-
     }
-  } catch (error) {
-    console.error('Error: ', error);
-  }
-}
-
-// Function to fetch top 20 live broadcasts from YouTube sorted by view count
-async function getYouTubeLiveBroadcasts(apiKey) {
-
-  try {
-
-    const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&key=${apiKey}`;
-
-    let streamPromises = [];
-
-    const liveStreamsResponse = await fetch(youtubeLiveStreamsUrl);
-    const data = await liveStreamsResponse.json();
-    const liveStreams = data.items;
-
-    for (let stream of liveStreams) {
-      const fetchPromise = fetch(`https://www.googleapis.com/youtube/v3/videos?id=${stream.id.videoId}&part=liveStreamingDetails,snippet,statistics&key=${apiKey}`)
-        .then(response => response.json())
-        .then(videoData => {
-
-          const video = videoData.items[0];
-
-          const streamElements = createStreamerCards(stream.snippet.channelTitle, stream.snippet.channelTitle, stream.snippet.thumbnails.medium.url, '', video.liveStreamingDetails.concurrentViewers, 'youtube');
-          const streamerCardLink = createElementWithClass('a', 'video-link', {
-            href: `https://www.youtube.com/watch?v=${stream.id.videoId}`,
-            'data-streamer': stream.snippet.channelTitle
-          });
-          const tooltip = streamElements.tooltip;
-          const streamerCardLeftDetails = streamElements.streamerCardLeftDetails;
-          const profilePicContainerYT = createElementWithClass('div', 'profilePicContainerYT');
-          const profilePic = streamElements.profilePic;
-          const checkboxContainer = streamElements.checkboxContainer;
-          const checkbox = streamElements.checkbox;
-          const label = streamElements.label;
-          const streamerName = streamElements.streamerName;
-          const gameDiv = streamElements.gameDiv;
-          const textView = streamElements.textView;
-          const viewerCount = streamElements.viewerCount;
-          const streamItem = streamElements.streamItem;
-
-          const leftNav = document.getElementById('leftNav');
-          addTooltip(streamItem, tooltip, stream.snippet.title, leftNav);
-
-          profilePicContainerYT.appendChild(checkboxContainer);
-          profilePicContainerYT.appendChild(profilePic);
-          streamerCardLeftDetails.appendChild(profilePicContainerYT);
-
-          try {
-            if (video.liveStreamingDetails && video.liveStreamingDetails.concurrentViewers) {
-              viewerCount.textContent = `${getFormattedNumber(video.liveStreamingDetails.concurrentViewers)}`;
-              streamItem.streamViewCount = video.liveStreamingDetails.concurrentViewers;
-            }
-            else {
-              viewerCount.textContent = ' - Viewer count unavailable';
-              streamItem.streamViewCount = 0;
-            }
-          } catch (error) {
-            console.error('Error fetching YouTube live broadcasts:', error);
-          }
-
-          textView.appendChild(streamerName);
-          /*textView.appendChild(gameDiv);*/
-
-          streamerCardLeftDetails.appendChild(textView);
-          streamItem.appendChild(streamerCardLeftDetails);
-
-          if (leftNavOpen === 0) {
-
-          } else {
-            streamItem.appendChild(viewerCount);
-          }
-
-          leftNavData.push({
-            element: streamItem,
-            viewCount: parseInt(streamItem.streamViewCount) // Push stream to array
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching YouTube live broadcasts:', error);
-        });
-
-      streamerCardLink.appendChild(streamItem);
-
-      leftNav.appendChild(streamerCardLink);
-
-      streamPromises.push(fetchPromise)
-    }
-
-    return Promise.all(streamPromises);
 
   } catch (error) {
     console.error('Error fetching YouTube live broadcasts:', error);
   }
-
 }
 
 function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePicture, gameName, viewCount, platform) {
@@ -708,7 +729,6 @@ function handleCheckboxChange(event, checked) {
     createStreamPlayer(null, selectedStreamer);
   } else {
     selectedStreams.delete(selectedStreamer);
-
     const playerDiv = document.querySelector(`#twitch-player-${selectedStreamer}`);
     gridStackInitialized.then(grid => {
       grid.removeWidget(playerDiv);
@@ -926,9 +946,6 @@ function createChatTab(channelName) {
     const selectedIndex = Array.from(radioButtons).indexOf(radioInput);
     updateGliderPosition(selectedIndex);
   });
-
-  // You can now access the updated tab count using the `tabCount` variable
-  console.log(`Number of tabs: ${tabCount + 1}`);
 }
 
 function createChatEmbed(channelName) {
@@ -1069,9 +1086,6 @@ function removeChatTab(channelName) {
       const rightNav = document.getElementById('rightNav');
       rightNav.style.display = 'none';
     }
-
-    // You can now access the updated tab count using the `tabCount` variable
-    console.log(`Number of tabs: ${tabCount}`);
   }
 }
 
@@ -1154,19 +1168,17 @@ function updateGliderPosition(index) {
   });
 }
 
-
 // Function to add and configure a tooltip for a stream item
 function addTooltip(streamItem, tooltip, streamTitle, leftNav) {
-  const streamPlayerContainer = document.getElementById('streamPlayerContainer');
-  streamPlayerContainer.appendChild(tooltip);
+  // Append the tooltip to the body
+  document.body.appendChild(tooltip);
 
   // Attach event listeners to show/hide tooltips
   streamItem.addEventListener('mouseover', function (event) {
     const streamItemRect = streamItem.getBoundingClientRect();
-    const leftNavRect = leftNav.getBoundingClientRect();
 
-    const x = leftNavRect.right + 15; // Adjust the X position as needed
-    const y = streamItemRect.top; // Adjust the Y position as needed
+    const x = streamItemRect.right + 15; // Place the tooltip 15px to the right of the streamer card
+    const y = streamItemRect.top; // Align the tooltip's top edge with the streamer card's top edge
 
     // Set the tooltip's position
     tooltip.style.left = `${x}px`;
@@ -1176,7 +1188,7 @@ function addTooltip(streamItem, tooltip, streamTitle, leftNav) {
     // Set the tooltip content
     tooltip.textContent = streamTitle;
 
-    tooltip.style.display = 'block'; // Show the tooltip on mouseover
+    tooltip.style.display = 'flex'; // Show the tooltip on mouseover
   });
 
   streamItem.addEventListener('mouseout', function () {
@@ -1184,7 +1196,6 @@ function addTooltip(streamItem, tooltip, streamTitle, leftNav) {
   });
 
   tooltips.push(tooltip); // Add the tooltip to the tooltips array
-
 }
 
 function clearTooltips() {
@@ -1352,7 +1363,6 @@ window.addEventListener('click', function (event) {
 jQuery(function ($) {
 
   $('.leftNavToggle').click(function (e) {
-    console.log('Button clicked');
 
     const leftNavContainer = document.getElementById('leftNavContainer');
 
