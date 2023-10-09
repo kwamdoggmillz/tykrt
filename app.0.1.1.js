@@ -374,7 +374,7 @@ function updateStreamLayout() {
 
 function positionStreamPlayer(username) {
   const gridContainer = document.querySelector('.grid-stack');
-  const playerDiv = document.querySelector(`#twitch-player-${username}`);
+  const playerDiv = document.querySelector(`#player-${username}`);
   const existingStreams = Array.from(gridContainer.querySelectorAll('.stream-player'));
   const i = existingStreams.indexOf(playerDiv); // Index of the current stream
 
@@ -655,7 +655,8 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
 
   const streamerCardLink = createElementWithClass('a', 'streamerCardLink', {
     href: `javascript:void(0);`,
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
 
   streamElements.streamerCardLink = streamerCardLink;
@@ -668,29 +669,28 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
 
   const streamItem = createElementWithClass('div', 'streamerCard', {
     'dataset.userLogin': streamerUserLogin,
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
 
   // Store the tooltip in the tooltipsMap with the streamItem as the key
   tooltipsMap.set(streamItem, tooltip);
 
   const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails', {
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
 
   streamElements.streamerCardLeftDetails = streamerCardLeftDetails;
 
-  let profilePicContainer = createElementWithClass('div', 'profilePicContainer');
-
-  if (platform === 'youtube') {
-    profilePicContainer = createElementWithClass('div', 'profilePicContainerYT');
-  }
-
+  const modifierClass = platform === 'youtube' ? 'profilePicContainer--youtube' : 'profilePicContainer--twitch';
+  const profilePicContainer = createElementWithClass('div', `profilePicContainer ${modifierClass}`);
   streamElements.profilePicContainer = profilePicContainer;
 
   const profilePic = createElementWithClass('img', 'video-thumbnail', {
     src: profilePicture,
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
 
   streamElements.profilePic = profilePic;
@@ -702,27 +702,31 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
   const checkbox = createElementWithClass('input', 'checkbox', {
     type: 'checkbox',
     id: `checkbox-${streamerUserLogin}`,
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
 
   streamElements.checkbox = checkbox;
 
   const label = createElementWithClass('label', 'checkbox-label', {
     'for': `checkbox-${streamerUserLogin}`,
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
 
   streamElements.label = label;
 
   const streamerName = createElementWithClass('div', 'stream-link', {
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
   streamerName.textContent = streamerDisplayName;
 
   streamElements.streamerName = streamerName;
 
   const gameDiv = createElementWithClass('div', 'game-name', {
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
 
   gameDiv.textContent = gameName;
@@ -734,7 +738,8 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
   streamElements.textView = textView;
 
   const viewerCount = createElementWithClass('span', 'stream-viewers', {
-    'data-streamer': streamerUserLogin
+    'data-streamer': streamerUserLogin,
+    'data-platform': platform,
   });
 
   if (viewCount) {
@@ -761,15 +766,16 @@ function handleCheckboxChange(event, checked) {
   }
 
   const selectedStreamer = event.target.dataset.streamer;
+  const platform = event.target.dataset.platform;
   let radioButtons = document.querySelectorAll('.tab-radio');
 
   if (checked) {
     selectedStreams.add(selectedStreamer);
     checkboxStates[selectedStreamer] = true; // Checkbox is checked
-    createStreamPlayer(null, selectedStreamer);
+    createStreamPlayer(null, selectedStreamer, platform);
   } else {
     selectedStreams.delete(selectedStreamer);
-    const playerDiv = document.querySelector(`#twitch-player-${selectedStreamer}`);
+    const playerDiv = document.querySelector(`#player-${selectedStreamer}`);
     gridStackInitialized.then(grid => {
       grid.removeWidget(playerDiv);
     });
@@ -808,25 +814,17 @@ function handleCheckboxChange(event, checked) {
   });
 }
 
-function createStreamPlayer(container, username) {
-  const existingStream = document.querySelector(`#twitch-player-${username}`);
+function createStreamPlayer(container, username, platform) {
+  const existingStream = document.querySelector(`#player-${username}`);
   if (existingStream) {
     // If stream already exists, just reposition it
     positionStreamPlayer(username);
     return;
   }
-  // Otherwise, create the stream player as before...
-  const options = {
-    width: '100%',
-    height: '100%',
-    channel: username,
-    parent: ["tykrt.com"],
-  };
 
   const playerDiv = createElementWithClass('div', 'stream-player grid-stack-item', {
-    id: `twitch-player-${username}`
+    id: `player-${username}`
   });
-
   const handle = createElementWithClass('div', 'handle');
   playerDiv.appendChild(handle);
 
@@ -834,13 +832,48 @@ function createStreamPlayer(container, username) {
 
   gridStackInitialized.then(grid => {
     grid.addWidget(playerDiv);
-    new Twitch.Player(`twitch-player-${username}`, options);
+    if (platform === 'twitch') {
+      const options = {
+        width: '100%',
+        height: '100%',
+        channel: username,
+        parent: ["tykrt.com"],
+      };
+      new Twitch.Player(`player-${username}`, options);
+    } else if (platform === 'youtube') {
+      if (typeof YT !== "undefined" && YT && YT.Player) { // Checking if YT is available
+        new YT.Player(`player-${username}`, {
+          videoId: username, // Assuming 'username' is the YouTube video ID. Change this if it's different.
+          width: '100%',
+          height: '100%',
+          playerVars: {
+            'playsinline': 1
+          }
+        });
+      }
+    }
   }).catch(error => {
     console.error(error);
   });
 
   // After creating the player, position it correctly
   positionStreamPlayer(username);
+
+  setStreamPlayerColors(playerDiv, platform);
+}
+
+
+function setStreamPlayerColors(streamPlayer, platform) {
+  setTimeout(() => {
+    const twitchIframe = streamPlayer.querySelector('iframe');
+    if (twitchIframe) {
+      if (platform === 'twitch') {
+        twitchIframe.classList.add('twitchIframe');
+      } else if (platform === 'youtube') {
+        twitchIframe.classList.add('youtubeIframe');
+      }
+    }
+  }, 500);  // waiting for 500ms, but adjust as necessary
 }
 
 function createOrUpdateChatTab(channelName) {

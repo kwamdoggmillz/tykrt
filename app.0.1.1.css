@@ -352,13 +352,13 @@
 }
 
 .handle::before {
-  content: ''; 
+  content: '';
   display: none;
   /* any other styles you want to apply */
 }
 
 .handle:hover::before {
-  content: 'Drag/Resize Me'; 
+  content: 'Drag/Resize Me';
   display: block;
   /* any other styles you want to change on hover */
 }
@@ -390,8 +390,16 @@ iframe[allowfullscreen][scrolling="no"][sandbox] {
   padding-top: 20px;
   height: calc(100% - 40px);
   padding-bottom: 20px;
+}
+
+.twitchIframe {
   background-color: rgba(161, 114, 247, 0.2);
   border-left: 3px solid rgba(161, 114, 247, 0.1);
+}
+
+.youtubeIframe {
+  background-color: rgba(234, 51, 35, 0.2);
+  border-left: 3px solid rgba(234, 51, 35, 0.1);
 }
 
 .streamer-name,
@@ -533,7 +541,6 @@ body {
 .profilePicContainer {
   display: inline-flex;
   margin-right: .6rem;
-  border: 3px solid #A172F7;
   border-radius: 50%;
   padding: .2rem;
   position: relative;
@@ -543,22 +550,16 @@ body {
   background-color: transparent;
 }
 
-.profilePicContainerYT {
-  display: inline-flex;
-  margin-right: .6rem;
+.profilePicContainer--twitch {
+  border: 3px solid #A172F7;
+}
+
+.profilePicContainer--youtube {
   border: 3px solid #EA3323;
-  border-radius: 50%;
-  padding: .2rem;
-  position: relative;
-  /* Use relative positioning */
-  width: 3rem;
-  height: 3rem;
-  background-color: transparent;
 }
 
 /* Add these styles to the input[type="checkbox"] and label inside .profilePicContainer */
-.profilePicContainer input[type="checkbox"],
-.profilePicContainerYT input[type="checkbox"] {
+.profilePicContainer input[type="checkbox"] {
   position: absolute;
   top: 0;
   left: 0;
@@ -570,8 +571,7 @@ body {
   z-index: 1;
 }
 
-.profilePicContainer label,
-.profilePicContainerYT label {
+.profilePicContainer label {
   background-color: transparent;
   border: 1px solid #ccc;
   border-radius: 50%;
@@ -591,8 +591,6 @@ body {
   text-decoration: none;
   color: white;
 }
-
-
 
 /* Add the custom round checkbox styles */
 .round {
