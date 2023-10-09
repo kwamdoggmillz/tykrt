@@ -305,24 +305,67 @@
   flex-wrap: nowrap;
   overflow: hidden;
   margin: 0;
+  padding-bottom: 20px;
 }
 
 .grid-stack {
-width: 100%;
+  width: 99%;
 }
 
 .grid-stack-item {
-  min-height: 201px; /* Adjust if necessary */
+  min-height: 201px;
+  /* Adjust if necessary */
   min-width: 357px;
-  background: rgba(35, 81, 185, 0.1); /* Just for clarity, can be removed later */
-  border: 1px solid #2351B9;
-  border-radius: 5px;
+  /* Just for clarity, can be removed later */
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
   position: relative;
+  padding-top: 40px;
+}
+
+.ui-resizable-w {
+  left: 0px !important;
+  width: 40px !important;
+  height: calc(100% - 60px) !important;
+}
+
+.ui-resizable-e {
+  right: 0px !important;
+  width: 40px !important;
+  height: calc(100% - 60px) !important;
+}
+
+.ui-resizable-s {
+  bottom: 0px !important;
+  width: 93.5% !important;
+  height: 20px !important;
+}
+
+.ui-resizable-sw {
+  bottom: 0px !important;
+  left: 0px !important;
+}
+
+.ui-resizable-se {
+  bottom: 0px !important;
+  right: 0px !important;
+}
+
+.handle::before {
+  content: ''; 
+  display: none;
+  /* any other styles you want to apply */
+}
+
+.handle:hover::before {
+  content: 'Drag/Resize Me'; 
+  display: block;
+  /* any other styles you want to change on hover */
 }
 
 .handle {
   position: absolute;
-  color: white;
+  color: #666666;
   top: 0;
   left: 0;
   right: 0;
@@ -330,7 +373,6 @@ width: 100%;
   /* Adjust as needed */
   width: 100%;
   max-width: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
   /* Semi-transparent black */
   cursor: move;
   /* Indicates the div can be dragged */
@@ -339,12 +381,18 @@ width: 100%;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   overflow: hidden;
+  font-weight: bold;
+  text-align: center;
+  font-size: 12px;
 }
 
-/*iframe {
-  display: block;
-  position: relative;
-}*/
+iframe[allowfullscreen][scrolling="no"][sandbox] {
+  padding-top: 20px;
+  height: calc(100% - 40px);
+  padding-bottom: 20px;
+  background-color: rgba(161, 114, 247, 0.2);
+  border-left: 3px solid rgba(161, 114, 247, 0.1);
+}
 
 .streamer-name,
 .game-name {

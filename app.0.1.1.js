@@ -5,13 +5,13 @@ let userId = null;
 let initialized = false;
 let isFirstRun = true;
 let leftNavData = []; // add this line to keep all streams data together before they are available
+let updatedStreams = [];
 const selectedStreams = new Set();
 const checkboxStates = {};
 const chatIframes = {};
 const tooltipsMap = new Map();
 const tooltips = [];
 const maxStreamsSelected = 4; // Set the maximum number of streams that can be selected
-let tabCount = 0;
 let sidebarOpen = 1;
 let leftNavOpen = 1;
 let previousWindowWidth = window.innerWidth;
@@ -85,19 +85,32 @@ let gridStackInitialized = new Promise((resolve, reject) => {
       cellHeight: 201,
       width: 12,
       resizable: {
-        handles: 'all'
+        handles: 'e, se, s, sw, w'
       }
     };
 
     const grid = GridStack.init(options);
 
     grid.on('resizestart', function (event, elem) {
-      elem.style.pointerEvents = "none";
+      const gridItems = document.querySelectorAll('.grid-stack-item');
+      gridItems.forEach(item => item.style.pointerEvents = "none");
     });
 
     grid.on('resizestop', function (event, elem) {
-      elem.style.pointerEvents = "auto";
+      const gridItems = document.querySelectorAll('.grid-stack-item');
+      gridItems.forEach(item => item.style.pointerEvents = "auto");
     });
+
+    grid.on('dragstart', function (event, elem) {
+      const gridItems = document.querySelectorAll('.grid-stack-item');
+      gridItems.forEach(item => item.style.pointerEvents = "none");
+    });
+
+    grid.on('dragstop', function (event, elem) {
+      const gridItems = document.querySelectorAll('.grid-stack-item');
+      gridItems.forEach(item => item.style.pointerEvents = "auto");
+    });
+
 
     // Resolve the promise if GridStack is initialized successfully
     if (grid) {
@@ -402,7 +415,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
     return;
   }
 
-  const updatedStreams = [];
+  updatedStreams = [];
 
   try {
     const response = await fetchData(`${apiBaseUrl}/streams/followed?user_id=${userId}`); // Use backticks here
@@ -429,7 +442,7 @@ async function getFollowedLiveStreams(accessToken, userId) {
       const existingStream = leftNavData.find(item => item.streamerLogin === stream.user_login);
 
       if (!existingStream) {
-        const streamDOMElement = addStreamToNav(stream, user, gameName);
+        const streamDOMElement = addStreamToNav(stream.user_login, user.display_name, user.profile_image_url, gameName, stream.title, stream.viewer_count, 'twitch');
         leftNavData.push({
           element: streamDOMElement,
           streamerLogin: stream.user_login,
@@ -442,22 +455,22 @@ async function getFollowedLiveStreams(accessToken, userId) {
           streamType: 'twitch'
         });
       } else {
-        updateStreamInNav(existingStream, stream, user, gameName);
+        updateStreamInNav(existingStream, stream, gameName, 'twitch');
       }
 
       updatedStreams.push(stream.user_login);
     }
 
-    removeStreamsFromNav(updatedStreams);
+    //removeStreamsFromNav(updatedStreams);
 
   } catch (error) {
     console.error('Error: ', error);
   }
 }
 
-function addStreamToNav(stream, user, gameName) {
+function addStreamToNav(streamerUserLogin, streamerDisplayName, profilePicture, gameName, streamTitle, viewCount, platform) {
   const leftNav = document.getElementById('leftNav');
-  const streamElements = createStreamerCards(stream.user_login, user.display_name, user.profile_image_url, gameName, stream.viewer_count, 'twitch');
+  const streamElements = createStreamerCards(streamerUserLogin, streamerDisplayName, profilePicture, gameName, viewCount, platform);
   const streamerCardLink = streamElements.streamerCardLink;
   const tooltip = streamElements.tooltip;
   const streamerCardLeftDetails = streamElements.streamerCardLeftDetails;
@@ -472,7 +485,7 @@ function addStreamToNav(stream, user, gameName) {
   const viewerCount = streamElements.viewerCount;
   const streamItem = streamElements.streamItem;
 
-  addTooltip(streamItem, tooltip, stream.title, leftNav);
+  addTooltip(streamItem, tooltip, streamTitle, leftNav);
   profilePicContainer.appendChild(checkboxContainer);
   profilePicContainer.appendChild(profilePic);
   streamerCardLeftDetails.appendChild(profilePicContainer);
@@ -499,7 +512,7 @@ function addStreamToNav(stream, user, gameName) {
   return streamerCardLink;
 }
 
-function updateStreamInNav(existingStream, stream, user, gameName) {
+function updateStreamInNav(existingStream, stream, gameName, platform, youtubeViewers) {
   // Logic to update existing stream details
   // For now, let's assume you want to update the viewer count and game name
 
@@ -507,8 +520,20 @@ function updateStreamInNav(existingStream, stream, user, gameName) {
   const viewerElement = streamElement.querySelector('.stream-viewers');
   const gameElement = streamElement.querySelector('.game-name');
 
-  if (viewerElement) viewerElement.textContent = `${getFormattedNumber(stream.viewer_count)}`;
-  if (gameElement) gameElement.textContent = gameName;
+  let updatedViewerCount;
+  if (platform === 'twitch') {
+    updatedViewerCount = stream.viewer_count;
+    if (viewerElement) viewerElement.textContent = `${getFormattedNumber(stream.viewer_count)}`;
+  } else if (platform === 'youtube') {
+    updatedViewerCount = youtubeViewers;
+    if (viewerElement) viewerElement.textContent = `${getFormattedNumber(youtubeViewers)}`;
+  }
+
+  if (platform === 'twitch') {
+    if (gameElement) gameElement.textContent = gameName;
+  }
+
+  existingStream.viewerCount = updatedViewerCount;
 }
 
 function removeStreamsFromNav(updatedStreams) {
@@ -526,28 +551,51 @@ function removeStreamsFromNav(updatedStreams) {
 
     // Remove the data for this stream
     if (index !== -1) {
-      const streamElement = leftNavData[index - 1].element;
+      const streamElement = leftNavData[index].element;
       if (streamElement) streamElement.parentNode.removeChild(streamElement);
-      leftNavData.splice(index - 1, 2); // Remove the element and its associated data
+      leftNavData.splice(index, 1); // Remove only the element that matches the stream
     }
   }
 }
 
-// Function to fetch top 20 live broadcasts from YouTube sorted by view count
+
+// Function to fetch top 20 live broadcasts from YouTube sorted by view count// Function to fetch top 20 live broadcasts from YouTube sorted by view count
 async function getYouTubeLiveBroadcasts(apiKey) {
   try {
 
-    fetch('/fetch_quota.php')
+    /*fetch('quota_checker/fetch_quota.php')
     .then(response => response.json())
     .then(data => {
       if (data.percentageUsed > 90) {
        return
       }
-    });
+    });*/
 
     const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&relevanceLanguage=en&key=${apiKey}`;
 
     const liveStreamsResponse = await fetch(youtubeLiveStreamsUrl);
+
+    if (!liveStreamsResponse.ok) {
+      const errorData = await liveStreamsResponse.json();
+      if (liveStreamsResponse.status === 403) {
+
+        // Check if the message was shown in the last 24 hours
+        const lastShown = localStorage.getItem("quotaExceededTimestamp");
+        const currentTime = Date.now();
+        const oneDayInMillis = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+        if (!lastShown || (currentTime - lastShown > oneDayInMillis)) {
+          console.error("YouTube API quota exceeded.");
+          localStorage.setItem("quotaExceededTimestamp", currentTime.toString()); // Store current timestamp
+        }
+        removeStreamsFromNav(updatedStreams);
+
+        return;
+      } else {
+        throw new Error(`Error fetching YouTube live broadcasts: ${errorData.error.message}`);
+      }
+    }
+
     const data = await liveStreamsResponse.json();
     const liveStreams = data.items;
 
@@ -565,48 +613,36 @@ async function getYouTubeLiveBroadcasts(apiKey) {
       const matchingStream = liveStreams.find(s => s.id.videoId === video.id);
       if (!matchingStream) continue;
 
-      const streamElements = createStreamerCards(
-        matchingStream.snippet.channelTitle,
-        matchingStream.snippet.channelTitle,
-        matchingStream.snippet.thumbnails.medium.url,
-        '',
-        video.liveStreamingDetails.concurrentViewers,
-        'youtube'
-      );
+      const existingStream = leftNavData.find(item => item.streamerLogin === matchingStream.snippet.channelTitle);
 
-      const streamerCardLink = streamElements.streamerCardLink;
-      const tooltip = streamElements.tooltip;
-      const streamerCardLeftDetails = streamElements.streamerCardLeftDetails;
-      const profilePicContainerYT = createElementWithClass('div', 'profilePicContainerYT');
-      const profilePic = streamElements.profilePic;
-      const checkboxContainer = streamElements.checkboxContainer;
-      const checkbox = streamElements.checkbox;
-      const label = streamElements.label;
-      const streamerName = streamElements.streamerName;
-      const gameDiv = streamElements.gameDiv;
-      const textView = streamElements.textView;
-      const viewerCount = streamElements.viewerCount;
-      const streamItem = streamElements.streamItem;
+      if (!existingStream) {
+        const streamDOMElement = addStreamToNav(matchingStream.snippet.channelTitle,
+          matchingStream.snippet.channelTitle,
+          matchingStream.snippet.thumbnails.medium.url,
+          '',
+          matchingStream.snippet.title,
+          video.liveStreamingDetails.concurrentViewers,
+          'youtube'
+        );
+        leftNavData.push({
+          element: streamDOMElement,
+          streamerLogin: matchingStream.snippet.channelTitle,
+          streamTitle: matchingStream.snippet.title,
+          streamerName: matchingStream.snippet.channelTitle,
+          gameName: '',
+          viewerCount: video.liveStreamingDetails.concurrentViewers,
+          streamerId: matchingStream.snippet.channelId,
+          gameId: '',
+          streamType: 'youtube',
+        });
+      } else {
+        updateStreamInNav(existingStream, matchingStream, '', 'youtube', video.liveStreamingDetails.concurrentViewers);
+      }
 
-      addTooltip(streamItem, tooltip, matchingStream.snippet.title, leftNav);
-      profilePicContainerYT.appendChild(checkboxContainer);
-      profilePicContainerYT.appendChild(profilePic);
-      streamerCardLeftDetails.appendChild(profilePicContainerYT);
-      checkboxContainer.appendChild(checkbox);
-      checkboxContainer.appendChild(label);
-      textView.appendChild(streamerName);
-      streamerCardLeftDetails.appendChild(textView);
-      streamItem.appendChild(streamerCardLeftDetails);
-      streamItem.appendChild(viewerCount);
-
-      leftNavData.push({
-        element: streamItem,
-        viewCount: parseInt(streamItem.streamViewCount)
-      });
-
-      streamerCardLink.appendChild(streamItem);
-      leftNav.appendChild(streamerCardLink);
+      updatedStreams.push(matchingStream.snippet.channelTitle);
     }
+
+    removeStreamsFromNav(updatedStreams);
 
   } catch (error) {
     console.error('Error fetching YouTube live broadcasts:', error);
@@ -644,7 +680,11 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
 
   streamElements.streamerCardLeftDetails = streamerCardLeftDetails;
 
-  const profilePicContainer = createElementWithClass('div', 'profilePicContainer');
+  let profilePicContainer = createElementWithClass('div', 'profilePicContainer');
+
+  if (platform === 'youtube') {
+    profilePicContainer = createElementWithClass('div', 'profilePicContainerYT');
+  }
 
   streamElements.profilePicContainer = profilePicContainer;
 
@@ -697,11 +737,12 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
     'data-streamer': streamerUserLogin
   });
 
-  if (platform === 'twitch') {
+  if (viewCount) {
     viewerCount.textContent = `${getFormattedNumber(viewCount)}`;
-
-    // Add the following line to set the streamViewCount property
     streamItem.streamViewCount = viewCount;
+  } else {
+    viewerCount.textContent = 0;
+    streamItem.streamViewCount = 0;
   }
 
   streamElements.viewerCount = viewerCount;
@@ -725,7 +766,6 @@ function handleCheckboxChange(event, checked) {
   if (checked) {
     selectedStreams.add(selectedStreamer);
     checkboxStates[selectedStreamer] = true; // Checkbox is checked
-    createOrUpdateChatTab(selectedStreamer);
     createStreamPlayer(null, selectedStreamer);
   } else {
     selectedStreams.delete(selectedStreamer);
@@ -735,12 +775,19 @@ function handleCheckboxChange(event, checked) {
     });
     checkboxStates[selectedStreamer] = false; // Checkbox is not checked
     removeChatTab(selectedStreamer);
-  }
+    const selectedLabel = updateGliderPosition(0);
 
-  // Remove the "selected-tab" class from all labels
-  document.querySelectorAll('.tab').forEach(label => {
-    label.classList.remove('selected-tab');
-  });
+    if (selectedLabel) {
+      const idParts = selectedLabel.id.split('-');
+      if (idParts.length === 2 && idParts[0] === 'label') {
+        const channelName = idParts[1];
+        showChatTab(channelName);
+      }
+
+      updateGliderPosition(0);
+    }
+
+  }
 
   const leftNavContainerAutoCollapseWidth = 170;
 
@@ -750,10 +797,10 @@ function handleCheckboxChange(event, checked) {
 
   }
 
-  // Get the selectedIndex of the clicked button
+  /*// Get the selectedIndex of the clicked button
   const selectedIndex = Array.from(radioButtons).findIndex(radio => radio.id === `radio-${selectedStreamer}`);
   // Update the glider position
-  updateGliderPosition(selectedIndex);
+  updateGliderPosition(selectedIndex);*/
 
   Promise.resolve().then(() => {
     updateMargins();
@@ -781,7 +828,6 @@ function createStreamPlayer(container, username) {
   });
 
   const handle = createElementWithClass('div', 'handle');
-  handle.textContent = 'Drag/Resize Me';
   playerDiv.appendChild(handle);
 
   createOrUpdateChatTab(username);
@@ -844,7 +890,7 @@ function createChatTab(channelName) {
   const twitchChats = document.getElementById('twitchChats');
   const bottomTwitchContainer = document.getElementById('bottomTwitchContainer');
   const twitchChatContainer = document.getElementById('twitchChatContainer');
-  tabCount = tabMenu.children.length;
+  const tabCount = tabMenu.children.length;
   const leftNavContainerAutoCollapseWidth = 170;
 
   // Create an input radio button
@@ -1033,8 +1079,6 @@ function removeAllChats() {
       delete chatIframes[channelName];
     }
   }
-
-  tabCount = 0; // Reset tab count
 }
 
 // Function to remove a chat tab
@@ -1042,19 +1086,16 @@ function removeChatTab(channelName) {
   // Get the radio button, label, glider span and chat tab content
   const radioInput = document.getElementById(`radio-${channelName}`);
   const label = document.getElementById(`label-${channelName}`);
-  const tabContent = chatIframes[channelName];
+  const tabContent = document.getElementById(`chat-iframe-${channelName}`);
 
   // Remove them from the DOM
   if (radioInput && label && tabContent) {
     radioInput.parentNode.removeChild(radioInput);
     label.parentNode.removeChild(label);
-    tabContent.parentNode.removeChild(tabContent);
+    tabContent.remove();
 
     // Remove the chat iframe from the chatIframes object
     delete chatIframes[channelName];
-
-    // Decrement the tab count when a tab is removed
-    tabCount--;
 
     const tabMenu = document.getElementById('tabMenu');
     let count = 0;
@@ -1166,6 +1207,9 @@ function updateGliderPosition(index) {
       }
     }
   });
+
+  return selectedLabel;
+
 }
 
 // Function to add and configure a tooltip for a stream item
@@ -1251,15 +1295,38 @@ function getFormattedNumber(number) {
   }
 }
 
+function revertFormattedNumber(formattedNumber) {
+
+  if (typeof formattedNumber !== 'string') {
+    return formattedNumber; // Return 0 or another default value when input is not a string
+  }
+  // Remove non-numeric characters from the formatted number
+  const numericString = formattedNumber.replace(/[^\d.]/g, '');
+
+  // Parse the numeric string to a float or integer, depending on the format
+  if (formattedNumber.includes('M')) {
+    return parseFloat(numericString) * 1e6;
+  } else if (formattedNumber.includes('K')) {
+    return parseFloat(numericString) * 1e3;
+  } else {
+    return parseFloat(numericString);
+  }
+}
+
 function sortStreamsByViewers() {
-  // Sort the leftNavData in place
+
+  // Sort the leftNavData based on numeric viewCount values
   leftNavData.sort((a, b) => {
-    return b.viewCount - a.viewCount;
+    const viewCountA = revertFormattedNumber(a.viewerCount);
+    const viewCountB = revertFormattedNumber(b.viewerCount);
+    return viewCountB - viewCountA;
   });
 
   // Render the sorted result to DOM
   renderToDOM();
 }
+
+
 
 function updateLeftNavUi() {
   const visibility = leftNavOpen === 0 ? 'hidden' : 'visible';
@@ -1381,7 +1448,6 @@ jQuery(function ($) {
 
       Promise.resolve().then(() => {
         updateMargins();
-        updateStreamLayout();
       });
 
     } else {
@@ -1399,7 +1465,6 @@ jQuery(function ($) {
 
       Promise.resolve().then(() => {
         updateMargins();
-        updateStreamLayout();
       });
 
     }
@@ -1445,7 +1510,6 @@ jQuery(function ($) {
 
     Promise.resolve().then(() => {
       updateMargins();
-      updateStreamLayout();
     });
 
   });
@@ -1462,7 +1526,6 @@ jQuery(function ($) {
 
     Promise.resolve().then(() => {
       updateMargins();
-      updateStreamLayout();
     });
 
   });
