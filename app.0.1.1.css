@@ -386,6 +386,27 @@
   font-size: 12px;
 }
 
+.closeStreamPlayer {
+  background-color: transparent;
+  /* or any color you want */
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  position: absolute;
+  top: 0px;
+  right: 5px;
+  /* Position it at the right corner of the handle */
+  z-index: 15;
+  /* Make sure it stays on top */
+  font-weight: bold;
+  color: #666666;;
+}
+
+
 iframe[allowfullscreen][scrolling="no"][sandbox] {
   padding-top: 20px;
   height: calc(100% - 40px);
@@ -400,6 +421,9 @@ iframe[allowfullscreen][scrolling="no"][sandbox] {
 .youtubeIframe {
   background-color: rgba(234, 51, 35, 0.2);
   border-left: 3px solid rgba(234, 51, 35, 0.1);
+  padding-top: 20px;
+  height: calc(100% - 40px);
+  padding-bottom: 20px;
 }
 
 .streamer-name,

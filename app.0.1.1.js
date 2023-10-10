@@ -11,7 +11,6 @@ const checkboxStates = {};
 const chatIframes = {};
 const tooltipsMap = new Map();
 const tooltips = [];
-const maxStreamsSelected = 4; // Set the maximum number of streams that can be selected
 let sidebarOpen = 1;
 let leftNavOpen = 1;
 let previousWindowWidth = window.innerWidth;
@@ -374,7 +373,7 @@ function updateStreamLayout() {
 
 function positionStreamPlayer(username) {
   const gridContainer = document.querySelector('.grid-stack');
-  const playerDiv = document.querySelector(`#player-${username}`);
+  const playerDiv = document.querySelector(`#player-${username.replace(/[^a-z0-9\-_]/gi, '_')}`);
   const existingStreams = Array.from(gridContainer.querySelectorAll('.stream-player'));
   const i = existingStreams.indexOf(playerDiv); // Index of the current stream
 
@@ -442,13 +441,14 @@ async function getFollowedLiveStreams(accessToken, userId) {
       const existingStream = leftNavData.find(item => item.streamerLogin === stream.user_login);
 
       if (!existingStream) {
-        const streamDOMElement = addStreamToNav(stream.user_login, user.display_name, user.profile_image_url, gameName, stream.title, stream.viewer_count, 'twitch');
+        const streamDOMElement = addStreamToNav(stream.user_login, user.display_name, user.profile_image_url, gameName, stream.title, '', stream.viewer_count, 'twitch');
         leftNavData.push({
           element: streamDOMElement,
           streamerLogin: stream.user_login,
           streamTitle: stream.title,
           streamerName: user.display_name,
           gameName: gameName,
+          videoId: '',
           viewerCount: stream.viewer_count,
           streamerId: stream.user_id,
           gameId: stream.game_id,
@@ -468,9 +468,9 @@ async function getFollowedLiveStreams(accessToken, userId) {
   }
 }
 
-function addStreamToNav(streamerUserLogin, streamerDisplayName, profilePicture, gameName, streamTitle, viewCount, platform) {
+function addStreamToNav(streamerUserLogin, streamerDisplayName, profilePicture, gameName, streamTitle, videoId, viewCount, platform) {
   const leftNav = document.getElementById('leftNav');
-  const streamElements = createStreamerCards(streamerUserLogin, streamerDisplayName, profilePicture, gameName, viewCount, platform);
+  const streamElements = createStreamerCards(streamerUserLogin, streamerDisplayName, profilePicture, gameName, videoId, viewCount, platform);
   const streamerCardLink = streamElements.streamerCardLink;
   const tooltip = streamElements.tooltip;
   const streamerCardLeftDetails = streamElements.streamerCardLeftDetails;
@@ -621,6 +621,7 @@ async function getYouTubeLiveBroadcasts(apiKey) {
           matchingStream.snippet.thumbnails.medium.url,
           '',
           matchingStream.snippet.title,
+          video.id,
           video.liveStreamingDetails.concurrentViewers,
           'youtube'
         );
@@ -630,6 +631,7 @@ async function getYouTubeLiveBroadcasts(apiKey) {
           streamTitle: matchingStream.snippet.title,
           streamerName: matchingStream.snippet.channelTitle,
           gameName: '',
+          videoId: video.id,
           viewerCount: video.liveStreamingDetails.concurrentViewers,
           streamerId: matchingStream.snippet.channelId,
           gameId: '',
@@ -649,7 +651,7 @@ async function getYouTubeLiveBroadcasts(apiKey) {
   }
 }
 
-function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePicture, gameName, viewCount, platform) {
+function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePicture, gameName, videoId, viewCount, platform) {
 
   const streamElements = {};
 
@@ -657,6 +659,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
     href: `javascript:void(0);`,
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
 
   streamElements.streamerCardLink = streamerCardLink;
@@ -671,6 +674,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
     'dataset.userLogin': streamerUserLogin,
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
 
   // Store the tooltip in the tooltipsMap with the streamItem as the key
@@ -679,6 +683,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
   const streamerCardLeftDetails = createElementWithClass('div', 'streamerCardLeftDetails', {
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
 
   streamElements.streamerCardLeftDetails = streamerCardLeftDetails;
@@ -691,6 +696,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
     src: profilePicture,
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
 
   streamElements.profilePic = profilePic;
@@ -704,6 +710,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
     id: `checkbox-${streamerUserLogin}`,
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
 
   streamElements.checkbox = checkbox;
@@ -712,6 +719,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
     'for': `checkbox-${streamerUserLogin}`,
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
 
   streamElements.label = label;
@@ -719,6 +727,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
   const streamerName = createElementWithClass('div', 'stream-link', {
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
   streamerName.textContent = streamerDisplayName;
 
@@ -727,6 +736,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
   const gameDiv = createElementWithClass('div', 'game-name', {
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
 
   gameDiv.textContent = gameName;
@@ -740,6 +750,7 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
   const viewerCount = createElementWithClass('span', 'stream-viewers', {
     'data-streamer': streamerUserLogin,
     'data-platform': platform,
+    'data-videoid': videoId,
   });
 
   if (viewCount) {
@@ -767,32 +778,15 @@ function handleCheckboxChange(event, checked) {
 
   const selectedStreamer = event.target.dataset.streamer;
   const platform = event.target.dataset.platform;
+  const videoId = event.target.dataset.videoid;
   let radioButtons = document.querySelectorAll('.tab-radio');
 
   if (checked) {
     selectedStreams.add(selectedStreamer);
     checkboxStates[selectedStreamer] = true; // Checkbox is checked
-    createStreamPlayer(null, selectedStreamer, platform);
+    createStreamPlayer(videoId, selectedStreamer.replace(/[^a-z0-9\-_]/gi, '_'), platform);
   } else {
-    selectedStreams.delete(selectedStreamer);
-    const playerDiv = document.querySelector(`#player-${selectedStreamer}`);
-    gridStackInitialized.then(grid => {
-      grid.removeWidget(playerDiv);
-    });
-    checkboxStates[selectedStreamer] = false; // Checkbox is not checked
-    removeChatTab(selectedStreamer);
-    const selectedLabel = updateGliderPosition(0);
-
-    if (selectedLabel) {
-      const idParts = selectedLabel.id.split('-');
-      if (idParts.length === 2 && idParts[0] === 'label') {
-        const channelName = idParts[1];
-        showChatTab(channelName);
-      }
-
-      updateGliderPosition(0);
-    }
-
+    removeStreamPlayer(selectedStreamer);
   }
 
   const leftNavContainerAutoCollapseWidth = 170;
@@ -803,10 +797,37 @@ function handleCheckboxChange(event, checked) {
 
   }
 
-  /*// Get the selectedIndex of the clicked button
-  const selectedIndex = Array.from(radioButtons).findIndex(radio => radio.id === `radio-${selectedStreamer}`);
-  // Update the glider position
-  updateGliderPosition(selectedIndex);*/
+  Promise.resolve().then(() => {
+    updateMargins();
+    updateStreamLayout();
+  });
+}
+
+function removeStreamPlayer(username) {
+  selectedStreams.delete(username);
+  const playerDiv = document.querySelector(`#player-${username.replace(/[^a-z0-9\-_]/gi, '_')}`);
+  gridStackInitialized.then(grid => {
+    grid.removeWidget(playerDiv);
+  });
+
+  if (checkboxStates[username]) {
+    checkboxStates[username] = false; // Checkbox is not checked
+    const checkbox = document.querySelector(`#checkbox-${username.replace(/[^a-z0-9\-_]/gi, '_')}`);
+    checkbox.checked = false;
+  }
+
+  removeChatTab(username);
+  const selectedLabel = updateGliderPosition(0);
+
+  if (selectedLabel) {
+    const idParts = selectedLabel.id.split('-');
+    if (idParts.length === 2 && idParts[0] === 'label') {
+      const channelName = idParts[1];
+      showChatTab(channelName);
+    }
+
+    updateGliderPosition(0);
+  }
 
   Promise.resolve().then(() => {
     updateMargins();
@@ -814,7 +835,8 @@ function handleCheckboxChange(event, checked) {
   });
 }
 
-function createStreamPlayer(container, username, platform) {
+function createStreamPlayer(videoId, username, platform) {
+
   const existingStream = document.querySelector(`#player-${username}`);
   if (existingStream) {
     // If stream already exists, just reposition it
@@ -828,10 +850,23 @@ function createStreamPlayer(container, username, platform) {
   const handle = createElementWithClass('div', 'handle');
   playerDiv.appendChild(handle);
 
+   // Create close button and append it to handle
+   const closeStreamPlayer = createElementWithClass('button', 'closeStreamPlayer');
+   closeStreamPlayer.innerHTML = 'X'; // or you can use an SVG or icon font for a nicer visual
+   handle.appendChild(closeStreamPlayer);
+ 
+   // Event listener for close button
+   closeStreamPlayer.addEventListener('click', () => {
+     // Remove the stream player or hide it, whichever is appropriate
+     removeStreamPlayer(username);
+     // If you need to perform other actions upon closing, you can add those here.
+   });
+
   createOrUpdateChatTab(username);
 
   gridStackInitialized.then(grid => {
-    grid.addWidget(playerDiv);
+    grid.addWidget(playerDiv); // Adding the playerDiv to Gridstack
+
     if (platform === 'twitch') {
       const options = {
         width: '100%',
@@ -841,15 +876,30 @@ function createStreamPlayer(container, username, platform) {
       };
       new Twitch.Player(`player-${username}`, options);
     } else if (platform === 'youtube') {
-      if (typeof YT !== "undefined" && YT && YT.Player) { // Checking if YT is available
-        new YT.Player(`player-${username}`, {
-          videoId: username, // Assuming 'username' is the YouTube video ID. Change this if it's different.
-          width: '100%',
-          height: '100%',
-          playerVars: {
-            'playsinline': 1
-          }
+      if (typeof YT !== "undefined" && YT && YT.Player) {
+        // Adding a YouTube iframe to playerDiv
+        const ytFrame = document.createElement('iframe');
+        ytFrame.width = "100%";
+        ytFrame.height = "100%";
+        ytFrame.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=https://tykrt.com`;
+        ytFrame.frameBorder = "0";
+        ytFrame.allowFullscreen = true;
+
+        // Add overlay for resize functionality
+        const overlayDiv = document.createElement('div');
+        overlayDiv.style.position = 'absolute';
+        overlayDiv.style.top = '0';
+        overlayDiv.style.left = '0';
+        overlayDiv.style.width = '100%';
+        overlayDiv.style.height = '100%';
+        overlayDiv.style.zIndex = '10';
+        overlayDiv.style.pointerEvents = 'none';
+        overlayDiv.addEventListener('click', function () {
+          // If needed, you can handle overlay interactions here.
         });
+
+        playerDiv.appendChild(ytFrame);
+        playerDiv.appendChild(overlayDiv);
       }
     }
   }).catch(error => {
@@ -858,7 +908,6 @@ function createStreamPlayer(container, username, platform) {
 
   // After creating the player, position it correctly
   positionStreamPlayer(username);
-
   setStreamPlayerColors(playerDiv, platform);
 }
 
