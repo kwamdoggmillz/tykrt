@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
     <title>Tykrt</title>
     <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-    <link rel="stylesheet" href="terms.css" id="bootstrap-css">
+    <link rel="stylesheet" href="terms.1.0.0.css" id="bootstrap-css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -19,7 +19,7 @@
     <div class="mainContainer">
         <nav class="topNav" id="topNav" style="display: flex;">
             <a href="https://tykrt.com" id="imageLink">
-                <img src="images/Logo.0.1.1.png" alt="Tykrt" width="300" height="73">
+                <img src="images/Logo.1.0.0.png" alt="Tykrt" width="300" height="73">
             </a>
             <div id="topNavRightContent">
                 <img src="images/avatarProfPic.jpg" width="32" height="32" id="avatarProfPic" class="avatarDropdown">
@@ -36,7 +36,7 @@
                         <a href="privacy.html" class="appsMenuLink">
                             <img src="images/privacyIcon.png" width="20" height="20" class="appsMenuIcon">
                             Privacy Policy
-                          </a>
+                        </a>
                         <a href="#" class="appsMenuLink">
                             <img src="images/signOutIcon.png" width="20" height="20" class="appsMenuIcon">
                             Sign Out
@@ -82,8 +82,8 @@
 
                 <h2>3. Privacy</h2>
                 <p>Your use of the Website is also governed by our Privacy Policy, which is incorporated by reference
-                    into these Terms. Please review our Privacy Policy <a href="privacy.html"
-                        class="termsLink">here</a> to
+                    into these Terms. Please review our Privacy Policy <a href="privacy.html" class="termsLink">here</a>
+                    to
                     understand how we collect, use, and protect your personal information.</p>
 
                 <h2>4. Intellectual Property</h2>
@@ -141,9 +141,25 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+    <script> const avatar = document.getElementById('avatarProfPic');
+        const dropdownMenu = document.querySelector('.avatarDropdownMenu');
 
-    <script src="app.0.1.1.js"></script>
-    <script type="module" src="app.0.1.1.js"></script>
+        // Add a click event listener to the avatar
+        avatar.addEventListener('click', function () {
+            // Toggle the "show" class on the dropdown menu
+            dropdownMenu.classList.toggle('show');
+        });
+        // Close the dropdown if the user clicks outside of it
+        window.addEventListener('click', function (event) {
+            if (!event.target.matches('.avatarDropdown')) {
+                const dropdowns = document.querySelectorAll(' .avatarDropdownMenu');
+                dropdowns.forEach(function (dropdown) {
+                    if (dropdown.classList.contains('show')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            }
+        });</script>
 
 </body>
 

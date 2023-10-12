@@ -1,7 +1,7 @@
 .mainContainer {
   position: relative;
-  height: 100vh; /* Make the container take up the full viewport height */
-  overflow: hidden; /* Hide any content overflowing the container */
+  height: 100%;
+margin-bottom: 8.58rem;
 }
 
 /*-------------------------------Top Navigation Bar------------------------------------*/
@@ -11,13 +11,12 @@
   justify-content: left;
   align-items: center;
   height: 8.58rem;
-  background-color: #2D2C2C;
+  background-color: linear-gradient(to right, #242424, #18181b);
   padding-left: 1rem;
   z-index: 100;
   top: 0;
   left: 0;
   right: 0;
-  box-shadow: 0 0 .1rem 0 #2d2c2c, 0 .1rem 1.2rem 0 #0e0e10;
   justify-content: space-between;
 }
 
@@ -32,17 +31,21 @@
   display: flex;
   height: calc(100% - 2rem); /* Adjust for topNav padding */
   margin-top: .5rem;
+  padding: 0 10rem 0 10rem;
 }
 
 .mainContent {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow-x: hidden; /* Hide content overflow */
+  /* Hide content overflow */
+  padding-top: 1rem;
   height: 90%;
-  color: white;
-  padding: 4rem;
+  border-radius: 12px;
+  background: #3E4042;
   font-size: 1.5rem;
+  color: white;
+  padding: 5rem;
 }
 
 #termsList {
@@ -76,12 +79,14 @@
   margin-bottom: 5rem;
 }
 
-  #avatarProfPic {
-    border: 2px solid #A0ADCD;
-    border-radius: 50%;
-    margin-right: 2rem; /* 20px space between img and showRightNav */
-    transition: margin-right 0.3s ease; /* Smooth transition for margin */
-  }
+#avatarProfPic {
+  border: 2px solid #A0ADCD;
+  border-radius: 50%;
+  margin-right: 2rem;
+  /* 20px space between img and showRightNav */
+  transition: margin-right 0.3s ease;
+  /* Smooth transition for margin */
+}
   
   /* Your existing styles here */
   
@@ -91,14 +96,15 @@
   }
   
   .avatarDropdownMenu {
+    outline: 2px solid #666;
     display: none;
     position: absolute;
     top: 9.58rem;
     right: 1rem;
     border-radius: 12px;
-    background-color: #1F2833;
+    background-color: #212121;
     color: white;
-    box-shadow: 0rem .8rem 1.6rem 0rem rgba(0,0,0,0.2);
+    box-shadow: 0rem .8rem 1.6rem 0rem rgba(0, 0, 0, 0.2);
     z-index: 10000;
   }
   
@@ -113,16 +119,20 @@
   .appsMenuLink {
     display: flex;
     text-decoration: none;
-    color:white;
-    padding: .8rem 2rem; /* Add vertical padding to separate items */
-    transition: background-color 0.2s; /* Add a subtle hover effect */
+    color: white;
+    padding: .8rem 2rem;
+    /* Add vertical padding to separate items */
+    transition: background-color 0.2s;
+    /* Add a subtle hover effect */
     font-size: 2rem;
     align-items: center;
     justify-content: left;
+    border-radius: 12px;
   }
   
   .appsMenuLink:hover {
-    background-color: #2c3542; /* Change the background color on hover */
+    background-color: #3d3d40;
+    /* Change the background color on hover */
   }
   
   .appsMenuIcon {
@@ -131,11 +141,9 @@
 
   body,
 html {
-  background: linear-gradient(to top right, #0f0f0f, #303530);
-  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #242424, #18181b);  font-family: Arial, sans-serif;
   margin: 0;
   text-align: left;
-  overflow-x: hidden;
   padding: 0;
   font-size: 62.5%;
   line-height: 1.15;
