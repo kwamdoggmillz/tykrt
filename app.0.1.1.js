@@ -43,6 +43,9 @@ async function init() {
     if (!initialized) {
       updateLeftNav();
       initialized = true;
+
+      attachEventListeners();
+
     }
   } catch (error) {
     console.error('Error during initialization:', error);
@@ -336,65 +339,58 @@ document.querySelector('.youtubeBtnToggle').addEventListener('click', function (
   }
 });
 
-document.querySelector('.searchBtnContainer').addEventListener('click', function(e) {
-  const inputElement = document.querySelector('.search-bar input');
+async function attachEventListeners() {
+  document.getElementById('addStreamBtn').addEventListener('click', async function () {
+    const streamerName = document.getElementById('streamerName').value;
 
-  // Check if the input is not currently focused and if the click was not directly on the button
-  if (document.activeElement !== inputElement && e.target.tagName !== 'BUTTON') {
-      inputElement.focus();
-  }
-});
+    document.getElementById('streamerName').value = '';
 
-
-
-document.getElementById('addStreamBtn').addEventListener('click', function () {
-  const streamerName = document.getElementById('streamerName').value;
-  const platform = document.querySelector('.platformSelector').value;
-
-  document.getElementById('streamerName').value = '';
-
-  if (streamerName && platform) {
-
-    if (platform === 'youtube') {
-      addYoutubeStream(streamerName, apiKey);
-      return;
+    if (streamerName) {
+      if (await isStreamerLiveOnTwitch(streamerName)) {
+        createStreamPlayer(null, streamerName, 'twitch');
+      } else {
+        addYoutubeStream(streamerName, apiKey);
+      }
+    } else {
+      alert("Please provide a streamer name.");
     }
-    createStreamPlayer(null, streamerName, platform);
+  });
+}
 
-  } else {
-    alert("Please fill in all fields to add a stream.");
-  }
-});
+async function isStreamerLiveOnTwitch(streamerName) {
+  const twitchApiUrl = `https://api.twitch.tv/helix/streams?user_login=${streamerName}`;
 
-/*document.querySelector('.search-btn').addEventListener('click', function() {
-  const dropdown = document.getElementById('platform-select');
-  if (dropdown.style.display === 'none' || dropdown.style.display === '') {
-      dropdown.style.display = 'block';
-  } else {
-      dropdown.style.display = 'none';
-  }
-});*/
+  const response = await fetch(twitchApiUrl, {
+    headers: {
+      'Client-ID': clientId,
+      'Authorization': 'Bearer ' + accessToken  // Replace with your OAuth token
+    }
+  });
 
+  const data = await response.json();
+
+  return data.data && data.data.length > 0;
+}
 
 async function addYoutubeStream(streamerName, apiKey) {
   try {
     const channelId = await getChannelId(streamerName, apiKey);
     const videoId = await getLiveVideoId(channelId, apiKey, streamerName);
     createStreamPlayer(videoId, streamerName, 'youtube');
-} catch (error) {
+  } catch (error) {
     console.error(error);
     alert(error.message); // Notify the user if there's an issue
-}
+  }
 }
 
 async function getChannelId(streamerName, apiKey) {
   const url = `https://www.googleapis.com/youtube/v3/search?part=id&type=channel&q=${encodeURIComponent(streamerName)}&key=${apiKey}`;
-  
+
   const response = await fetch(url);
   const data = await response.json();
 
   if (data.items && data.items.length > 0) {
-      return data.items[0].id.channelId; // Return the first channel ID found
+    return data.items[0].id.channelId; // Return the first channel ID found
   }
 
   throw new Error(`No channel found for streamer name: ${streamerName}`);
@@ -402,12 +398,12 @@ async function getChannelId(streamerName, apiKey) {
 
 async function getLiveVideoId(channelId, apiKey, streamerName) {
   const url = `https://www.googleapis.com/youtube/v3/search?part=id&eventType=live&type=video&channelId=${channelId}&key=${apiKey}`;
-  
+
   const response = await fetch(url);
   const data = await response.json();
 
   if (data.items && data.items.length > 0) {
-      return data.items[0].id.videoId; // Return the video ID of the first live stream found
+    return data.items[0].id.videoId; // Return the video ID of the first live stream found
   }
 
   throw new Error(`No live stream found for streamer name: ${streamerName}`);

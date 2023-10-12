@@ -94,19 +94,13 @@
           </a>
           <div id="leftNav"></div>
           <div class="addStreamContainer">
-            <form action="" class="search-bar">
-                <select name="platform" id="platform-select" class="platformSelector">
-                    <option value="twitch">Twitch</option>
-                    <option value="youtube">YouTube</option>
-                </select>
-                <div class="searchBtnContainer">
-                <input id="streamerName" type="search" name="search" autocomplete="off" pattern=".*\S.*" required>
-                <button class="search-btn" id="addStreamBtn" type="submit">
-                    <span>Search</span>
-                </button>
-                </div>
-            </form>
-        </div>              
+            <div class="app" id="app">
+                <form class="form">
+                    <input class="input form__input" id="streamerName" v-model="inputVal" placeholder="Streamer Name" />
+                    <button class="btn form__submit-btn" id="addStreamBtn" type="button">Add</button>
+                </form>
+            </div>
+        </div>        
           <div class="youtubeToggleContainer">
             <div class="row">
               <div class="youtubeBtnText">
