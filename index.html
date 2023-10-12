@@ -93,6 +93,31 @@
             </div>
           </a>
           <div id="leftNav"></div>
+          <div class="addStreamContainer">
+            <form action="" class="search-bar">
+                <select name="platform" id="platform-select" class="platformSelector">
+                    <option value="twitch">Twitch</option>
+                    <option value="youtube">YouTube</option>
+                </select>
+                <div class="searchBtnContainer">
+                <input id="streamerName" type="search" name="search" autocomplete="off" pattern=".*\S.*" required>
+                <button class="search-btn" id="addStreamBtn" type="submit">
+                    <span>Search</span>
+                </button>
+                </div>
+            </form>
+        </div>              
+          <div class="youtubeToggleContainer">
+            <div class="row">
+              <div class="youtubeBtnText">
+                <h6>Top 20 Youtube Streams</h6>
+              </div>
+              <button type="button" class="youtubeBtn youtubeBtnToggle active" data-toggle="button" aria-pressed="true"
+                autocomplete="off">
+                <div class="youtubeToggleHandle"></div>
+              </button>
+            </div>
+          </div>
         </nav>
       </div>
 
