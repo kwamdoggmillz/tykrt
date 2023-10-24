@@ -3,19 +3,19 @@
   height: 100vh;
   /* Make the container take up the full viewport height */
   overflow: hidden;
+  padding-right: 8px;
   /* Hide any content overflowing the container */
 }
 
 /*-------------------------------Top Navigation Bar------------------------------------*/
 
 .topNav {
-  display: none;
+  display: flex;
   justify-content: left;
   align-items: center;
   height: 8.58rem;
-  background-color: linear-gradient(to right, #242424, #18181b);
+  /*background-color: linear-gradient(to right, #242424, #18181b);*/
   padding-left: 1rem;
-  z-index: 100;
   top: 0;
   left: 0;
   right: 0;
@@ -50,7 +50,7 @@
   flex-grow: 1;
   overflow: hidden;
   /* Hide content overflow */
-  padding-top: 1rem;
+  padding-top: 0.5rem;
   height: 90%;
   border-radius: 12px;
   background: #3E4042;
@@ -250,7 +250,9 @@
   transition: left .25s;
 }
 
-.addStreamContainer *, .addStreamContainer *:before, .addStreamContainer *:after {
+.addStreamContainer *,
+.addStreamContainer *:before,
+.addStreamContainer *:after {
   box-sizing: border-box;
 }
 
@@ -298,22 +300,27 @@
 .addStreamContainer .btn {
   font-size: 14px;
   margin: 0 .5em;
-  border-radius: 2em;
+  border-radius: 1.5em;
   padding: 0.75em 1.5em;
   cursor: pointer;
   background: none;
-  color: #A0ADCD; /*#358f5a;*/
+  color: #A0ADCD;
+  /*#358f5a;*/
   border: 1px solid;
   letter-spacing: 1px;
   font-family: 'Source Sans Pro', sans-serif;
-  color: #A0ADCD; /*#4fc08d;*/
-  border: #A0ADCD 1px solid; /*#4fc08d 1px solid;*/
+  color: #A0ADCD;
+  /*#4fc08d;*/
+  border: #A0ADCD 1px solid;
+  /*#4fc08d 1px solid;*/
   transition: 250ms ease-out;
 }
 
-.addStreamContainer .btn:hover, .addStreamContainer .btn:focus {
+.addStreamContainer .btn:hover,
+.addStreamContainer .btn:focus {
   color: #fff;
-  background: #A0ADCD; /*#4fc08d;*/
+  background: #A0ADCD;
+  /*#4fc08d;*/
 }
 
 .addStreamContainer .form {
@@ -326,7 +333,7 @@
   width: 100%;
   font-size: 14px;
   margin: 0 .5em;
-  border-radius: 2em;
+  border-radius: 1.5em;
   padding: 0.75em 1.5em;
   background: none;
   font-family: 'Source Sans Pro', sans-serif;
@@ -337,70 +344,9 @@
 }
 
 .addStreamContainer .form__input:focus {
-  border: #A0ADCD 1px solid; /*#4fc08d 1px solid;*/
+  border: #A0ADCD 1px solid;
+  /*#4fc08d 1px solid;*/
   outline: none;
-}
-
-.addStreamContainer .todo-list {
-  width: 100%;
-  padding: 0 1rem;
-  flex: 1;
-}
-
-.addStreamContainer .todo-list__item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: .5em;
-  margin-bottom: .5em;
-  border-radius: 3px;
-  transition: 200ms;
-  color: #A0ADCD; /*#4fc08d;*/
-}
-
-.addStreamContainer .todo-list__item:last-child {
-  margin-bottom: 0;
-}
-
-.addStreamContainer .todo-list__item.complete {
-  color: #A0ADCD; /* lightgreen;*/
-}
-
-.addStreamContainer .todo-list__item-content {
-  position: relative;
-}
-
-.addStreamContainer .todo-list__item-content:after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: #A0ADCD; /* #4fc08d;*/
-  transition: 250ms ease-out;
-  transform-origin: center;
-  transform: scalex(0);
-}
-
-.addStreamContainer .todo-list__item-content:hover, .addStreamContainer .todo-list__item-content:focus {
-  transform: scalex(1);
-}
-
-.addStreamContainer .todo-list__item-remove {
-  margin-left: .5em;
-  background: none;
-  border: 1px solid;
-  color: inherit;
-  padding: 0;
-  line-height: 1;
-  width: 2em;
-  height: 2em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  font-size: 80%;
 }
 
 .addStreamContainer .filters {
@@ -418,13 +364,12 @@
   -webkit-transition: all 0.1s ease-in-out;
   -moz-transition: all 0.1s ease-in-out;
   transition: all 0.1s ease-in-out;
-  display: none;
+  display: block;
   width: 24rem;
   max-width: 25rem;
   height: 100%;
   left: 1rem;
   overscroll-behavior: contain;
-  z-index: 99;
 }
 
 #leftNavContainer.collapsed {
@@ -444,22 +389,16 @@
   border-bottom: solid 1px #666;
   font-size: 2rem;
   text-align: center;
-  background-color: #242424;
   justify-content: center;
   text-decoration: none;
   color: white;
   align-items: center;
 }
 
-.leftNavToggle:hover,
-.leftNavToggle:focus {
-  background-color: #242424;
+.leftNavToggle:hover {
+  background-color: #3d3d40;
   color: white;
 
-}
-
-.leftNavToggle:active {
-  background-color: #242424;
 }
 
 #leftNavContainer-menu li a .glyphicon {
@@ -527,7 +466,6 @@
   width: 3.5rem;
   transition-delay: 0.3s;
   transition: right 0.3s ease, transform 0.3s ease;
-  z-index: 10000;
 }
 
 #showRightNav.slideIn {
@@ -543,12 +481,10 @@
 }
 
 #rightNav {
-  display: none;
   /*width: 18%;*/
+  display: none;
   max-width: 32.1rem;
   height: 100%;
-  z-index: 99;
-  background-color: #18181B;
   transition: 0.3s ease-in-out;
 }
 
@@ -568,6 +504,7 @@
 }
 
 #rightNav .rightNavBrand {
+  height: 2.3rem;
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
@@ -585,12 +522,54 @@
   font-size: 2rem;
 }
 
+#twitchChatContainer,
+#bottomTwitchChatContainer {
+  height: calc(100% - 2.434rem - 4.3rem);
+}
+
+#twitchChats {
+  height: 100%;
+}
+
+.tab-content {
+  height: 100%;
+}
+
+.chat-iframe {
+  height: 100%;
+}
+
+.chat-overlay {
+  position: relative;
+  height: 100%;
+  box-shadow:
+    -10px 0px 15px 10px #19191b,
+    /* Left side shadow */
+    10px 0px 15px 10px #19191b,
+    /* Right side shadow */
+    0px -10px 15px 10px #19191b,
+    /* Top shadow */
+    0px 10px 15px 10px #19191b;
+  /* Bottom shadow */
+  border-top: 1px solid #35353B;
+}
+
 /*-------------------------------Bottom Navigation Bar------------------------------------*/
 
 #bottomContainer {
-  display: none;
+  flex-grow: 1;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  display: flex;
+  position: relative;
   border-radius: 12px;
-  margin: .5rem 0rem 0rem 0rem;
+  justify-content: center;
+  display: none;
   overflow-x: hidden;
   background-color: #18181B;
 }
@@ -612,15 +591,21 @@
   height: 7rem;
 }
 
-.streamerCard:hover::before, .video-item:hover::before {
+.streamerCard:hover::before,
+.video-item:hover::before {
   content: "";
   position: absolute;
-  top: -5px;       /* Extend the effect 10px upwards */
-  bottom: -5px;    /* Extend the effect 10px downwards */
-  left: -10px;      /* Extend the effect 10px to the left */
-  right: -10px;     /* Extend the effect 10px to the right */
+  top: -5px;
+  /* Extend the effect 10px upwards */
+  bottom: -5px;
+  /* Extend the effect 10px downwards */
+  left: -10px;
+  /* Extend the effect 10px to the left */
+  right: -10px;
+  /* Extend the effect 10px to the right */
   background-color: #3d3d40;
-  z-index: 1;      /* Place it behind the original content */
+  z-index: 1;
+  /* Place it behind the original content */
 }
 
 .streamerCardLink {
@@ -688,7 +673,7 @@
 
 .ui-resizable-s {
   bottom: 0px !important;
-  width: 93.5% !important;
+  width: calc(93.5% - 56.56px) !important;
   height: 20px !important;
 }
 
@@ -721,14 +706,9 @@
   left: 0;
   right: 0;
   height: 20px;
-  /* Adjust as needed */
   width: 100%;
   max-width: 100%;
-  /* Semi-transparent black */
   cursor: move;
-  /* Indicates the div can be dragged */
-  z-index: 9999999;
-  /* To ensure it's above the Twitch iframe */
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   overflow: hidden;
@@ -739,7 +719,6 @@
 
 .closeStreamPlayer {
   background-color: transparent;
-  /* or any color you want */
   border: none;
   border-radius: 50%;
   width: 20px;
@@ -750,9 +729,7 @@
   position: absolute;
   top: 0px;
   right: 5px;
-  /* Position it at the right corner of the handle */
-  z-index: 15;
-  /* Make sure it stays on top */
+  z-index: 1;
   font-weight: bold;
   color: #666666;
   ;
@@ -825,10 +802,11 @@ html {
   font-family: Arial, sans-serif;
   margin: 0;
   text-align: left;
-  overflow-x: hidden;
+  overflow: hidden;
   padding: 0;
   font-size: 62.5%;
   line-height: 1.15;
+  height: 100vh;
 }
 
 html {
@@ -876,13 +854,13 @@ body {
   outline: 2px solid #666;
   display: none;
   position: absolute;
-  top: 9.58rem;
-  right: 1rem;
+  top: 6.58rem;
+  right: 2rem;
   border-radius: 12px;
   background-color: #212121;
   color: white;
   box-shadow: 0rem .8rem 1.6rem 0rem rgba(0, 0, 0, 0.2);
-  z-index: 10000;
+  z-index: 100;
 }
 
 .avatarDropdownMenu.show {
@@ -1016,13 +994,13 @@ body {
 
 .tabContainer,
 .bottomTabContainer {
+  height: 2.234rem;
   display: flex;
   flex-direction: column;
   width: 100%;
   border-color: #35353B;
-  border-width: thin;
+  border-width: 1px;
   border-bottom-style: solid;
-  background-color: #18181B;
 }
 
 .tabContainer {
@@ -1030,6 +1008,7 @@ body {
 }
 
 .bottomTabContainer {
+  background-color: #18181B;
   border-top-right-radius: 12px;
   border-top-left-radius: 12px;
 }
@@ -1038,14 +1017,14 @@ body {
 #bottomTabMenu {
   display: flex;
   position: relative;
-  background-color: #18181B;
   padding: 2%;
-  width: 96%;
-  max-width: 96%;
+  width: 100%;
+  max-width: 100%;
   align-items: center;
 }
 
 #bottomTabMenu {
+  background-color: #18181B;
   border-top-right-radius: 12px;
   border-top-left-radius: 12px;
 }
@@ -1061,7 +1040,7 @@ body {
 #bottomTabMenu .tab {
   /*height: 100%;*/
   /* Set the height as a percentage */
-  width: 85%;
+  width: 100%;
   /* Use percentage-based width */
   font-weight: bold;
   border-radius: 99px;
@@ -1090,12 +1069,254 @@ body {
   transform: translateX(0);
 }
 
+#categoriesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.categoryBubble {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: #ddd;
+  transition: transform 0.3s ease;
+}
+
+.categoryBubble.selected {
+  transform: scale(1);
+}
+
+.categoryBubble:not(.selected) {
+  transform: scale(0.8);
+}
+
+.toggleIcon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+}
+
+.toggleIcon:before {
+  content: '-';
+}
+
+.categoryBubble:not(.selected) .toggleIcon:before {
+  content: '+';
+}
+
+
 /* Apply media query for smaller screens */
-@media (max-width: 70rem) {
+@media (max-width: 50rem) {
+
+  body,
+  html {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  #loginContainer {
+    height: 70% !important;
+    width: 90% !important;
+  }
+
+  .chat-iframe {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .handle:hover::before {
+    content: '' !important;
+    display: none !important;
+    /* any other styles you want to change on hover */
+  }
+
+  #bottomContainer {
+    height: 100% !important;
+    overflow: hidden;
+    display: block;
+  }
+
+  .bottomTabContainer {
+    height: 2.686rem !important;
+    overflow: hidden;
+  }
+
+  #bottomTwitchContainer {
+    height: 100% !important;
+    overflow: hidden;
+  }
+
+  #twitchChats {
+    height: 60% !important;
+    overflow: hidden;
+  }
+
+  .tab-content {
+    height: 100% !important;
+    overflow: hidden;
+  }
+
+  #streamPlayerContainer {
+    height: 203px !important;
+    overflow: hidden !important;
+  }
+
+  .twitchIframe {
+    border-right: 3px solid rgba(161, 114, 247, 0.1);
+    padding-bottom: 5px !important;
+    height: calc(100% - 25px) !important;
+  }
+
+  .youtubeIframe {
+    border-right: 3px solid rgba(234, 51, 35, 0.1);
+    padding-bottom: 5px !important;
+    height: calc(100% - 25px) !important;
+  }
 
   #tabMenu,
   #bottomTabMenu {
     transform: scale(0.6);
+  }
+
+  .mainContent {
+    height: 77%;
+    padding-top: 0;
+  }
+
+  .mainContent.block {
+    display: block;
+  }
+
+  .grid-stack-item {
+    min-width: 0;
+  }
+
+  .tooltip {
+    display: none !important;
+  }
+
+  .navContainer {
+    padding: 0;
+    height: calc(77% + 1rem);
+  }
+
+  .grid-stack-item {
+    height: 201px !important;
+  }
+
+  .youtubeToggleContainer {
+    padding-top: 10px;
+  }
+
+  .leftNavToggle {
+    display: none;
+  }
+
+  .addStreamContainer {
+    display: none;
+  }
+
+  .youtubeBtnText {
+    display: none;
+  }
+
+  #leftNav {
+    height: calc(100% - 5rem);
+  }
+
+
+  #tykrtLogo {
+    width: 15rem;
+    height: 3.6rem;
+    padding: 1rem;
+  }
+
+  #showRightNav {
+    display: none;
+  }
+
+  .ui-resizable-w {
+    left: 0px !important;
+    width: 0px !important;
+    height: 0px !important;
+    display: none !important;
+  }
+
+  .ui-resizable-e {
+    right: 0px !important;
+    width: 0px !important;
+    height: 0px !important;
+    display: none !important;
+  }
+
+  .ui-resizable-s {
+    bottom: 0px !important;
+    width: 0px !important;
+    height: 0px !important;
+    display: none !important;
+  }
+
+  .ui-resizable-sw {
+    bottom: 0px !important;
+    left: 0px !important;
+    width: 0px !important;
+    height: 0px !important;
+    display: none !important;
+  }
+
+  .ui-resizable-se {
+    bottom: 0px !important;
+    right: 0px !important;
+    width: 0px !important;
+    height: 0px !important;
+    display: none !important;
+  }
+
+}
+
+/* Apply media query for smaller screens */
+@media (max-width: 1200px) {
+
+  #rightNav {
+    display: none !important;
+  }
+
+  .leftNavToggle {
+    display: none;
+  }
+
+  .addStreamContainer {
+    display: none;
+  }
+
+  .youtubeBtnText {
+    display: none;
+  }
+
+  #leftNav {
+    height: calc(100% - 5rem);
+  }
+
+  #showRightNav {
+    display: none;
+  }
+
+  .stream-viewers {
+    display: none;
+  }
+
+  #leftNavContainer {
+    width: 5.4rem;
+  }
+
+  .checkbox-label {
+    opacity: 0.5;
   }
 }
 
@@ -1175,39 +1396,71 @@ body {
 
 /*------scroll bar---------------------*/
 
-/* Customize the scrollbar */
+#streamPlayerContainer {
+  height: 100%;
+  overflow-y: scroll;
+  margin-right: -17px;
+  padding-right: 17px;
+}
+
+/* Style for the scrollbar track (background) */
 ::-webkit-scrollbar {
+  width: 8px;
+  /* Adjust the width to your preference */
+}
+
+::-webkit-scrollbar-track {
+  background: #2c2c2c;
+  /* Color of the track */
+}
+
+/* Style for the scrollbar handle (thumb) */
+::-webkit-scrollbar-thumb {
+  background: #6b6b6b;
+  /* Color of the scrollbar */
+}
+
+/* Style for the scrollbar handle (thumb) on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #939393;
+  /* Color of the scrollbar when hovered */
+}
+
+.no-scroll::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+
+/* Customize the scrollbar */
+/*::-webkit-scrollbar {
   width: .7rem;
-  /* Width of the scrollbar */
 }
 
 ::-webkit-scrollbar-thumb {
   background: #525965;
-  /* Color of the thumb (scrollable portion) */
   border: none;
-  /* Remove the border */
   border-radius: 7px;
-  /* Make the thumb round */
+
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #525965;
-  /* Color of the thumb on hover */
+
 }
 
 ::-webkit-scrollbar-track {
   background: transparent;
-  /* Background of the track (unscrollable portion) */
+
   border-radius: 7px;
-  /* Make the track round */
+
 }
 
 ::-webkit-scrollbar-corner {
   background: transparent;
-  /* Corner between vertical and horizontal scrollbars */
+
 }
 
-/* Hide scrollbar buttons */
+
 ::-webkit-scrollbar-button {
   width: 0rem;
   height: 0rem;
@@ -1215,12 +1468,19 @@ body {
 
 body::-webkit-scrollbar {
   display: none;
-  /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
+
+}*/
+
+#leftNav::-webkit-scrollbar {
+  width: 4px;
 }
 
 #streamPlayerContainer::-webkit-scrollbar {
   display: none;
-  /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
+}
+
+#bottomContainer::-webkit-scrollbar {
+  display: none;
 }
 
 /*----------------------------New---------------------------*/
@@ -1803,85 +2063,88 @@ template {
   }
 }
 
-#loginContainer {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 17.85rem;
-  margin-left: 40.5rem;
-  z-index: 1000;
-}
-
-#loginContainer .login {
-  height: 67rem;
-  width: 97rem;
-  border-radius: 12px;
-  box-shadow: 0rem 2.56rem 5.76rem rgba(0, 0, 0, .12);
-  background: #2D2C2C;
-  display: flex;
-  justify-content: space-between;
-}
-
-#loginContainer .login .left-content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  margin-left: 7.8rem;
-}
-
-#loginContainer .login .left-content {
+.signin-form-wrap {
+  background: linear-gradient(to right, #242424, #18181b);
+  border: 1px solid #18181b;
+  box-shadow: 0 1px #18181b inset, 0 0 10px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
   height: 100%;
-  width: 9.3rem;
+  margin: 60px auto;
+  padding: 50px 30px 0 30px;
+  text-align: center;
 }
 
-#loginContainer .login .left-content h1 {
-  font-weight: 700;
+.signin-form-wrap h1 {
+  /* margin: 0 0 50px 0; */
+  padding: 0;
+  font-size: 26px;
   color: #fff;
-  width: 39rem;
-  word-break: break-word;
-  font-size: 5.6rem;
-  margin-top: 2rem;
-  font-family: "Mona Sans", -system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
-
-#loginContainer .login .right-content {
-  width: 48.8rem;
-  margin-right: -.2rem;
-  background-color: #fff;
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+.signin-form-wrap h5 {
+  margin-top: 20px;
 }
 
-#loginContainer .login .right-content h2 {
+.signin-form-wrap h5>a {
+  font-size: 14px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.signin-form input[type="email"],
+.signin-form input[type="password"] {
+  width: 100%;
+  border: 1px solid #314d89;
+  outline: none;
+  padding: 12px 20px;
+  color: #afafaf;
+  font-weight: 400;
+  font-family: 'Lato', sans-serif;
+  cursor: pointer;
+}
+
+.signin-form input[type="email"] {
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding-bottom: 13px;
+  box-shadow: 0 -1px 0 #E0E0E0 inset, 0 1px 2px rgba(0, 0, 0, 0.23) inset;
+}
+
+.signin-form input[type="password"] {
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.23) inset, 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.signin-form input[type="submit"] {
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  background: linear-gradient(to bottom, rgba(224, 224, 224, 1) 0%, rgba(206, 206, 206, 1) 100%);
+  display: block;
+  margin: 20px auto 0 auto;
+  width: 100%;
+  border: none;
+  border-radius: 3px;
+  padding: 8px;
+  font-size: 17px;
+  color: #636363;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
   font-weight: 700;
-  font-size: 3.2rem;
-  color: #292929;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  font-family: "Mona Sans";
+  box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.17), 0 1px 0 rgba(255, 255, 255, 0.36) inset;
 }
 
-#loginContainer .login .right-content .divider {
-  color: #707070;
-  font-size: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.6rem;
+.signin-form input[type="submit"]:hover {
+  background: #DDD;
 }
 
-#loginContainer .login .right-content .btn {
-  display: flex;
+.signin-form input[type="submit"]:active {
+  padding-top: 9px;
+  padding-bottom: 7px;
+  background: #C9C9C9;
+}
+
+#loginContainer .btn {
   align-items: center;
   justify-content: center;
   color: #292929;
@@ -1893,6 +2156,11 @@ template {
   font-weight: 600;
   font-size: 1.5rem;
   box-shadow: none;
+}
+
+#loginContainer {
+  width: 50%;
+  height: 90%
 }
 
 svg:not(:root).svg-inline--fa,
@@ -1913,16 +2181,11 @@ svg:not(:host).svg-inline--fa {
   display: none;
   color: white;
   font-size: 1.4rem;
-  /* opinion 1 */
-  z-index: 100000;
-  /* Set a high z-index value to ensure it's on top of everything */
+  z-index: 100;
   padding: 1rem;
-  /* Add padding to the tooltip */
   background-color: #2D2C2C;
-  /* Background color of the tooltip */
-  border-radius: 5px;
-  /* Rounded corners for the tooltip */
-  /* Add other styles as needed */
+  border-radius: 12px;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, .8);
 
   /* Add a triangle leftNavToggleArrow to the tooltip */
   &::before {

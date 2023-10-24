@@ -5,9 +5,11 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Tykrt: Your all-in-one hub for streaming. Watch Twitch, YouTube, Kick, Rumble & more, all in one place. Dive into the ultimate streaming experience now!">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <link rel="stylesheet" href="app.1.0.0.css" id="bootstrap-css">
+  <link rel="stylesheet" href="index.css" id="bootstrap-css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
@@ -29,126 +31,37 @@
     crossorigin="anonymous"></script>
 </head>
 
-
 <body>
 
-  <div id="loginContainer">
-    <div class="login">
-      <div class="left-content">
-        <img src="images/Logo.1.0.0.png" alt="Tykrt" width="300" height="73">
-      </div>
-      <div class="right-content">
-        <h2>Log in</h2>
-        <div class="divider"><span class="line"></span>
-        </div> <button type="button" id="loginButton" class="btn btn-secondary btn-block"><svg data-v-3d466c9c=""
-            aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitch" role="img"
-            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="me-2 svg-inline--fa fa-twitch">
-            <path data-v-3d466c9c="" fill="currentColor"
-              d="M391.17,103.47H352.54v109.7h38.63ZM285,103H246.37V212.75H285ZM120.83,0,24.31,91.42V420.58H140.14V512l96.53-91.42h77.25L487.69,256V0ZM449.07,237.75l-77.22,73.12H294.61l-67.6,64v-64H140.14V36.58H449.07Z"
-              class=""></path>
-          </svg> Twitch</button>
-      </div>
-    </div>
-  </div>
-
   <div class="mainContainer">
-    <nav class="topNav" id="topNav" style="display: none;">
-      <a href="https://tykrt.com" id="imageLink">
+    <nav class="topNav" id="topNav">
+      <a href="https://tykrt.com/index.html" id="imageLink">
         <img src="images/Logo.1.0.0.png" alt="Tykrt" width="300" height="73">
       </a>
       <div id="topNavRightContent">
-        <img src="images/avatarProfPic.jpg" width="32" height="32" id="avatarProfPic" class="avatarDropdown">
-        <div class="avatarDropdownMenu">
-          <div class="appsMenu">
-            <a href="#" class="appsMenuLink">
-              <img src="images/profileIcon.png" width="20" height="20" class="appsMenuIcon">
-              Profile
-            </a>
-            <a href="terms.html" class="appsMenuLink">
-              <img src="images/termsIcon.png" width="20" height="20" class="appsMenuIcon">
-              Terms of Service
-            </a>
-            <a href="privacy.html" class="appsMenuLink">
-              <img src="images/privacyIcon.png" width="20" height="20" class="appsMenuIcon">
-              Privacy Policy
-            </a>
-            <a href="#" class="appsMenuLink">
-              <img src="images/signOutIcon.png" width="20" height="20" class="appsMenuIcon">
-              Sign Out
-            </a>
-          </div>
-        </div>
-        <a id="showRightNav" class="btn btn-sm btn-dark" href="#">
-          <i class="fas fa-bars"></i>
-        </a>
+        <a href="https://tykrt.com/signin.html" class="btn btn--white">Sign In →</a>
       </div>
     </nav>
 
     <div class="contentContainer">
 
-      <div class="navContainer">
-        <nav id="leftNavContainer" class="nav">
-          <a href="#" class="leftNavToggle" id="leftNavToggle"><span class="glyphicon glyphiconMenuLeft"></span>
-            <div class="leftNavToggleArrow bounce">
-            </div>
-          </a>
-          <div id="leftNav"></div>
-          <div class="addStreamContainer">
-            <div class="app" id="app">
-                <form class="form">
-                    <input class="input form__input" id="streamerName" v-model="inputVal" placeholder="Streamer Name" />
-                    <button class="btn form__submit-btn" id="addStreamBtn" type="button">Add</button>
-                </form>
-            </div>
-        </div>        
-          <div class="youtubeToggleContainer">
-            <div class="row">
-              <div class="youtubeBtnText">
-                <h6>Top 20 Youtube Streams</h6>
-              </div>
-              <button type="button" class="youtubeBtn youtubeBtnToggle active" data-toggle="button" aria-pressed="true"
-                autocomplete="off">
-                <div class="youtubeToggleHandle"></div>
-              </button>
-            </div>
-          </div>
-        </nav>
-      </div>
+      <div class="navContainer"></div>
 
       <div class="mainContent">
-        <div id="streamPlayerContainer" class="streamPlayerContainer">
-          <div class="grid-stack" data-gs-animate="yes">
 
+        <div class="site">
+          <h1 class="site__title">All your streams,</h1>
+          <h2 class="site__subtitle">minus the seams.</h2>
+          <div class="site__box-link">
+            <a class="btn btn--width" href="https://tykrt.com/categories.html">Skip Sign In</a>
           </div>
+          <img class="site__img" src="images/homepage.png">
         </div>
-        <nav id="bottomContainer" style="display: none;">
-          <div class="bottomTabContainer">
-            <div class="bottomTabs" id="bottomTabMenu">
-              <span class="bottomGlider"></span>
-            </div>
-          </div>
-          <div id="bottomTwitchContainer"></div>
-        </nav>
+
       </div>
 
       <div class="navContainer">
-        <nav id="rightNav" class="nav" style="display: none;">
-          <div id="sidebarContent" class="sidebarContent">
-            <div class="rightNavBrand">
-              <div id="closeRightNav">
-                <i class="fas fa-times"></i>
-              </div>
-            </div>
-          </div>
-          <div class="tabContainer">
-            <div class="tabs" id="tabMenu">
-              <span class="glider"></span>
-            </div>
-          </div>
-          <div class="twitchChatContainer" id="twitchChatContainer">
-            <div class="twitchChats" id="twitchChats"></div>
-          </div>
-        </nav>
+
       </div>
 
     </div>
@@ -156,7 +69,7 @@
   </div>
   </div>
 
-  <script type="module" src="app.1.0.0.js"></script>
+  <script type="module" src="index.js"></script>
 </body>
 
 </html>

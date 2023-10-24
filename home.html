@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Tykrt: Your all-in-one hub for streaming. Watch Twitch, YouTube, Kick, Rumble & more, all in one place. Dive into the ultimate streaming experience now!">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="home.1.0.0.css" id="bootstrap-css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <link rel="icon" href="images/thumbnail.png" type="image/png">
+  <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
+
+  <title>Tykrt</title>
+
+  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack-all.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+  <div class="mainContainer">
+    <nav class="topNav" id="topNav">
+      <a href="https://tykrt.com/home.html" id="imageLink">
+        <img src="images/Logo.1.0.0.png" alt="Tykrt" width="300" height="73">
+      </a>
+      <div id="topNavRightContent">
+        <img src="images/avatarProfPic.png" width="32" height="32" id="avatarProfPic" class="avatarDropdown">
+        <div class="avatarDropdownMenu">
+          <div class="appsMenu">
+            <a href="proflie.html" class="appsMenuLink">
+              <img src="images/profileIcon.png" width="20" height="20" class="appsMenuIcon">
+              Profile
+            </a>
+            <a href="terms.html" class="appsMenuLink">
+              <img src="images/termsIcon.png" width="20" height="20" class="appsMenuIcon">
+              Terms of Service
+            </a>
+            <a href="privacy.html" class="appsMenuLink">
+              <img src="images/privacyIcon.png" width="20" height="20" class="appsMenuIcon">
+              Privacy Policy
+            </a>
+            <a href="#" class="appsMenuLink" id="signOutLink">
+              <img src="images/signOutIcon.png" width="20" height="20" class="appsMenuIcon">
+              Sign Out
+            </a>
+          </div>
+        </div>
+        <a id="showRightNav" class="btn btn-sm btn-dark" href="#">
+          <i class="fas fa-bars"></i>
+        </a>
+      </div>
+    </nav>
+
+    <div class="contentContainer">
+
+      <div class="navContainer">
+        <nav id="leftNavContainer" class="nav">
+          <a href="#" class="leftNavToggle" id="leftNavToggle"><span class="glyphicon glyphiconMenuLeft"></span>
+            <div class="leftNavToggleArrow bounce">
+            </div>
+          </a>
+          <div id="leftNav"></div>
+          <div class="addStreamContainer">
+            <div class="app" id="app">
+              <form class="form">
+                <input class="input form__input" id="streamerName" v-model="inputVal" placeholder="Streamer Name" />
+                <button class="btn form__submit-btn" id="addStreamBtn" type="button">Add</button>
+              </form>
+            </div>
+          </div>
+          <div class="youtubeToggleContainer">
+            <div class="row">
+              <div class="youtubeBtnText">
+                <h6>Top Youtube Streams</h6>
+              </div>
+              <button type="button" class="youtubeBtn youtubeBtnToggle active" data-toggle="button" aria-pressed="true"
+                autocomplete="off">
+                <div class="youtubeToggleHandle"></div>
+              </button>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div class="mainContent">
+
+        <div id="streamPlayerContainer" class="streamPlayerContainer">
+          <div class="grid-stack" data-gs-animate="yes">
+
+          </div>
+        </div>
+        <nav id="bottomContainer" style="display: none;">
+          <div class="bottomTabContainer">
+            <div class="bottomTabs" id="bottomTabMenu">
+              <span class="bottomGlider"></span>
+            </div>
+          </div>
+          <div id="bottomTwitchContainer"></div>
+        </nav>
+      </div>
+
+      <div class="navContainer">
+        <nav id="rightNav" class="nav">
+          <div id="sidebarContent" class="sidebarContent">
+            <div class="rightNavBrand">
+              <div id="closeRightNav">
+                <i class="fas fa-times"></i>
+              </div>
+            </div>
+          </div>
+          <div class="tabContainer">
+            <div class="tabs" id="tabMenu">
+              <span class="glider"></span>
+            </div>
+          </div>
+          <div class="twitchChatContainer" id="twitchChatContainer">
+            <div class="twitchChats" id="twitchChats"></div>
+          </div>
+        </nav>
+      </div>
+
+    </div>
+
+  </div>
+  </div>
+
+  <div id="dummyScrollbar" style="position: absolute; right: 0; top: 0; width: 17px; height: 100%; overflow-y: scroll;">
+    <div style="height: 200%; width: 1px;"></div> <!-- A taller child to induce scrolling -->
+  </div>
+
+  <script type="module" src="home.1.0.0.js"></script>
+</body>
+
+</html>

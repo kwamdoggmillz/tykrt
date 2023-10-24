@@ -1,9 +1,9 @@
 import { clientId, apiKey, redirectUri, apiBaseUrl, scope } from './config.js';
 
 let accessToken = null;
+let unwantedCategories = null;
 let userId = null;
 let initialized = false;
-let isFirstRun = true;
 let leftNavData = []; // add this line to keep all streams data together before they are available
 let updatedStreams = [];
 const selectedStreams = new Set();
@@ -11,9 +11,11 @@ const checkboxStates = {};
 const chatIframes = {};
 const tooltipsMap = new Map();
 const tooltips = [];
+let currentCheckedCheckbox = null;
+let currentCheckedStreamer = null;
+const removalThreshold = 10;
 let sidebarOpen = 1;
 let leftNavOpen = 1;
-let previousWindowWidth = window.innerWidth;
 let previousLeftNavWidth = 0;
 let globalPreviousWindowWidth = window.innerWidth;
 let leftNavContainerPercentWidth = 0.14 * window.innerWidth;
@@ -21,23 +23,15 @@ let leftNavContainerPercentWidth = 0.14 * window.innerWidth;
 async function init() {
   try {
     accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      const loginButton = document.getElementById('loginButton');
-      loginButton.addEventListener('click', login);
+    unwantedCategories = localStorage.getItem('unwantedCategories');
+
+    if (!accessToken && !unwantedCategories) {
+      window.location.href = 'https://tykrt.com/signin.html';
       return;
     }
 
-    userId = await getUserInformation(accessToken);
-
-    const loginContainer = document.getElementById('loginContainer');
-    const leftNavContainer = document.getElementById('leftNavContainer');
-    const topNav = document.getElementById('topNav');
-
-    if (loginContainer.style.display !== 'none') {
-      loginContainer.style.display = 'none';
-      leftNavContainer.style.display = 'block';
-      topNav.style.display = 'flex';
-      updateMargins();
+    if (accessToken) {
+      userId = await getUserInformation(accessToken);
     }
 
     if (!initialized) {
@@ -155,8 +149,8 @@ Promise.resolve().then(() => {
 });
 
 
-// Function to handle Twitch login button click
-function login() {
+// Function to handle Twitch signin button click
+function signin() {
   const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
   window.location.href = authUrl;
 }
@@ -212,117 +206,52 @@ function handleWindowSizeChange() {
   }
 
   // Update the previous widths
-  previousWindowWidth = currentWindowWidth;
   previousLeftNavWidth = currentLeftNavWidth;
 }
-
-
 
 function updateMargins() {
   try {
 
-    let [isLeftNavOpen, isSidebarOpen] = [leftNavOpen, sidebarOpen];
-
     const topNav = document.getElementById('topNav');
     const leftNavContainer = document.getElementById('leftNavContainer');
-    const leftNav = document.getElementById('leftNav');
     const rightNav = document.getElementById('rightNav');
     const streamPlayerContainer = document.getElementById('streamPlayerContainer');
-    const bottomTwitchContainer = document.getElementById('bottomTwitchContainer');
-    const bottomContainer = document.getElementById('bottomContainer');
-    const loginContainer = document.getElementById('loginContainer');
 
-    if (loginContainer && loginContainer.style.display !== 'none') {
-      const marginTop = window.innerHeight / 2 - loginContainer.offsetHeight / 2 + 'px';
-      const marginLeft = window.innerWidth / 2 - loginContainer.offsetWidth / 2 + 'px';
-      loginContainer.style.marginTop = marginTop;
-      loginContainer.style.marginLeft = marginLeft;
+    const mainContent = document.querySelector('.mainContent');
 
-      return;
+    // Check if the current screen width is less than or equal to 50rem
+    if (window.matchMedia('(max-width: 50rem)').matches) {
+      mainContent.classList.add('block');
+    } else {
+      mainContent.classList.remove('block');
+    }
+
+    const tabMenu = document.getElementById('tabMenu');
+    let count = 0;
+
+    for (let i = 0; i < tabMenu.children.length; i++) {
+      const child = tabMenu.children[i];
+      if (child.tagName === 'LABEL') {
+        count++;
+      }
     }
 
     if (topNav && leftNavContainer && rightNav && streamPlayerContainer) {
-      const topNavEndPosition = topNav.getBoundingClientRect().bottom;
-      const leftNavContainerExpandedWidth = 24 * parseFloat(getComputedStyle(leftNavContainer).fontSize); // 24rem
       const leftNavContainerAutoCollapseWidth = 170;
-      const leftNavContainerCollapsedWidth = '54px';
-      const addStreamContainer = document.querySelector('.addStreamContainer');
 
-      if (isLeftNavOpen === 0) {
-        leftNavContainer.style.width = leftNavContainerCollapsedWidth;
-        showHideStreamViewers('hidden');
-        setCheckboxOpacity(0.5);
-      } else if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
+      if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
         leftNavOpen = 0;
-        setCheckboxOpacity(0.5);
-        leftNavContainer.style.width = leftNavContainerCollapsedWidth;
 
         if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
-          const leftNavExpandCollapse = document.querySelector(".leftNavToggle");
-          leftNavExpandCollapse.style.display = 'none';
-          leftNav.style.height = leftNavContainer.getBoundingClientRect().height - 11 - 30 + 'px';
-          leftNav.style.borderTopLeftRadius = '12px';
-          leftNav.style.borderTopRightRadius = '12px';
-          rightNav.style.display = 'none';
-          bottomContainer.style.width = window.innerWidth - 54 - 10 - 10 - 10 - 10;
-          addStreamContainer.style.display = 'none';
-
-          updateChatSize();
-
-          const chatIframe = document.querySelector('.chatIframe');
-
-          if (chatIframe) {
-            bottomContainer.style.width = chatIframe.style.width;
-          }
-
-          showHideStreamViewers('hidden');
         }
       } else {
         leftNavOpen = 1;
-        leftNav.style.height = '';
-        leftNav.style.borderTopLeftRadius = '0px';
-        leftNav.style.borderTopRightRadius = '0px';
-        bottomContainer.style.display = 'none';
-        addStreamContainer.style.display = 'flex';
-        setCheckboxOpacity(1);
-        showHideStreamViewers('visible');
-        leftNavContainer.style.width = '24rem';
-
-        if (leftNavContainerPercentWidth > leftNavContainerAutoCollapseWidth) {
-          const leftNavExpandCollapse = document.querySelector(".leftNavToggle");
-          leftNavExpandCollapse.style.display = 'flex';
-        }
       }
-
-      if (!isFirstRun) {
-        if (isSidebarOpen === 0 || leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
-          sidebarOpen = 0;
-        } else {
-          sidebarOpen = 1;
-
-          try {
-            if (rightNav) {
-              const wasAutoCollapsed = globalPreviousWindowWidth > leftNavContainerAutoCollapseWidth;
-              const isAutoCollapsed = window.innerWidth <= leftNavContainerAutoCollapseWidth;
-              if (globalPreviousWindowWidth !== window.innerWidth && (wasAutoCollapsed !== isAutoCollapsed)) {
-                rightNav.style.display = 'block';
-              }
-            }
-          } catch (error) {
-            console.error('Error:', error);
-          }
-        }
-      }
-
-      bottomTwitchContainer.style.display = leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth ? 'block' : 'none';
     }
-
-    isFirstRun = false;
 
   } catch (error) {
     console.error('Error:', error);
   }
-
 }
 
 document.querySelector('.youtubeBtnToggle').addEventListener('click', function () {
@@ -355,7 +284,24 @@ async function attachEventListeners() {
       alert("Please provide a streamer name.");
     }
   });
+
+  document.getElementById('signOutLink').addEventListener('click', async (e) => {
+    e.preventDefault(); // Prevent the default action of the link
+    await signOut();
+  });
+
 }
+
+async function signOut() {
+  // Remove data from local storage
+  localStorage.removeItem('username');
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('unwantedCategories');
+
+  window.location.href = 'https://tykrt.com/signin.html';
+
+}
+
 
 async function isStreamerLiveOnTwitch(streamerName) {
   const twitchApiUrl = `https://api.twitch.tv/helix/streams?user_login=${streamerName}`;
@@ -424,50 +370,41 @@ function removeYouTubeStreamsFromNav() {
 async function updateLeftNav() {
   try {
 
-    await getFollowedLiveStreams(accessToken, userId);
+    if (accessToken) {
+      await getFollowedLiveStreams(accessToken, userId);
+    }
 
     if (document.querySelector('.youtubeBtnToggle').classList.contains('active')) {
       await getYouTubeLiveBroadcasts(apiKey);
+    } else {
+      removeStreamsFromNav(updatedStreams)
     }
 
     sortStreamsByViewers();
 
-    updateLeftNavUi();
+    removeOrphanedTooltips();
 
   } catch (error) {
     console.error('Error updating leftNav data:', error);
   }
 }
 
-function calculateStreamHeightAndWidth() {
+function removeOrphanedTooltips() {
+  // Get all the tooltip elements
+  const tooltips = document.querySelectorAll('.tooltip');
 
-  const leftNavContainer = document.getElementById('leftNavContainer');
+  for (let tooltip of tooltips) {
+    // Get the associated streamer signin from the tooltip
+    const streamerLogin = tooltip.getAttribute('data-streamer');
 
-  // Calculate the maximum width for a single stream based on the percentage of window.innerWidth
-  const sidebarPercentageWidth = 0.18; // 18%
-  const leftNavPxWidth = 24 * parseFloat(getComputedStyle(leftNavContainer).fontSize); // 24rem
-  const maxSidebarPxWidth = 321;
+    // Check if a stream with this streamer signin exists in the left nav using the ^= selector
+    const streamElement = document.querySelector(`.streamerCardLink[data-streamer^="${streamerLogin.split(' ')[0]}"]`); // We're assuming that streamer names don't contain spaces for simplicity. Adjust if needed.
 
-  const navContainer = document.querySelector('.navContainer');
-
-  let maxSingleStreamWidth = window.innerWidth - leftNavPxWidth - 10 - maxSidebarPxWidth - 10 - 20;
-
-  if (leftNavOpen === 0 && sidebarOpen === 0) {
-    maxSingleStreamWidth = window.innerWidth - 54 - 10 - 10 - 20;
-  } else if (leftNavOpen === 1 && sidebarOpen === 0) {
-    maxSingleStreamWidth = window.innerWidth - navContainer.getBoundingClientRect().width - 20;
-  } else if (leftNavOpen === 0 && sidebarOpen === 1) {
-    const availableWidth = window.innerWidth * (1 - sidebarPercentageWidth);
-    maxSingleStreamWidth = Math.min(availableWidth - 54 - 10 - 10 - 20, window.innerWidth - maxSidebarPxWidth - 54 - 10 - 10 - 20);
+    // If the stream element does not exist in the left nav, remove the tooltip
+    if (!streamElement) {
+      tooltip.remove();
+    }
   }
-
-  // Calculate the height based on the aspect ratio
-  const aspectRatioWidth = 1320;
-  const aspectRatioHeight = 742.5;
-  const height = (maxSingleStreamWidth / aspectRatioWidth) * aspectRatioHeight;
-
-  return [maxSingleStreamWidth, height];
-
 }
 
 function updateStreamLayout() {
@@ -528,8 +465,6 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
     const { usersMap, gamesMap } = await fetchUserAndGameData(liveStreams);
 
-    const leftNav = document.getElementById('leftNav');
-
     for (let i = 0; i < liveStreams.length; i++) {
 
       const stream = liveStreams[i];
@@ -539,7 +474,9 @@ async function getFollowedLiveStreams(accessToken, userId) {
       let gameName = 'Just Chatting';
 
       try {
-        gameName = game.name;
+        if (game) {
+          gameName = game.name;
+        }
       } catch (error) {
         console.error('Error fetching game name:', error);
       }
@@ -566,8 +503,6 @@ async function getFollowedLiveStreams(accessToken, userId) {
 
       updatedStreams.push(stream.user_login);
     }
-
-    //removeStreamsFromNav(updatedStreams);
 
   } catch (error) {
     console.error('Error: ', error);
@@ -612,6 +547,13 @@ function addStreamToNav(streamerUserLogin, streamerDisplayName, profilePicture, 
   streamerCardLeftDetails.appendChild(textView);
   streamItem.appendChild(streamerCardLeftDetails);
   streamItem.appendChild(viewerCount);
+
+  if (document.getElementById('leftNavContainer').classList.contains('collapsed')) {
+    viewerCount.style.display = 'none';
+  } else {
+    viewerCount.style.display = '';
+  }
+
   streamerCardLink.appendChild(streamItem);
   leftNav.appendChild(streamerCardLink);
 
@@ -648,12 +590,14 @@ function removeStreamsFromNav(updatedStreams) {
     .filter(item => item.streamerLogin) // Only get items that have a streamerLogin
     .map(item => item.streamerLogin);   // Convert to an array of streamerLogin values
 
+  const streamsToCheck = existingStreamLogins.filter(signin => !updatedStreams.includes(signin));
+
   // Now, determine which streams need to be removed
-  const streamsToRemoveLogins = existingStreamLogins.filter(login => !updatedStreams.includes(login));
+  const streamsToRemoveLogins = streamsToCheck.filter(signin => markStreamForPossibleRemoval(signin));
 
   // Remove the related DOM elements and data for these streams
-  for (let login of streamsToRemoveLogins) {
-    const index = leftNavData.findIndex(item => item.streamerLogin === login);
+  for (let signin of streamsToRemoveLogins) {
+    const index = leftNavData.findIndex(item => item.streamerLogin === signin);
 
     // Remove the data for this stream
     if (index !== -1) {
@@ -666,20 +610,103 @@ function removeStreamsFromNav(updatedStreams) {
   }
 }
 
+function markStreamForPossibleRemoval(signin) {
+  const streamData = leftNavData.find(item => item.streamerLogin === signin);
+  if (streamData) {
+    if (streamData.streamType === 'youtube') {
+      streamData.missingCycles = (streamData.missingCycles || 0) + 1;
+      if (streamData.missingCycles >= removalThreshold) {
+        return true;  // ready for removal
+      }
+      return false; // not yet ready for removal
+    } else if (streamData.streamType === 'twitch') {
+      return true;  // Twitch streams can be removed immediately
+    }
+  }
+  return false;
+}
+
+async function fetchTopGamesFromTwitch(clientId, accessToken) {
+
+  if (!clientId || !accessToken) {
+    return null;
+  }
+
+  const url = 'https://api.twitch.tv/helix/games/top?first=100'; // Get top 100 games
+
+  const response = await fetch(url, {
+    headers: {
+      'Client-ID': clientId,
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch top games from Twitch');
+  }
+
+  const data = await response.json();
+  return data.data.map(game => game.name); // Return an array of game names
+}
+
+function extractGameFromTitle(title, gamesList) {
+
+  if (!title || !gamesList) {
+    return null;
+  }
+
+  for (let game of gamesList) {
+    // Use a regular expression to search for game name surrounded by word boundaries
+    const regex = new RegExp(`\\b${game}\\b`, 'i');
+    if (regex.test(title)) {
+      return game;
+    }
+  }
+  return null;  // If no game is found
+}
+
+
+async function getVideoCategories(apiKey) {
+  const lastFetchedTimestamp = localStorage.getItem("videoCategoriesTimestamp");
+  const currentTime = Date.now();
+  const oneMonthInMillis = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+
+  // Check if we already have categories in local storage and if they are less than a month old
+  if (lastFetchedTimestamp && (currentTime - lastFetchedTimestamp < oneMonthInMillis)) {
+    return JSON.parse(localStorage.getItem("videoCategories"));
+  }
+
+  // Fetch categories from YouTube API
+  const url = `https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode=US&key=${apiKey}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  const categories = data.items.map(item => ({
+    id: item.id,
+    title: item.snippet.title
+  }));
+
+  // Store categories and current timestamp in local storage
+  localStorage.setItem("videoCategories", JSON.stringify(categories));
+  localStorage.setItem("videoCategoriesTimestamp", currentTime.toString());
+
+  return categories;
+}
+
+function decodeHTMLEntities(text) {
+  const textArea = document.createElement('textarea');
+  textArea.innerHTML = text;
+  return textArea.value;
+}
 
 // Function to fetch top 20 live broadcasts from YouTube sorted by view count// Function to fetch top 20 live broadcasts from YouTube sorted by view count
 async function getYouTubeLiveBroadcasts(apiKey) {
   try {
 
-    /*fetch('quota_checker/fetch_quota.php')
-    .then(response => response.json())
-    .then(data => {
-      if (data.percentageUsed > 90) {
-       return
-      }
-    });*/
+    // Fetch the games list just once
+    const gamesList = await fetchTopGamesFromTwitch(clientId, accessToken);
 
-    const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=20&relevanceLanguage=en&key=${apiKey}`;
+    const youtubeLiveStreamsUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&type=video&eventType=live&maxResults=50&relevanceLanguage=en&key=${apiKey}`;
 
     const liveStreamsResponse = await fetch(youtubeLiveStreamsUrl);
 
@@ -713,14 +740,51 @@ async function getYouTubeLiveBroadcasts(apiKey) {
     // Fetch details for all videos in a single request
     const detailsResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoIds}&part=liveStreamingDetails,snippet,statistics&key=${apiKey}`);
     const detailsData = await detailsResponse.json();
+    const categories = await getVideoCategories(apiKey);
 
-    const leftNav = document.getElementById('leftNav');
+    const unwantedCategories = await getUserUnwantedCategories();
+
+    let filteredStreams;
+
+    // If the user hasn't specified any unwanted categories, just use all streams
+    if (unwantedCategories.length === 0) {
+      filteredStreams = detailsData.items;
+    } else {
+      filteredStreams = detailsData.items.filter(video => {
+        const categoryId = video.snippet.categoryId;
+        return !unwantedCategories.includes(categoryId);
+      });
+    }
+
+    // After filtering, slice the array to get the top 20
+    const topStreams = filteredStreams.slice(0, 20);
 
     // Iterate over details for each video and process
     for (let video of detailsData.items) {
-      const matchingStream = liveStreams.find(s => s.id.videoId === video.id);
-      const streamerLogin = matchingStream.snippet.channelTitle.replace(/ /g, '');
+      const matchingStream = topStreams.find(s => s.id === video.id);
+      if (!matchingStream) continue; // If there's no matching stream, skip to the next iteration
+      // Clean up the streamerLogin by replacing special characters
+      let streamerLogin = matchingStream.snippet.channelTitle
+        .replace(/ /g, '')
+        .replace(/'/g, '')
+        .replace(/#/g, '')
+        .replace(/,/g, '')
+        .replace(/&/g, 'And')
+        .replace(/@/g, 'At')
+        .replace(/%/g, 'Pct');
       if (!matchingStream) continue;
+
+      let streamTitle = decodeHTMLEntities(matchingStream.snippet.title);
+
+      let gameName = extractGameFromTitle(streamTitle, gamesList);
+
+      // If gameName is not found, use the video's category name
+      if (!gameName && video.snippet.categoryId) {
+        const category = categories.find(cat => cat.id === video.snippet.categoryId);
+        if (category) {
+          gameName = category.title;
+        }
+      }
 
       const existingStream = leftNavData.find(item => item.streamerLogin === streamerLogin);
 
@@ -728,8 +792,8 @@ async function getYouTubeLiveBroadcasts(apiKey) {
         const streamDOMElement = addStreamToNav(streamerLogin,
           streamerLogin,
           matchingStream.snippet.thumbnails.medium.url,
-          '',
-          matchingStream.snippet.title,
+          gameName,
+          streamTitle,
           video.id,
           video.liveStreamingDetails.concurrentViewers,
           'youtube'
@@ -737,9 +801,9 @@ async function getYouTubeLiveBroadcasts(apiKey) {
         leftNavData.push({
           element: streamDOMElement,
           streamerLogin: streamerLogin,
-          streamTitle: matchingStream.snippet.title,
+          streamTitle: streamTitle,
           streamerName: streamerLogin,
-          gameName: '',
+          gameName: gameName,
           videoId: video.id,
           viewerCount: video.liveStreamingDetails.concurrentViewers,
           streamerId: matchingStream.snippet.channelId,
@@ -759,6 +823,22 @@ async function getYouTubeLiveBroadcasts(apiKey) {
     console.error('Error fetching YouTube live broadcasts:', error);
   }
 }
+
+async function getUserUnwantedCategories() {
+  const username = localStorage.getItem('username');
+  let unwantedCategories = []; // Initialize it outside the try block
+
+  try {
+    const response = await fetch(`https://vps.tykrt.com/app/getCategoryPreferences?username=${username}`);
+    const data = await response.json();
+    unwantedCategories = data.unwantedCategories || []; // Assign the value from the response or an empty array
+  } catch (error) {
+    console.error('Failed to load user preferences:', error);
+  }
+
+  return unwantedCategories; // Return the unwanted categories
+}
+
 
 function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePicture, gameName, videoId, viewCount, platform) {
 
@@ -884,15 +964,30 @@ function createStreamerCards(streamerUserLogin, streamerDisplayName, profilePict
 
 // Function to handle checkbox change
 function handleCheckboxChange(event, checked) {
-
-  if (checked === undefined) {
-    return;
-  }
-
   const selectedStreamer = event.target.dataset.streamer;
   const platform = event.target.dataset.platform;
   const videoId = event.target.dataset.videoid;
-  let radioButtons = document.querySelectorAll('.tab-radio');
+  const checkbox = event.target;
+
+  // Check the window width
+  const isSmallScreen = window.matchMedia('(max-width: 50rem)').matches;
+
+  if (isSmallScreen) {
+    if (checked) {
+      // If a different checkbox is checked, uncheck the previously checked checkbox (if any)
+      if (currentCheckedCheckbox && currentCheckedCheckbox !== checkbox) {
+        currentCheckedCheckbox.checked = false;
+        // Also remove the previously checked streamer
+        removeStreamPlayer(currentCheckedStreamer);
+      }
+
+      currentCheckedCheckbox = checkbox;
+      currentCheckedStreamer = selectedStreamer;
+    } else {
+      // Prevent unchecking the checkbox on small screens
+      checkbox.checked = true;
+    }
+  }
 
   if (checked) {
     selectedStreams.add(selectedStreamer);
@@ -902,19 +997,12 @@ function handleCheckboxChange(event, checked) {
     removeStreamPlayer(selectedStreamer);
   }
 
-  const leftNavContainerAutoCollapseWidth = 170;
-
-  if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
-
-    updateChatSize();
-
-  }
-
   Promise.resolve().then(() => {
     updateMargins();
     updateStreamLayout();
   });
 }
+
 
 function removeStreamPlayer(username) {
   selectedStreams.delete(username);
@@ -988,6 +1076,7 @@ function createStreamPlayer(videoId, username, platform) {
         height: '100%',
         channel: username,
         parent: ["tykrt.com"],
+        muted: true,
       };
       new Twitch.Player(`player-${username}`, options);
     } else if (platform === 'youtube') {
@@ -996,7 +1085,7 @@ function createStreamPlayer(videoId, username, platform) {
         const ytFrame = document.createElement('iframe');
         ytFrame.width = "100%";
         ytFrame.height = "100%";
-        ytFrame.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=https://tykrt.com`;
+        ytFrame.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=https://tykrt.com&autoplay=1&mute=1`;
         ytFrame.frameBorder = "0";
         ytFrame.allowFullscreen = true;
 
@@ -1042,7 +1131,6 @@ function setStreamPlayerColors(streamPlayer, platform) {
 
 function createOrUpdateChatTab(channelName) {
 
-  const rightNav = document.getElementById('rightNav');
   const bottomContainer = document.getElementById('bottomContainer');
   const leftNavContainerAutoCollapseWidth = 170;
 
@@ -1055,22 +1143,27 @@ function createOrUpdateChatTab(channelName) {
 
   globalPreviousWindowWidth = window.innerWidth;
 
-  if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
-    rightNav.style.display = 'none';
-    bottomContainer.style.display = 'block';
-  } else {
-
-    if (sidebarOpen == 1) {
-      rightNav.style.display = 'block';
-    }
-    bottomContainer.style.display = 'none';
-  }
-
   if (!chatIframes[channelName]) {
     createChatTab(channelName);
   }
 
   showChatTab(channelName);
+
+  const bottomTabMenu = document.getElementById('bottomTabMenu');
+  let bottomCount = 0;
+
+  for (let i = 0; i < bottomTabMenu.children.length; i++) {
+    const child = bottomTabMenu.children[i];
+    if (child.tagName === 'LABEL') {
+      bottomCount++;
+    }
+  }
+
+  if (bottomCount === 0) {
+    bottomContainer.style.display = 'none';
+  } else {
+    bottomContainer.style.display = '';
+  }
 
   const radioInput = document.querySelector(`input#radio-${channelName}`);
   if (radioInput && chatIframes[channelName]) {
@@ -1089,6 +1182,9 @@ function createChatTab(channelName) {
   const twitchChatContainer = document.getElementById('twitchChatContainer');
   const tabCount = tabMenu.children.length;
   const leftNavContainerAutoCollapseWidth = 170;
+
+  const rightNav = document.getElementById('rightNav');
+  rightNav.style.display = 'block';
 
   // Create an input radio button
   const radioInput = createElementWithClass('input', 'tab-radio', {
@@ -1125,39 +1221,16 @@ function createChatTab(channelName) {
   const tabContent = createElementWithClass('div', 'tab-content');
   tabContent.id = `content-${channelName}`;
 
-  const mainContent = document.getElementById('mainContent');
-
   // Create the chat iframe
   const chatIframe = createChatEmbed(channelName);
   chatIframe.width = '100%'; // Set the width
 
-  // Get the height of the leftNavContainer div
-  const rightNav = document.getElementById('rightNav');
-  const sidebarHeight = rightNav.offsetHeight;
-
-  // Get the height of the leftNavContainer div
-  const sidebarContent = document.getElementById('sidebarContent');
-  const sidebarContentHeight = sidebarContent.offsetHeight;
-
-  const tabContainer = document.querySelector('.tabContainer');
-  const tabContainerHeight = tabContainer.offsetHeight;
-
-  const topNav = document.querySelector('.topNav');
-  const topNavHeight = topNav.offsetHeight;
-
-  const leftNavContainer = document.getElementById('leftNavContainer');
-
-  const streamPlayerContainer = document.getElementById('streamPlayerContainer');
-  const streamPlayerContainerHeight = streamPlayerContainer.offsetHeight;
-
   // Set the chatIframe height to match the leftNavContainer height
-  chatIframe.height = (sidebarHeight - tabContainerHeight - sidebarContentHeight - 30) + 'px';
+  /*chatIframe.height = (sidebarHeight - tabContainerHeight - sidebarContentHeight - 30) + 'px';*/
 
   if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
 
-    const streamHeight = updateChatSize();
-
-    chatIframe.height = (leftNavContainer.offsetHeight - streamHeight - (window.innerHeight * 0.032) - 10) - 30 + 'px';
+    /*chatIframe.height = (leftNavContainer.offsetHeight - streamHeight - (window.innerHeight * 0.032) - 10) - 30 + 'px';*/
     chatIframe.width = (window.innerWidth - 54 - 10 - 10 - 10 - 10) + 'px';
   }
 
@@ -1168,10 +1241,7 @@ function createChatTab(channelName) {
 
   if (leftNavContainerPercentWidth <= leftNavContainerAutoCollapseWidth) {
     bottomTwitchContainer.appendChild(twitchChats);
-    bottomTwitchContainer.style.display = 'block';
-
   } else {
-    bottomTwitchContainer.style.display = 'none';
     twitchChatContainer.appendChild(twitchChats);
   }
 
@@ -1192,6 +1262,10 @@ function createChatTab(channelName) {
 }
 
 function createChatEmbed(channelName) {
+  // Create the chat-overlay div
+  const chatOverlayDiv = document.createElement('div');
+  chatOverlayDiv.className = 'chat-overlay';
+
   // Create and configure the chat iframe
   const chatIframe = createElementWithClass('iframe', 'chat-iframe', {
     id: `chat-iframe-${channelName}`,
@@ -1201,8 +1275,12 @@ function createChatEmbed(channelName) {
     allowfullscreen: 'true'
   });
 
-  return chatIframe;
+  // Append the iframe to the overlay div
+  chatOverlayDiv.appendChild(chatIframe);
+
+  return chatOverlayDiv; // Return the overlay div instead of just the iframe
 }
+
 
 // Function to show a chat tab and hide others
 function showChatTab(channelName) {
@@ -1219,35 +1297,6 @@ function showChatTab(channelName) {
       }
     }
   }
-}
-
-function updateChatSize() {
-
-  const [maxSingleStreamWidth, height] = calculateStreamHeightAndWidth();
-
-  const radioButtons = document.querySelectorAll('.tab-radio');
-  const radioLength = Array.from(radioButtons).length
-
-  let streamHeight = height
-
-  if (radioLength === 2) {
-    streamHeight = height / 2
-  } else if (radioLength === 3) {
-    streamHeight = (height / 2 + height)
-  } else if (radioLength === 4) {
-    streamHeight = height
-  }
-
-  const elements = document.querySelectorAll('.chat-iframe');
-
-  elements.forEach(element => {
-
-    element.style.height = (leftNavContainer.offsetHeight - streamHeight - (window.innerHeight * 0.032) - 10) - 30 + 'px';
-
-  });
-
-  return streamHeight
-
 }
 
 function removeAllChats() {
@@ -1283,7 +1332,7 @@ function removeChatTab(channelName) {
   // Get the radio button, label, glider span and chat tab content
   const radioInput = document.getElementById(`radio-${channelName}`);
   const label = document.getElementById(`label-${channelName}`);
-  const tabContent = document.getElementById(`chat-iframe-${channelName}`);
+  const tabContent = document.getElementById(`content-${channelName}`);
 
   // Remove them from the DOM
   if (radioInput && label && tabContent) {
@@ -1322,7 +1371,7 @@ function removeChatTab(channelName) {
     if (count === 0) {
       document.getElementById('sidebarContent').style.display = 'none';
       const rightNav = document.getElementById('rightNav');
-      rightNav.style.display = 'none';
+      rightNav.style.display = '';
     }
   }
 }
@@ -1336,8 +1385,8 @@ if (checkedRadio) {
 
 function updateGliderPosition(index) {
   const tabs = document.querySelectorAll('.tab-radio').length;
-  const tabWidth = document.querySelector('.tabs').offsetWidth / tabs;
-  const bottomTabWidth = document.querySelector('.bottomTabs').offsetWidth / tabs;
+  const tabWidth = (document.querySelector('.tabs').offsetWidth / tabs) - 10;
+  const bottomTabWidth = (document.querySelector('.bottomTabs').offsetWidth / tabs) - 10;
 
   const glider = document.querySelector('.glider');
   const bottomGlider = document.querySelector('.bottomGlider');
@@ -1346,9 +1395,6 @@ function updateGliderPosition(index) {
   let count = 0;
 
   const leftNavContainerAutoCollapseWidth = 170;
-
-  const tabMenu = document.querySelector('.tabContainer');
-  const bottomTabMenu = document.querySelector('.bottomTabContainer');
 
   let labelPosition = 0;
   let gliderPosition = {
@@ -1414,11 +1460,21 @@ function addTooltip(streamItem, tooltip, streamTitle, leftNav) {
   // Append the tooltip to the body
   document.body.appendChild(tooltip);
 
+  // Function to hide all tooltips
+  function hideAllTooltips() {
+    for (let tip of tooltips) {
+      tip.style.display = 'none';
+    }
+  }
+
   // Attach event listeners to show/hide tooltips
   streamItem.addEventListener('mouseover', function (event) {
+    // First, hide all other tooltips
+    hideAllTooltips();
+
     const streamItemRect = streamItem.getBoundingClientRect();
 
-    const x = streamItemRect.right + 15; // Place the tooltip 15px to the right of the streamer card
+    const x = streamItemRect.right + 28; // Place the tooltip 15px to the right of the streamer card
     const y = streamItemRect.top; // Align the tooltip's top edge with the streamer card's top edge
 
     // Set the tooltip's position
@@ -1437,6 +1493,7 @@ function addTooltip(streamItem, tooltip, streamTitle, leftNav) {
   });
 
   tooltips.push(tooltip); // Add the tooltip to the tooltips array
+  tooltipsMap.set(streamItem, tooltip); // Map the streamItem to its tooltip
 }
 
 function clearTooltip(streamerLogin) {
@@ -1525,24 +1582,6 @@ function sortStreamsByViewers() {
   renderToDOM();
 }
 
-
-
-function updateLeftNavUi() {
-  const visibility = leftNavOpen === 0 ? 'hidden' : 'visible';
-  const opacity = leftNavOpen === 0 ? 0.5 : 1;
-
-  showHideStreamViewers(visibility);
-  setCheckboxOpacity(opacity);
-}
-
-function showHideStreamViewers(visibility) {
-  const spans = document.querySelectorAll('.stream-viewers');
-
-  for (const span of spans) {
-    span.style.visibility = visibility;
-  }
-}
-
 function createElementWithClass(elementType, className, attributes = {}) {
   const element = document.createElement(elementType);
   element.className = className;
@@ -1626,6 +1665,39 @@ window.addEventListener('click', function (event) {
   }
 });
 
+const streamPlayerContainer = document.getElementById('streamPlayerContainer');
+const dummyScrollbar = document.getElementById('dummyScrollbar');
+let isProgrammaticScroll = false;
+
+// When user scrolls the main content
+streamPlayerContainer.addEventListener('scroll', function () {
+  if (isProgrammaticScroll) {
+    isProgrammaticScroll = false;
+    return;
+  }
+
+  if (streamPlayerContainer.scrollHeight <= streamPlayerContainer.clientHeight) {
+    dummyScrollbar.classList.add('no-scroll');
+  } else {
+    dummyScrollbar.classList.remove('no-scroll');
+  }
+
+  const percentageScrolled = streamPlayerContainer.scrollTop / (streamPlayerContainer.scrollHeight - streamPlayerContainer.clientHeight);
+  isProgrammaticScroll = true;
+  dummyScrollbar.scrollTop = percentageScrolled * (dummyScrollbar.scrollHeight - dummyScrollbar.clientHeight);
+});
+
+// When user scrolls the dummy scrollbar
+dummyScrollbar.addEventListener('scroll', function () {
+  if (isProgrammaticScroll) {
+    isProgrammaticScroll = false;
+    return;
+  }
+  const percentageScrolled = dummyScrollbar.scrollTop / (dummyScrollbar.scrollHeight - dummyScrollbar.clientHeight);
+  isProgrammaticScroll = true;
+  streamPlayerContainer.scrollTop = percentageScrolled * (streamPlayerContainer.scrollHeight - streamPlayerContainer.clientHeight);
+});
+
 jQuery(function ($) {
 
   $('.leftNavToggle').click(function (e) {
@@ -1634,7 +1706,7 @@ jQuery(function ($) {
 
     if ($('#leftNavContainer').hasClass('collapsed')) {
       $('#leftNavContainer').removeClass('collapsed');
-      leftNavContainer.style.width = leftNavContainerPercentWidth + 'rem';
+      leftNavContainer.style.width = '';
       // Rotate the leftNavToggleArrow to face left
       $('.leftNavToggleArrow').css('transform', 'rotate(90deg)');
 
@@ -1644,10 +1716,20 @@ jQuery(function ($) {
       arrowElement.style.animation = 'bounce 2s infinite';
 
       const addStreamContainer = document.querySelector('.addStreamContainer');
-      addStreamContainer.style.display = 'flex';
+      addStreamContainer.style.display = '';
+
+      const youtubeBtnText = document.querySelector('.youtubeBtnText');
+      youtubeBtnText.style.display = '';
 
       const leftNav = document.getElementById('leftNav');
       leftNav.style.height = '';
+
+      const streamViewers = document.querySelectorAll('.stream-viewers');
+      for (const streamViewer of streamViewers) {
+        streamViewer.style.display = '';
+      }
+
+      setCheckboxOpacity('');
 
       leftNavOpen = 1;
 
@@ -1669,8 +1751,18 @@ jQuery(function ($) {
       const addStreamContainer = document.querySelector('.addStreamContainer');
       addStreamContainer.style.display = 'none';
 
+      const youtubeBtnText = document.querySelector('.youtubeBtnText');
+      youtubeBtnText.style.display = 'none';
+
       const leftNav = document.getElementById('leftNav');
       leftNav.style.height = leftNavContainer.getBoundingClientRect().height - 11 - 36.74 - 30 + 'px';
+
+      const streamViewers = document.querySelectorAll('.stream-viewers');
+      for (const streamViewer of streamViewers) {
+        streamViewer.style.display = 'none';
+      }
+
+      setCheckboxOpacity(0.5);
 
       leftNavOpen = 0;
 

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+        content="Tykrt: Your all-in-one hub for streaming. Watch Twitch, YouTube, Kick, Rumble & more, all in one place. Dive into the ultimate streaming experience now!">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="signin.css" id="bootstrap-css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <link rel="icon" href="images/thumbnail.png" type="image/png">
+    <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
+
+    <title>Tykrt</title>
+
+    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack-all.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div class="mainContainer">
+        <nav class="topNav" id="topNav">
+        </nav>
+
+        <div class="contentContainer">
+
+            <div class="navContainer"></div>
+
+            <div class="mainContent">
+
+                <div class="main">
+                    <div class="container a-container" id="a-container">
+                        <form id="a-form" class="form" method="post" action="http://82.180.132.68:3000/register">
+                            <h2 class="form_title title">Create Account</h2>
+                            <div class="form__icons"><button type="button" id="signupButton"
+                                    class="btn btn-secondary btn-block"><svg data-v-3d466c9c="" aria-hidden="true"
+                                        focusable="false" data-prefix="fab" data-icon="twitch" role="img"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                                        class="me-2 svg-inline--fa fa-twitch">
+                                        <path data-v-3d466c9c="" fill="currentColor"
+                                            d="M391.17,103.47H352.54v109.7h38.63ZM285,103H246.37V212.75H285ZM120.83,0,24.31,91.42V420.58H140.14V512l96.53-91.42h77.25L487.69,256V0ZM449.07,237.75l-77.22,73.12H294.61l-67.6,64v-64H140.14V36.58H449.07Z"
+                                            class=""></path>
+                                    </svg> Twitch</button></div>
+                            <span class="form__span">or use email for registration</span>
+                            <input class="form__input" type="text" placeholder="Username" name="username">
+                            <input class="form__input" type="text" placeholder="Email" name="email">
+                            <input class="form__input" type="password" placeholder="Password" name="password">
+                            <button class="form__button button submit">SIGN UP</button>
+                        </form>
+                    </div>
+
+                    <div class="container b-container" id="b-container">
+                        <form id="b-form" class="form" method="post" action="http://82.180.132.68:3000/login">
+                            <h2 class="form_title title">Sign in to Website</h2>
+                            <div class="form__icons"><button type="button" id="loginButton"
+                                    class="btn btn-secondary btn-block"><svg data-v-3d466c9c="" aria-hidden="true"
+                                        focusable="false" data-prefix="fab" data-icon="twitch" role="img"
+                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
+                                        class="me-2 svg-inline--fa fa-twitch">
+                                        <path data-v-3d466c9c="" fill="currentColor"
+                                            d="M391.17,103.47H352.54v109.7h38.63ZM285,103H246.37V212.75H285ZM120.83,0,24.31,91.42V420.58H140.14V512l96.53-91.42h77.25L487.69,256V0ZM449.07,237.75l-77.22,73.12H294.61l-67.6,64v-64H140.14V36.58H449.07Z"
+                                            class=""></path>
+                                    </svg> Twitch</button></div>
+                            <span class="form__span">or use your email account</span>
+                            <input class="form__input" type="text" placeholder="Username/Email" name="loginUsername">
+                            <input class="form__input" type="password" placeholder="Password" name="loginPassword">
+                            <a class="form__link">Forgot your password?</a>
+                            <button class="form__button button submit">SIGN IN</button>
+                        </form>
+                    </div>
+
+                    <div class="switch" id="switch-cnt">
+                        <div class="switch__circle"></div>
+                        <div class="switch__circle switch__circle--t"></div>
+                        <div class="switch__container" id="switch-c1">
+                            <img src="images/Logo.1.0.0.png" class="switch__title title" alt="Tykrt" width="300"
+                                height="73">
+                            <p class="switch__description description">Already have an account? Please sign in with your
+                                existing credentials</p>
+                            <button class="switch__button button switch-btn">SIGN IN</button>
+                        </div>
+                        <div class="switch__container is-hidden" id="switch-c2">
+                            <h2 class="switch__title title">Need to create an account?</h2>
+                            <p class="switch__description description">Join Tykrt today and say goodbye to the hassle</p>
+                            <button class="switch__button button switch-btn">SIGN UP</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="navContainer">
+
+            </div>
+
+        </div>
+
+    </div>
+    </div>
+
+    <script type="module" src="signin.js"></script>
+</body>
+
+</html>

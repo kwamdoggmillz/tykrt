@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+        content="Tykrt: Your all-in-one hub for streaming. Watch Twitch, YouTube, Kick, Rumble & more, all in one place. Dive into the ultimate streaming experience now!">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="categories.css" id="bootstrap-css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <link rel="icon" href="images/thumbnail.png" type="image/png">
+    <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
+
+    <title>Tykrt</title>
+
+    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack-all.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div class="mainContainer">
+        <nav class="topNav" id="topNav">
+            <a href="https://tykrt.com/index.html" id="imageLink">
+                <img src="images/Logo.1.0.0.png" alt="Tykrt" width="300" height="73">
+            </a>
+        </nav>
+
+        <div class="contentContainer">
+
+            <div class="navContainer"></div>
+
+            <div class="mainContent">
+                <div id="categoriesContainer">
+                    <!-- The category bubbles will be dynamically added here -->
+                </div>
+                <button id="savePreferencesBtn">Save Preferences</button>
+                <button id="skipBtn">Skip</button>
+            </div>
+
+            <div class="navContainer">
+
+            </div>
+
+        </div>
+
+    </div>
+    </div>
+
+    <script type="module" src="categories.js"></script>
+</body>
+
+</html>

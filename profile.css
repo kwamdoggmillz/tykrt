@@ -1,0 +1,342 @@
+.mainContainer {
+    position: relative;
+    height: 100%;
+  margin-bottom: 8.58rem;
+  }
+  
+  /*-------------------------------Top Navigation Bar------------------------------------*/
+  
+  .topNav {
+    display: none;
+    justify-content: left;
+    align-items: center;
+    height: 8.58rem;
+    background-color: linear-gradient(to right, #242424, #18181b);
+    padding-left: 1rem;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    right: 0;
+    justify-content: space-between;
+  }
+  
+  #topNavRightContent {
+    display: flex;
+    align-items: center;
+  }
+  
+  /*---------------------------------------------------------------------------------------Content Container------------------------------------------------------------------------------*/
+  
+  .contentContainer {
+    display: flex;
+    height: calc(100% - 2rem); /* Adjust for topNav padding */
+    margin-top: .5rem;
+    padding: 0 10rem 0 10rem;
+  }
+  
+  .mainContent {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    /* Hide content overflow */
+    padding-top: 1rem;
+    height: 90%;
+    border-radius: 12px;
+    background: #3E4042;
+    font-size: 1.5rem;
+    color: white;
+    padding: 5rem;
+  }
+  
+  #termsList {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  
+  /* Normal link color */
+  .termsLink {
+      text-decoration: none;
+      color: #A0ADCD; /* Change to your desired color */
+    }
+    
+    /* Visited link color */
+    .termsLink:visited {
+      color: #A0ADCD /* Change to your desired color */
+    }
+    
+    /* Hover link color */
+   .termsLink:hover {
+      color: #A0ADCD; /* Change to your desired color */
+      text-decoration: underline;
+    }
+    
+    /* Active link color */
+    .termsLink:active {
+      color: #A0ADCD; /* Change to your desired color */
+    }
+  
+  #termsEnd {
+    margin-bottom: 5rem;
+  }
+  
+  #avatarProfPic {
+    border: 2px solid #A0ADCD;
+    border-radius: 50%;
+    margin-right: 2rem;
+    /* 20px space between img and showRightNav */
+    transition: margin-right 0.3s ease;
+    /* Smooth transition for margin */
+  }
+    
+    /* Your existing styles here */
+    
+    /* Dropdown Styles */
+    .avatarDropdown {
+      cursor: pointer;
+    }
+    
+    .avatarDropdownMenu {
+      outline: 2px solid #666;
+      display: none;
+      position: absolute;
+      top: 6.58rem;
+      right: 2rem;
+      border-radius: 12px;
+      background-color: #212121;
+      color: white;
+      box-shadow: 0rem .8rem 1.6rem 0rem rgba(0, 0, 0, 0.2);
+      z-index: 10000;
+    }
+    
+    .avatarDropdownMenu.show {
+      display: block;
+    }
+    
+    .appsMenu {
+      padding: 1rem; /* Add padding to create space between items */
+    }
+    
+    .appsMenuLink {
+      display: flex;
+      text-decoration: none;
+      color: white;
+      padding: .8rem 2rem;
+      /* Add vertical padding to separate items */
+      transition: background-color 0.2s;
+      /* Add a subtle hover effect */
+      font-size: 2rem;
+      align-items: center;
+      justify-content: left;
+      border-radius: 12px;
+    }
+    
+    .appsMenuLink:hover {
+      background-color: #3d3d40;
+      /* Change the background color on hover */
+    }
+    
+    .appsMenuIcon {
+      padding-right: 1rem;
+    }
+  
+    body,
+  html {
+    background: linear-gradient(to right, #242424, #18181b);  font-family: Arial, sans-serif;
+    margin: 0;
+    text-align: left;
+    padding: 0;
+    font-size: 62.5%;
+    line-height: 1.15;
+  }
+  
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -ms-overflow-style: scrollbar;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+  
+  /* Customize the scrollbar */
+  ::-webkit-scrollbar {
+      width: .7rem;
+      /* Width of the scrollbar */
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #525965;
+      /* Color of the thumb (scrollable portion) */
+      border: none;
+      /* Remove the border */
+      border-radius: 7px;
+      /* Make the thumb round */
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #525965;
+      /* Color of the thumb on hover */
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+      /* Background of the track (unscrollable portion) */
+      border-radius: 7px;
+      /* Make the track round */
+    }
+    
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+      /* Corner between vertical and horizontal scrollbars */
+    }
+    
+    /* Hide scrollbar buttons */
+    ::-webkit-scrollbar-button {
+      width: 0rem;
+      height: 0rem;
+    }
+    
+    body::-webkit-scrollbar {
+      display: none;
+      /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
+    }
+    
+    .mainContent::-webkit-scrollbar {
+      display: none;
+      /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
+    }
+
+    .profileHeader {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 50px 20px;
+        background: linear-gradient(to bottom, #000, #2c2c2c);
+    }
+
+    .profileHeader h1 {
+        margin: 0;
+        font-size: 24px;
+    }
+
+    .profileHeader img {
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        margin: 0 20px;
+    }
+
+    .edit-btn {
+        background-color: #ff0000;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .container *, .container *::before, .container *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: inherit;
+        position: relative;
+        font-size: 1rem;
+      }
+      
+      .container {
+        font-size: 100%;
+        box-sizing: border-box;
+      }
+      
+      .container {
+        font: 400 1rem/1.5 "Open Sans", "helvetica Neue", "Arial", sans-serif;
+        color: white;
+      }
+      
+      .container h1 {
+        font-size: 1.25rem;
+      }
+      
+      .container h5 {
+        font-size: 1.125rem;
+        font-weight: bold;
+      }
+      
+      .container a {
+        color: #0087c3;
+        text-decoration: none;
+      }
+      
+      .container button,
+      .container select {
+        display: inline-block;
+        border: 1px solid #ddd;
+        padding: 16px 24px;
+        border-radius: 1px;
+        min-width: 200px;
+        cursor: pointer;
+      }
+      
+      .card {
+      
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      
+      .card-content {
+        padding: 24px;
+      }
+      
+      .card-content + .card-content {
+        border-top: 1px solid #ddd;
+      }
+      
+      .btn-block {
+        display: block;
+        width: 100%;
+      }
+      
+      .btn-block + .btn-block {
+        margin-top: 8px;
+      }
+      
+      .nav-tabs {
+        margin-top: 24px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #ddd;
+      }
+      
+      .nav-tabs > .nav-item {
+        display: inline-block;
+        color: #999;
+        font-weight: 600;
+        line-height: 2;
+      }
+      
+      .nav-tabs > .nav-item + .nav-item {
+        margin-left: 16px;
+      }
+      
+      .nav-tabs > .nav-item.is-active {
+        color: currentColor;
+      }
+      
+      .nav-tabs > .nav-item.is-active::after {
+        content: "";
+        height: 1px;
+        width: 100%;
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        background-color: #000;
+      }
+      
+      .pull-right {
+        float: right;
+      }
+      
+      .clearfix::after {
+        display: block;
+        content: "";
+        clear: both;
+      }

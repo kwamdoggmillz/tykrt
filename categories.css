@@ -1,0 +1,571 @@
+.mainContainer {
+    position: relative;
+    height: 100%;
+    /* Make the container take up the full viewport height */
+    overflow-x: hidden;
+    /* Hide any content overflowing the container */
+}
+
+/*-------------------------------Top Navigation Bar------------------------------------*/
+
+.topNav {
+    justify-content: left;
+    align-items: center;
+    height: 8.58rem;
+    background: linear-gradient(to right, #242424, #18181b);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    right: 0;
+    justify-content: space-between;
+    display: flex;
+    position: sticky;
+}
+
+#topNavRightContent {
+    display: flex;
+    align-items: center;
+  }
+
+/*---------------------------------------------------------------------------------------Content Container------------------------------------------------------------------------------*/
+
+.contentContainer {
+    display: flex;
+    height: 100%;
+    /* Adjust for topNav padding */
+    margin-top: .5rem;
+}
+
+.navContainer {
+    flex-grow: 1;
+    padding: 1rem 1rem 2rem 1rem;
+    overflow: hidden;
+    height: 100%;
+    flex: 0 0 auto;
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-x: hidden;
+    /* Hide content overflow */
+    padding-bottom: 15rem;
+    height: 100%;
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+}
+
+body,
+html {
+    background: linear-gradient(to right, #242424, #18181b);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    text-align: left;
+    overflow: hidden;
+    padding: 0;
+    font-size: 62.5%;
+    line-height: 1.15;
+    height: 100vh;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -ms-overflow-style: scrollbar;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.categoryName {
+    transition: font-size 0.3s ease;
+}
+
+.toggleIcon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    width: 20px; /* Size of the bubble */
+    height: 20px;
+    background-color: #fff; /* Bubble background color */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: Add a subtle shadow */
+}
+
+.categoryBubble {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-color: #ddd;
+    padding: 5px;
+    cursor: pointer;
+    margin: -5px;
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.categoryBubble.selected {
+    transform: scale(1);
+}
+
+.categoryBubble:not(.selected) {
+    transform: scale(0.8);
+}
+
+.toggleIcon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+}
+
+
+/* Apply media query for smaller screens */
+@media (max-width: 50rem) {
+
+    body,
+    html {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+
+    #loginContainer {
+        height: 70% !important;
+        width: 90% !important;
+    }
+
+    .mainContent {
+        height: 77%;
+        padding-top: 0;
+    }
+
+    .mainContent.block {
+        display: block;
+    }
+
+    .navContainer {
+        padding: 0;
+        height: calc(77% + 1rem);
+    }
+
+    #tykrtLogo {
+        width: 15rem;
+        height: 3.6rem;
+        padding: 1rem;
+    }
+
+}
+
+/*------scroll bar---------------------*/
+
+/* Style for the scrollbar track (background) */
+::-webkit-scrollbar {
+    width: 8px;
+    /* Adjust the width to your preference */
+}
+
+::-webkit-scrollbar-track {
+    background: #2c2c2c;
+    /* Color of the track */
+}
+
+/* Style for the scrollbar handle (thumb) */
+::-webkit-scrollbar-thumb {
+    background: #6b6b6b;
+    /* Color of the scrollbar */
+}
+
+/* Style for the scrollbar handle (thumb) on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #939393;
+    /* Color of the scrollbar when hovered */
+}
+
+img {
+    vertical-align: middle;
+    border-style: none;
+}
+
+.signin-form-wrap {
+    background: linear-gradient(to right, #242424, #18181b);
+    border: 1px solid #18181b;
+    box-shadow: 0 1px #18181b inset, 0 0 10px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    height: 100%;
+    margin: 60px auto;
+    padding: 50px 30px 0 30px;
+    text-align: center;
+}
+
+.signin-form-wrap h1 {
+    /* margin: 0 0 50px 0; */
+    padding: 0;
+    font-size: 26px;
+    color: #fff;
+}
+
+.signin-form-wrap h5 {
+    margin-top: 20px;
+}
+
+.signin-form-wrap h5>a {
+    font-size: 14px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.signin-form input[type="email"],
+.signin-form input[type="password"] {
+    width: 100%;
+    border: 1px solid #314d89;
+    outline: none;
+    padding: 12px 20px;
+    color: #afafaf;
+    font-weight: 400;
+    font-family: 'Lato', sans-serif;
+    cursor: pointer;
+}
+
+.signin-form input[type="email"] {
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    padding-bottom: 13px;
+    box-shadow: 0 -1px 0 #E0E0E0 inset, 0 1px 2px rgba(0, 0, 0, 0.23) inset;
+}
+
+.signin-form input[type="password"] {
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.23) inset, 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.signin-form input[type="submit"] {
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    background: linear-gradient(to bottom, rgba(224, 224, 224, 1) 0%, rgba(206, 206, 206, 1) 100%);
+    display: block;
+    margin: 20px auto 0 auto;
+    width: 100%;
+    border: none;
+    border-radius: 3px;
+    padding: 8px;
+    font-size: 17px;
+    color: #636363;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+    font-weight: 700;
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.17), 0 1px 0 rgba(255, 255, 255, 0.36) inset;
+}
+
+.signin-form input[type="submit"]:hover {
+    background: #DDD;
+}
+
+.signin-form input[type="submit"]:active {
+    padding-top: 9px;
+    padding-bottom: 7px;
+    background: #C9C9C9;
+}
+
+#loginContainer .btn {
+    align-items: center;
+    justify-content: center;
+    color: #292929;
+    background-color: #f5f5f5;
+    border: none;
+    border-radius: 12px;
+    height: 5rem;
+    margin-bottom: 1.6rem;
+    font-weight: 600;
+    font-size: 1.5rem;
+    box-shadow: none;
+}
+
+#loginContainer {
+    width: 50%;
+    height: 90%
+}
+
+/*Reset*/
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Lato', sans-serif;
+    color: #1f4568;
+}
+
+body {
+    /* background-image: url("https://image.ibb.co/de6JzG/bitmap_1_1.png"); */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.btn {
+    background-color: #3a9fff;
+    border-radius: 20px;
+    padding: 10px 25px;
+    color: #fff;
+    box-shadow: 0px 18px 13px -6px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s;
+    -webkit-transition: all 0.4s;
+    -moz-transition: all 0.4s;
+    -ms-transition: all 0.4s;
+    -o-transition: all 0.4s;
+}
+
+.btn:hover {
+    box-shadow: 0px 25px 18px -6px rgba(0, 0, 0, 0.2);
+    background-color: #63b2fc;
+    color: #fff;
+}
+
+.btn--revert {
+    background-color: transparent;
+    color: #8198ae;
+    box-shadow: none;
+    border: 1px solid #c9d9e9;
+}
+
+.btn--revert:hover {
+    background-color: transparent;
+    color: #1f4568;
+    box-shadow: none;
+    border: 1px solid #8198ae;
+}
+
+.btn--width {
+    width: 120px;
+}
+
+.btn--white {
+    background-color: #fff;
+    border: 1px solid #ededed;
+    color: #8198ae;
+}
+
+.btn--white:hover {
+    background-color: #fff;
+    color: #8198ae;
+}
+
+.site {
+    text-align: center;
+}
+
+.site__title {
+    font-size: 30px;
+    margin: 0;
+    text-align: center;
+}
+
+.site__subtitle {
+    font-size: 22px;
+    color: #8198ae;
+    margin: 4px 0 40px 0;
+    text-align: center;
+}
+
+.site__img {
+    margin-top: 50px;
+    display: inline-block;
+    width: 77%;
+    border-radius: 12px;
+    border: 7px solid rgb(160, 173, 205, .2);
+    box-shadow: 5rem 5rem 7rem .1rem #253153, -5rem 5rem 7rem .1rem #253153
+}
+
+.site__box-link .btn--revert {
+    margin-left: 15px;
+}
+
+.site__box-link {
+    padding-bottom: 1rem;
+}
+
+#savePreferencesBtn {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+#savePreferencesBtn:hover {
+    background-color: #555;
+}
+
+#skipBtn {
+    background-color: #aaa;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: block;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+*, *:after, *:before {
+    box-sizing: border-box;
+}
+
+#categoriesContainer {
+    display: flex;
+    justify-content: center;
+}
+
+fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    width: 90%;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 600px;
+    user-select: none;
+}
+
+.checkbox-group > * {
+    margin: .5rem 0.5rem;
+}
+
+.checkbox-group-legend {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #9c9c9c;
+    text-align: center;
+    line-height: 1.125;
+    margin-bottom: 1.25rem;
+}
+
+.checkbox-input {
+    clip: rect(0 0 0 0);
+    clip-path: inset(100%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.checkbox-input:checked + .checkbox-tile {
+    border-color: #2260ff;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    color: #2260ff;
+}
+
+.checkbox-input:checked + .checkbox-tile:before {
+    transform: scale(1);
+    opacity: 1;
+    background-color: #2260ff;
+    border-color: #2260ff;
+}
+
+.checkbox-input:checked + .checkbox-tile .checkbox-icon, .checkbox-input:checked + .checkbox-tile .checkbox-label {
+    color: #2260ff;
+}
+
+.checkbox-input:focus + .checkbox-tile {
+    border-color: #2260ff;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1), 0 0 0 4px #b5c9fc;
+}
+
+.checkbox-input:focus + .checkbox-tile:before {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.checkbox-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 15rem;
+    min-height: 15rem;
+    border-radius: 0.5rem;
+    border: 5px solid #b5bfd9;
+    background-color: #fff;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.15s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.checkbox-tile:before {
+    content: "";
+    position: absolute;
+    display: block;
+    width: 3rem;
+    height: 3rem;
+    border: 2px solid #b5bfd9;
+    background-color: #fff;
+    border-radius: 50%;
+    top: 0.5rem;
+    left: 0.5rem;
+    opacity: 0;
+    transform: scale(0);
+    transition: 0.25s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' fill='%23FFFFFF' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' fill='none'%3E%3C/rect%3E%3Cpolyline points='216 72.005 104 184 48 128.005' fill='none' stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'%3E%3C/polyline%3E%3C/svg%3E");
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+.checkbox-tile:hover {
+    border-color: #2260ff;
+}
+
+.checkbox-tile:hover:before {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.checkbox-icon {
+    transition: .375s ease;
+    color: #494949;
+}
+
+.checkbox-icon svg {
+    width: 3rem;
+    height: 3rem;
+    display: block;
+}
+
+.checkbox-label {
+    margin-top: 0.5rem;
+    font-size: 1.5rem;
+    color: #494949;
+    font-weight: 500;
+    text-align: center;
+}
