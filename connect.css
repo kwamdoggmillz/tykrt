@@ -1,0 +1,396 @@
+.mainContainer {
+    position: relative;
+    height: 100%;
+    /* Make the container take up the full viewport height */
+    overflow: hidden;
+    /* Hide any content overflowing the container */
+}
+
+/*-------------------------------Top Navigation Bar------------------------------------*/
+
+.topNav {
+    justify-content: left;
+    align-items: center;
+    height: 6rem;
+    background: linear-gradient(to right, #242424, #18181b);
+    padding-left: 2rem;
+    padding-right: 1rem;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    right: 0;
+    justify-content: space-between;
+    display: flex;
+    position: sticky;
+    padding-bottom: 0rem;
+padding-top: 0rem;
+}
+
+#topNavRightContent {
+    display: flex;
+    align-items: center;
+  }
+
+/*---------------------------------------------------------------------------------------Content Container------------------------------------------------------------------------------*/
+
+.contentContainer {
+    display: flex;
+    height: 100%;
+    /* Adjust for topNav padding */
+    margin-top: .5rem;
+}
+
+.navContainer {
+    flex-grow: 1;
+    padding: 0rem 1rem 2rem 1rem;
+    overflow: hidden;
+    height: 100%;
+    flex: 0 0 auto;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  .signup-connect {
+    height: 50%;
+    font-family: Open Sans;
+    font-size: 20px;
+    width: 400px;
+  }
+  
+  .btn {
+    display: block;
+    color: white;
+    text-decoration: none;
+    margin: 20px 0;
+    padding: 10px 10px;
+    border-radius: 12px;
+    position: relative;
+  }
+  
+  .btn::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all .2s ease-in-out;
+    border-radius: 5px;
+  }
+  
+  .btn-social {
+    padding-left: 64px;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .btn-social .fa {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 50px;
+    height: 100%;
+    text-align: center;
+    line-height: 2.2;
+    border-radius: 5px 0 0 5px;
+    background-color: rgba(0, 0, 0, 0.1)
+  }
+  
+  .btn-twitch {
+    background-color: #874bf6;
+    box-shadow: 0 15px 30px rgba(135, 75, 246, 0.36);
+}
+
+.btn-kick {
+    background-color: #87f950;
+    box-shadow: 0 15px 30px rgba(135, 249, 80, 0.36);
+}
+
+.btn-rumble {
+    background-color: #94c557;
+    box-shadow: 0 15px 30px rgba(148, 197, 87, 0.36);
+}
+
+.btn-youtube {
+    background-color: #ea3323;
+    box-shadow: 0 15px 30px rgba(234, 51, 35, 0.36);
+}
+
+.comingSoon {
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background-color: rgba(0, 0, 0, 0.4); /* Reduced opacity */
+    backdrop-filter: blur(4px); /* Blurring the background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 2rem;
+    color: #FFF; 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Increased shadow contrast */
+    z-index: 2;
+    border-radius: 14px;
+    flex-direction: column;
+}
+
+.icon-container {
+    display: flex;
+    gap: 10px; /* Spacing between icons */
+    margin-bottom: 10px; /* Spacing between icons and text */
+}
+
+.icon-container .fa {
+    font-size: 24px; /* Adjust as needed */
+    color: #FFF; 
+}
+
+
+  
+  .form fieldset {
+    border: none;
+    padding: 0;
+    margin: 20px 0;
+    position: relative;
+  }
+  
+  .form fieldset input {
+    width: 100%;
+    height: 48px;
+    color: hsl(0, 0, 20);
+    padding: 15px 40px 15px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none!important;
+    vertical-align: top;
+  }
+  
+  .form button {
+    width: 100%;
+    outline: none!important;
+    border: none;
+    text-transform: uppercase;
+    font-weight: bold;
+  }
+  
+  .signup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    width: 800px;
+    background: hsl(0, 0, 100);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+  }
+  
+  .signup-connect, .signup-classic {
+    padding: 30px 50px;
+  }
+  
+  .signup-connect {
+    background: #333740;
+    color: white;
+    border: 0.1rem solid #494d59;
+    border-radius: 12px;
+  }
+  
+  .signup-connect h1 {
+    font-size: 30px;
+    margin-top: 10px;
+    margin-bottom: 40px;
+  }
+  
+  .signup-classic h2 {
+    font-size: 16px;
+    font-weight: normal;
+    margin-top: 23px;
+    margin-bottom: 43px;
+  }
+  
+  .signup-classic fieldset::after {
+    content: '\f007';
+    font-family: FontAwesome;
+    position: absolute;
+    right: 15px;
+    top: 17px;
+    z-index: 2;
+    width: 20px;
+    text-align: center;
+  }
+  
+  .signup-classic fieldset.email::after {
+    content: '\f0e0';
+  }
+  
+  .signup-classic fieldset.password::after {
+    content: '\f023';
+  }
+  
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-x: hidden;
+    /* Hide content overflow */
+    padding-bottom: 15rem;
+    border-radius: 12px;
+    align-items: center;
+    vertical-align: middle;
+    padding-top: 2rem;
+    justify-content: center;
+}
+
+body,
+html {
+    background: linear-gradient(to right, #242424, #18181b);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    text-align: left;
+    overflow: hidden;
+    padding: 0;
+    font-size: 62.5%;
+    line-height: 1.15;
+    height: 100vh;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -ms-overflow-style: scrollbar;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+/* Apply media query for smaller screens */
+@media (max-width: 50rem) {
+
+    body,
+    html {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+
+    #loginContainer {
+        height: 70% !important;
+        width: 90% !important;
+    }
+
+    .mainContent {
+        height: 77%;
+        padding-top: 0;
+    }
+
+    .mainContent.block {
+        display: block;
+    }
+
+    .navContainer {
+        padding: 0;
+        height: calc(77% + 1rem);
+    }
+
+    #tykrtLogo {
+        width: 15rem;
+        height: 3.6rem;
+        padding: 1rem;
+    }
+
+}
+
+/*------scroll bar---------------------*/
+
+/* Style for the scrollbar track (background) */
+::-webkit-scrollbar {
+    width: 8px;
+    /* Adjust the width to your preference */
+}
+
+::-webkit-scrollbar-track {
+    background: #2c2c2c;
+    /* Color of the track */
+}
+
+/* Style for the scrollbar handle (thumb) */
+::-webkit-scrollbar-thumb {
+    background: #6b6b6b;
+    /* Color of the scrollbar */
+}
+
+/* Style for the scrollbar handle (thumb) on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #939393;
+    /* Color of the scrollbar when hovered */
+}
+
+img {
+    vertical-align: middle;
+    border-style: none;
+}
+
+svg:not(:root).svg-inline--fa, svg:not(:host).svg-inline--fa {
+    overflow: visible;
+    box-sizing: content-box;
+    width: 2rem;
+}
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+.me-2 {
+    margin-right: 0.5rem !important;
+}
+
+/*Reset*/
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Lato', sans-serif;
+    color: #1f4568;
+}
+
+body {
+    /* background-image: url("https://image.ibb.co/de6JzG/bitmap_1_1.png"); */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#loginButton, #signupButton {
+    display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      background-color: #874bf6;
+      border: none;
+      border-radius: .2rem;
+      height: 5rem;
+      font-weight: 600;
+      font-size: 1.5rem;
+      box-shadow: none;
+      cursor: pointer;
+      font-family: "Inter","Roobert","Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  
+  #loginButton:hover, #signupButton:hover {
+      background-color: #6e31df;
+  }

@@ -2,66 +2,118 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description"
-        content="Tykrt: Your all-in-one hub for streaming. Watch Twitch, YouTube, Kick, Rumble & more, all in one place. Dive into the ultimate streaming experience now!">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="Tykrt: Your all-in-one hub for streaming. Watch Twitch, YouTube, Kick, Rumble & more, all in one place. Dive into the ultimate streaming experience now!">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="categories.css" id="bootstrap-css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="categories.css" id="bootstrap-css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-    <link rel="icon" href="images/thumbnail.png" type="image/png">
-    <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
+  <link rel="icon" href="images/thumbnail.png" type="image/png">
+  <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
 
-    <title>Tykrt</title>
+  <title>Tykrt</title>
 
-    <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-    <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack-all.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
+  <script src="https://player.twitch.tv/js/embed/v1.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack-all.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
 </head>
 
 <body>
 
-    <div class="mainContainer">
-        <nav class="topNav" id="topNav">
-            <a href="https://tykrt.com/index.html" id="imageLink">
-                <img src="images/Logo.1.0.0.png" alt="Tykrt" width="300" height="73">
-            </a>
-        </nav>
+  <div id="intialBackground"></div>
 
-        <div class="contentContainer">
-
-            <div class="navContainer"></div>
-
-            <div class="mainContent">
-                <div id="categoriesContainer">
-                    <!-- The category bubbles will be dynamically added here -->
-                </div>
-                <button id="savePreferencesBtn">Save Preferences</button>
-                <button id="skipBtn">Skip</button>
+  <div class="mainContainer">
+    <nav class="topNav" id="topNav">
+      <a href="https://tykrt.com/index.html" id="imageLink">
+        <img src="images/Logo.1.5.0.png" alt="Tykrt" width="170" height="30">
+      </a>
+      <div id="topNavRightContent">
+        <div class="dropDownContainer">
+          <div class="nav" id="dropNav">
+            <h3 id="topNavUsername"></h3>
+            <div class="drop">
+              <img alt="Profile picture" src="images/avatarProfPic.png">
+              <span class="online"></span>
+              <i class="fi-rr-angle-small-down"></i>
             </div>
-
-            <div class="navContainer">
-
+          </div>
+          <div class="drop-box">
+            <div class="user-details">
+              <img width="40px" alt="Profile picture" src="images/avatarProfPic.png">
+              <div class="details">
+                <h4 id="menuUsername"></h4>
+                <p id="menuEmail"></p>
+              </div>
             </div>
+            <div class="menu">
+              <ul>
+                <li><a href="profile.html"><i class="fi-rr-user"></i><span>Profile</span></a></li>
+                <li><a href="terms.html"><i class="fi-rr-settings-sliders"></i><span>Terms of Service</span></a></li>
+                <li><a href="privacy.html"><i class="fi-rr-interrogation"></i><span>Privacy Policy</span></a></li>
+                <li><a href="#" id="signOutLink"><i class="fi-rr-sign-out"></i><span>Sign Out</span></a></li>
+                <!-- You can add more items as per your requirement -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="contentContainer">
+
+      <div class="mainContent">
+
+        <div class="profileHeader">
+          <div>
+            <h1 id="dynamicName"></h1>
+            <p id="dynamicUsername"></p>
+          </div>
+          <img src="images/avatarProfPic.png" alt="Profile Picture">
+          <button class="edit-btn">EDIT</button>
+        </div>
+
+        <div class="container">
+          <header>
+            <h1>Account &amp; Settings</h1>
+
+            <nav class="nav nav-tabs">
+              <a href="https://tykrt.com/profile.html" class="nav-item">Your Account</a>
+              <a href="https://tykrt.com/categories.html" class="nav-item is-active">Preferences</a>
+              <a href="#" class="nav-item">Privacy</a>
+              <a href="#" class="nav-item">Advanced</a>
+            </nav>
+          </header>
 
         </div>
 
-    </div>
+        <div id="categoriesContainer">
+          <!-- The category bubbles will be dynamically added here -->
+        </div>
+        <button id="savePreferencesBtn">Save Preferences</button>
+        <!--<button id="skipBtn">Skip</button>-->
+
+      </div>
+
+
     </div>
 
-    <script type="module" src="categories.js"></script>
+  </div>
+  </div>
+
+  <script type="module" src="categories.1.5.0.js"></script>
 </body>
 
 </html>

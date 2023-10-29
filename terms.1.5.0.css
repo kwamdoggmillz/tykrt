@@ -1,0 +1,476 @@
+.mainContainer {
+  position: relative;
+  height: 100%;
+margin-bottom: 6rem;
+}
+
+/*-------------------------------Top Navigation Bar------------------------------------*/
+
+.topNav {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  height: 6rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  justify-content: space-between;
+  padding-bottom: 0rem;
+  padding-top: 0rem;
+}
+
+#topNavRightContent {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/*---------------------------------------------------------------------------------------Content Container------------------------------------------------------------------------------*/
+
+.contentContainer {
+  display: flex;
+  height: calc(100% - 2rem); /* Adjust for topNav padding */
+  margin-top: .5rem;
+  padding: 0 10rem 0 10rem;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  /* Hide content overflow */
+  padding-top: 1rem;
+  height: 90%;
+  border-radius: 12px;
+  background: #3E4042;
+  font-size: 1.5rem;
+  color: white;
+  padding: 5rem;
+}
+
+#termsList {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* Normal link color */
+.termsLink {
+    text-decoration: none;
+    color: #A0ADCD; /* Change to your desired color */
+  }
+  
+  /* Visited link color */
+  .termsLink:visited {
+    color: #A0ADCD /* Change to your desired color */
+  }
+  
+  /* Hover link color */
+ .termsLink:hover {
+    color: #A0ADCD; /* Change to your desired color */
+    text-decoration: underline;
+  }
+  
+  /* Active link color */
+  .termsLink:active {
+    color: #A0ADCD; /* Change to your desired color */
+  }
+
+#termsEnd {
+  margin-bottom: 5rem;
+}
+
+#avatarProfPic {
+  border: 2px solid #A0ADCD;
+  border-radius: 50%;
+  margin-right: 2rem;
+  /* 20px space between img and showRightNav */
+  transition: margin-right 0.3s ease;
+  /* Smooth transition for margin */
+}
+  
+  /* Your existing styles here */
+  
+  /* Dropdown Styles */
+  .avatarDropdown {
+    cursor: pointer;
+  }
+  
+  .avatarDropdownMenu {
+    outline: 2px solid #666;
+    display: none;
+    position: absolute;
+    top: 6.58rem;
+    right: 2rem;
+    border-radius: 12px;
+    background-color: #212121;
+    color: white;
+    box-shadow: 0rem .8rem 1.6rem 0rem rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+  }
+  
+  .avatarDropdownMenu.show {
+    display: block;
+  }
+  
+  .appsMenu {
+    padding: 1rem; /* Add padding to create space between items */
+  }
+  
+  .appsMenuLink {
+    display: flex;
+    text-decoration: none;
+    color: white;
+    padding: .8rem 2rem;
+    /* Add vertical padding to separate items */
+    transition: background-color 0.2s;
+    /* Add a subtle hover effect */
+    font-size: 2rem;
+    align-items: center;
+    justify-content: left;
+    border-radius: 12px;
+  }
+  
+  .appsMenuLink:hover {
+    background-color: #3d3d40;
+    /* Change the background color on hover */
+  }
+  
+  .appsMenuIcon {
+    padding-right: 1rem;
+  }
+
+  body,
+html {
+  background: linear-gradient(to right, #242424, #18181b);  font-family: Arial, sans-serif;
+  margin: 0;
+  text-align: left;
+  padding: 0;
+  font-size: 62.5%;
+  line-height: 1.15;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -ms-overflow-style: scrollbar;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/* Customize the scrollbar */
+::-webkit-scrollbar {
+    width: .7rem;
+    /* Width of the scrollbar */
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #525965;
+    /* Color of the thumb (scrollable portion) */
+    border: none;
+    /* Remove the border */
+    border-radius: 7px;
+    /* Make the thumb round */
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #525965;
+    /* Color of the thumb on hover */
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    /* Background of the track (unscrollable portion) */
+    border-radius: 7px;
+    /* Make the track round */
+  }
+  
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+    /* Corner between vertical and horizontal scrollbars */
+  }
+  
+  /* Hide scrollbar buttons */
+  ::-webkit-scrollbar-button {
+    width: 0rem;
+    height: 0rem;
+  }
+  
+  body::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
+  }
+  
+  .mainContent::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
+  }
+
+  /* Your existing styles */
+#avatarProfPic {
+  border: 2px solid #A0ADCD;
+  border-radius: 50%;
+  margin-right: 2rem;
+  transition: margin-right 0.3s ease;
+}
+
+.avatarDropdown {
+  cursor: pointer;
+}
+
+.avatarDropdownMenu {
+  outline: 2px solid #666;
+  display: none;
+  position: absolute;
+  top: 6.58rem;
+  right: 2rem;
+  border-radius: 12px;
+  background-color: #212121;
+  color: white;
+  box-shadow: 0rem .8rem 1.6rem 0rem rgba(0, 0, 0, 0.2);
+  z-index: 100;
+}
+
+.avatarDropdownMenu.show {
+  display: block;
+}
+
+.appsMenu {
+  padding: 1rem;
+}
+
+.appsMenuLink {
+  display: flex;
+  text-decoration: none;
+  color: white;
+  padding: .8rem 2rem;
+  transition: background-color 0.2s;
+  font-size: 2rem;
+  align-items: center;
+  justify-content: left;
+  border-radius: 12px;
+}
+
+.appsMenuLink:hover {
+  background-color: #3d3d40;
+}
+
+.appsMenuIcon {
+  padding-right: 1rem;
+}
+
+#topNavUsername {
+  color: white;
+}
+
+.chat-button {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: solid 1px transparent;
+  transition: border-color 0.2s ease-in, box-shadow 0.2s ease-in;
+  color: white;
+  display: flex;
+  left: 0rem;
+  bottom: 0;
+  height: 2.5rem;
+  font-size: 2rem;
+  text-align: center;
+  justify-content: center;
+  text-decoration: none;
+  color: white;
+  align-items: center;
+  padding: 5px;
+  /* margin-left: -5px; */
+  margin-right: 10px;
+  border: solid 1px transparent;
+  transition: all 0.2s ease-in;
+  border-radius: 1.5em;
+}
+
+.container * {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  list-style: none;
+  color: white;
+}
+
+.container a {
+  text-decoration: none;
+}
+
+.container {
+  height: 50%;
+  display: grid;
+  place-items: center;
+  font-family: 'Montserrat', sans-serif;
+  background: transparent;
+  /*padding-right: 20px;*/
+  z-index: 101;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container .nav {
+  display: flex;
+  align-items: center;
+}
+
+.container .nav h3 {
+  position: relative;
+  margin-right: 30px;
+  font-size: 12px;
+  color: white;
+}
+
+.container .nav h3::after {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: -15px;
+  height: 100%;
+  width: 2px;
+  background: white;
+}
+
+.container .nav .drop {
+  position: relative;
+  height: 32px;
+  width: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #3e4042;
+  padding: 5px;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.container img {
+  height: 30px;
+  width: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+  user-select: none;
+}
+
+.container .nav .drop i {
+  transition: 0.3s;
+}
+
+.container .nav .drop i.active {
+  transform: rotate(180deg);
+}
+
+.container .nav .drop .online {
+  position: absolute;
+  bottom: 5px;
+  right: 15px;
+  display: block;
+  height: 5px;
+  width: 5px;
+  background: #50D030;
+  border-radius: 50%;
+}
+
+.drop-box {
+  margin-top: 10px;
+  padding: 10px;
+  width: 230px;
+  background: #3e4042;
+  border-radius: 10px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.5s;
+  z-index: 101;
+  visibility: hidden;
+  border: 0.1rem solid #494d59;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, .8);
+}
+
+.drop-box .user-details {
+  position: relative;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: white;
+}
+
+.drop-box .user-details::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  background: white;
+}
+
+.menu ul {
+  width: 100%;
+  line-height: 2;
+}
+
+.menu ul li a {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+  color: white;
+}
+
+.menu ul li a i {
+  margin: auto 0;
+  display: block;
+  font-size: 16px;
+  padding-right: 10px;
+}
+
+.menu ul li:nth-child(3),
+.menu ul li:nth-child(4) {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.menu ul li:nth-child(3)::after,
+.menu ul li:nth-child(4)::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  background: white;
+}
+
+.menu ul li a:hover {
+  color: #000;
+}
+
+.menu ul li:last-child a i {
+  color: #FF585A;
+}
+
+.drop-box.active {
+  animation: dropDown 0.5s both;
+  visibility: visible;
+}
+
+@keyframes dropDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}

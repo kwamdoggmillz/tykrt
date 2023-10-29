@@ -33,7 +33,7 @@ use Google\Client;
  *
  * <p>
  * For more information about this service, see the API
- * <a href="http://code.google.com/apis/analytics/docs/mgmt/home.html" target="_blank">Documentation</a>
+ * <a href="http://code.google.com/apis/analytics/docs/mgmt/index.html" target="_blank">Documentation</a>
  * </p>
  *
  * @author Google, Inc.

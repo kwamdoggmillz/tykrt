@@ -9,9 +9,12 @@
     content="Tykrt: Your all-in-one hub for streaming. Watch Twitch, YouTube, Kick, Rumble & more, all in one place. Dive into the ultimate streaming experience now!">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <link rel="stylesheet" href="index.css" id="bootstrap-css">
+  <link rel="stylesheet" href="index.1.5.0.css" id="bootstrap-css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/gridstack.js/9.3.0/gridstack.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <link rel="icon" href="images/thumbnail.png" type="image/png">
   <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
@@ -33,35 +36,119 @@
 
 <body>
 
+  <div id="welcomeOverlay">
+    <div id="welcomeContent">
+      <span class="close-btn">&times;</span>
+      <div class="site">
+        <h1 class="site__title">All your streams,</h1>
+        <h2 class="site__subtitle">minus the seams.</h2>
+        <img class="site__img" src="images/homepage.png">
+      </div>
+    </div>
+  </div> <!-- Closing the welcomeOverlay div -->
+
   <div class="mainContainer">
     <nav class="topNav" id="topNav">
-      <a href="https://tykrt.com/index.html" id="imageLink">
-        <img src="images/Logo.1.0.0.png" alt="Tykrt" width="300" height="73">
-      </a>
+      <div id="topNavLeftContent">
+        <i class="material-icons topNavToggle" id="leftNavToggle" data-tooltip="Menu" data-tooltip-pos="right">sort</i>
+        <a href="https://tykrt.com/index.html" id="imageLink">
+          <img src="images/Logo.1.5.0.png" alt="Tykrt" width="170" height="30">
+        </a>
+      </div>
       <div id="topNavRightContent">
-        <a href="https://tykrt.com/signin.html" class="btn btn--white">Sign In →</a>
+        <div class="container">
+          <div id="signinButtonDiv"><a class="btn form__submit-btn" id="signinButton"
+              href="https://tykrt.com/signin.html">SIGN IN</a>
+          </div>
+          <div class="nav" id="dropNav">
+            <h3 id="topNavUsername"></h3>
+            <div class="drop">
+              <img alt="Profile picture" src="images/avatarProfPic.png">
+              <span class="online"></span>
+              <i class="fi-rr-angle-small-down"></i>
+            </div>
+          </div>
+          <div class="drop-box">
+            <div class="user-details">
+              <img width="40px" alt="Profile picture" src="images/avatarProfPic.png">
+              <div class="details">
+                <h4 id="menuUsername"></h4>
+                <p id="menuEmail"></p>
+              </div>
+            </div>
+            <div class="menu">
+              <ul>
+                <li><a href="profile.html"><i class="fi-rr-user"></i><span>Profile</span></a></li>
+                <li><a href="terms.html"><i class="fi-rr-settings-sliders"></i><span>Terms of Service</span></a></li>
+                <li><a href="privacy.html"><i class="fi-rr-interrogation"></i><span>Privacy Policy</span></a></li>
+                <li><a href="#" id="signOutLink"><i class="fi-rr-sign-out"></i><span>Sign Out</span></a></li>
+                <!-- You can add more items as per your requirement -->
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="topNavToggle" id="chatToggle" data-tooltip="Toggle Chat" data-tooltip-pos="left">
+          <i class="material-icons">chat</i>
+        </div>
       </div>
     </nav>
 
+
     <div class="contentContainer">
 
-      <div class="navContainer"></div>
+      <div class="navContainer">
+        <nav id="leftNavContainer" class="nav">
+          <div id="leftNav"></div>
+          <div class="addStreamContainer">
+            <div class="app" id="app">
+              <form class="form">
+                <input class="input form__input" id="streamerName" v-model="inputVal" placeholder="Streamer Name" />
+                <button class="btn form__submit-btn" id="addStreamBtn" type="button">Add</button>
+              </form>
+            </div>
+          </div>
+          <div class="youtubeToggleContainer">
+            <div class="row">
+              <div class="youtubeBtnText">
+                <h6>Top Youtube Streams</h6>
+              </div>
+              <button type="button" class="youtubeBtn youtubeBtnToggle active" data-toggle="button" aria-pressed="true"
+                autocomplete="off">
+                <div class="youtubeToggleHandle"></div>
+              </button>
+            </div>
+          </div>
+        </nav>
+      </div>
 
       <div class="mainContent">
 
-        <div class="site">
-          <h1 class="site__title">All your streams,</h1>
-          <h2 class="site__subtitle">minus the seams.</h2>
-          <div class="site__box-link">
-            <a class="btn btn--width" href="https://tykrt.com/categories.html">Skip Sign In</a>
-          </div>
-          <img class="site__img" src="images/homepage.png">
-        </div>
+        <div id="streamPlayerContainer" class="streamPlayerContainer">
+          <div class="grid-stack" data-gs-animate="yes">
 
+          </div>
+        </div>
+        <nav id="bottomContainer" style="display: none;">
+          <div class="bottomTabContainer">
+            <div class="bottomTabs" id="bottomTabMenu">
+              <span class="bottomGlider"></span>
+            </div>
+          </div>
+          <div id="bottomTwitchContainer"></div>
+        </nav>
       </div>
 
       <div class="navContainer">
-
+        <nav id="rightNav" class="nav">
+          <div class="tabContainer">
+            <div class="tabs" id="tabMenu">
+              <span class="glider"></span>
+            </div>
+          </div>
+          <div class="twitchChatContainer" id="twitchChatContainer">
+            <div class="twitchChats" id="twitchChats"></div>
+          </div>
+        </nav>
       </div>
 
     </div>
@@ -69,7 +156,11 @@
   </div>
   </div>
 
-  <script type="module" src="index.js"></script>
+  <div id="dummyScrollbar" style="position: absolute; right: 0; top: 0; width: 17px; height: 100%; overflow-y: scroll;">
+    <div style="height: 200%; width: 1px;"></div> <!-- A taller child to induce scrolling -->
+  </div>
+
+  <script type="module" src="index.1.5.0.js"></script>
 </body>
 
 </html>

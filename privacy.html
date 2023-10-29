@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="images/thumbnail.png" type="image/png">
     <title>Tykrt</title>
     <script src="https://player.twitch.tv/js/embed/v1.js"></script>
-    <link rel="stylesheet" href="terms.1.0.0.css" id="bootstrap-css">
+    <link rel="stylesheet" href="terms.1.5.0.css" id="bootstrap-css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -18,32 +18,39 @@
 <body>
     <div class="mainContainer">
         <nav class="topNav" id="topNav" style="display: flex;">
-            <a href="https://tykrt.com/home.html" id="imageLink">
-                <img src="images/Logo.1.0.0.png" alt="Tykrt" width="300" height="73">
+            <a href="https://tykrt.com/index.html" id="imageLink">
+                <img src="images/Logo.1.5.0.png" alt="Tykrt" width="170" height="30">
             </a>
             <div id="topNavRightContent">
-                <img src="images/avatarProfPic.png" width="32" height="32" id="avatarProfPic" class="avatarDropdown">
-                <div class="avatarDropdownMenu">
-                    <div class="appsMenu">
-                        <a href="proflie.html" class="appsMenuLink">
-                            <img src="images/profileIcon.png" width="20" height="20" class="appsMenuIcon">
-                            Profile
-                        </a>
-                        <a href="terms.html" class="appsMenuLink">
-                            <img src="images/termsIcon.png" width="20" height="20" class="appsMenuIcon">
-                            Terms of Service
-                        </a>
-                        <a href="privacy.html" class="appsMenuLink">
-                            <img src="images/privacyIcon.png" width="20" height="20" class="appsMenuIcon">
-                            Privacy Policy
-                        </a>
-                        <a href="#" class="appsMenuLink" id="signOutLink">
-                            <img src="images/signOutIcon.png" width="20" height="20" class="appsMenuIcon">
-                            Sign Out
-                        </a>
+                <div class="container">
+                  <div class="nav" id="dropNav">
+                    <h3 id="topNavUsername"></h3>
+                    <div class="drop">
+                      <img alt="Profile picture" src="images/avatarProfPic.png">
+                      <span class="online"></span>
+                      <i class="fi-rr-angle-small-down"></i>
                     </div>
+                  </div>
+                  <div class="drop-box">
+                    <div class="user-details">
+                      <img width="40px" alt="Profile picture" src="images/avatarProfPic.png">
+                      <div class="details">
+                        <h4 id="menuUsername"></h4>
+                        <p id="menuEmail"></p>
+                      </div>
+                    </div>
+                    <div class="menu">
+                      <ul>
+                        <li><a href="profile.html"><i class="fi-rr-user"></i><span>Profile</span></a></li>
+                        <li><a href="terms.html"><i class="fi-rr-settings-sliders"></i><span>Terms of Service</span></a></li>
+                        <li><a href="privacy.html"><i class="fi-rr-interrogation"></i><span>Privacy Policy</span></a></li>
+                        <li><a href="#" id="signOutLink"><i class="fi-rr-sign-out"></i><span>Sign Out</span></a></li>
+                        <!-- You can add more items as per your requirement -->
+                      </ul>
+                    </div>
+                  </div>
                 </div>
-            </div>
+              </div>
         </nav>
 
         <div class="contentContainer">
@@ -157,7 +164,7 @@
             }
         });</script>
 
-    <script type="module" src="terms.js"></script>
+    <script type="module" src="terms.1.5.0.js"></script>
 </body>
 
 </html>

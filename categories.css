@@ -1,63 +1,156 @@
 .mainContainer {
     position: relative;
     height: 100%;
-    /* Make the container take up the full viewport height */
-    overflow-x: hidden;
-    /* Hide any content overflowing the container */
+    margin-bottom: 6rem;
+    display: none;
 }
+
+#intialBackground {
+  background: linear-gradient(to right, #242424, #18181b);
+}
+
 
 /*-------------------------------Top Navigation Bar------------------------------------*/
 
 .topNav {
+    display: flex;
     justify-content: left;
     align-items: center;
-    height: 8.58rem;
-    background: linear-gradient(to right, #242424, #18181b);
-    padding-left: 1rem;
-    padding-right: 1rem;
-    z-index: 100;
+    height: 6rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
     top: 0;
     left: 0;
     right: 0;
     justify-content: space-between;
-    display: flex;
-    position: sticky;
+    padding-bottom: 0rem;
+    padding-top: 0rem;
 }
 
 #topNavRightContent {
     display: flex;
     align-items: center;
-  }
+    height: 100%;
+}
 
 /*---------------------------------------------------------------------------------------Content Container------------------------------------------------------------------------------*/
 
 .contentContainer {
     display: flex;
-    height: 100%;
+    height: calc(100% - 2rem);
     /* Adjust for topNav padding */
     margin-top: .5rem;
-}
-
-.navContainer {
-    flex-grow: 1;
-    padding: 1rem 1rem 2rem 1rem;
-    overflow: hidden;
-    height: 100%;
-    flex: 0 0 auto;
+    padding: 0 10rem 0 10rem;
 }
 
 .mainContent {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    overflow-x: hidden;
     /* Hide content overflow */
-    padding-bottom: 15rem;
-    height: 100%;
+    padding-top: 1rem;
+    height: 90%;
     border-radius: 12px;
+    background: #3E4042;
+    font-size: 1.5rem;
+    color: white;
+    padding: 5rem;
+}
+
+#termsList {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* Normal link color */
+.termsLink {
+    text-decoration: none;
+    color: #A0ADCD;
+    /* Change to your desired color */
+}
+
+/* Visited link color */
+.termsLink:visited {
+    color: #A0ADCD
+        /* Change to your desired color */
+}
+
+/* Hover link color */
+.termsLink:hover {
+    color: #A0ADCD;
+    /* Change to your desired color */
+    text-decoration: underline;
+}
+
+/* Active link color */
+.termsLink:active {
+    color: #A0ADCD;
+    /* Change to your desired color */
+}
+
+#termsEnd {
+    margin-bottom: 5rem;
+}
+
+#avatarProfPic {
+    border: 2px solid #A0ADCD;
+    border-radius: 50%;
+    margin-right: 2rem;
+    /* 20px space between img and showRightNav */
+    transition: margin-right 0.3s ease;
+    /* Smooth transition for margin */
+}
+
+/* Your existing styles here */
+
+/* Dropdown Styles */
+.avatarDropdown {
+    cursor: pointer;
+}
+
+.avatarDropdownMenu {
+    outline: 2px solid #666;
+    display: none;
+    position: absolute;
+    top: 6.58rem;
+    right: 2rem;
+    border-radius: 12px;
+    background-color: #212121;
+    color: white;
+    box-shadow: 0rem .8rem 1.6rem 0rem rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+}
+
+.avatarDropdownMenu.show {
+    display: block;
+}
+
+.appsMenu {
+    padding: 1rem;
+    /* Add padding to create space between items */
+}
+
+.appsMenuLink {
+    display: flex;
+    text-decoration: none;
+    color: white;
+    padding: .8rem 2rem;
+    /* Add vertical padding to separate items */
+    transition: background-color 0.2s;
+    /* Add a subtle hover effect */
+    font-size: 2rem;
     align-items: center;
-    justify-content: center;
-    vertical-align: middle;
+    justify-content: left;
+    border-radius: 12px;
+}
+
+.appsMenuLink:hover {
+    background-color: #3d3d40;
+    /* Change the background color on hover */
+}
+
+.appsMenuIcon {
+    padding-right: 1rem;
 }
 
 body,
@@ -66,11 +159,9 @@ html {
     font-family: Arial, sans-serif;
     margin: 0;
     text-align: left;
-    overflow: hidden;
     padding: 0;
     font-size: 62.5%;
     line-height: 1.15;
-    height: 100vh;
 }
 
 html {
@@ -80,324 +171,499 @@ html {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-body {
-    user-select: none;
-    -webkit-user-drag: none;
-}
-
-.categoryName {
-    transition: font-size 0.3s ease;
-}
-
-.toggleIcon {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    cursor: pointer;
-    width: 20px; /* Size of the bubble */
-    height: 20px;
-    background-color: #fff; /* Bubble background color */
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: Add a subtle shadow */
-}
-
-.categoryBubble {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background-color: #ddd;
-    padding: 5px;
-    cursor: pointer;
-    margin: -5px;
-    transition: width 0.3s ease, height 0.3s ease;
-}
-
-.categoryBubble.selected {
-    transform: scale(1);
-}
-
-.categoryBubble:not(.selected) {
-    transform: scale(0.8);
-}
-
-.toggleIcon {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    cursor: pointer;
-}
-
-
-/* Apply media query for smaller screens */
-@media (max-width: 50rem) {
-
-    body,
-    html {
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-    }
-
-    #loginContainer {
-        height: 70% !important;
-        width: 90% !important;
-    }
-
-    .mainContent {
-        height: 77%;
-        padding-top: 0;
-    }
-
-    .mainContent.block {
-        display: block;
-    }
-
-    .navContainer {
-        padding: 0;
-        height: calc(77% + 1rem);
-    }
-
-    #tykrtLogo {
-        width: 15rem;
-        height: 3.6rem;
-        padding: 1rem;
-    }
-
-}
-
-/*------scroll bar---------------------*/
-
-/* Style for the scrollbar track (background) */
+/* Customize the scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
-    /* Adjust the width to your preference */
+    width: .7rem;
+    /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #525965;
+    /* Color of the thumb (scrollable portion) */
+    border: none;
+    /* Remove the border */
+    border-radius: 7px;
+    /* Make the thumb round */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #525965;
+    /* Color of the thumb on hover */
 }
 
 ::-webkit-scrollbar-track {
-    background: #2c2c2c;
-    /* Color of the track */
+    background: transparent;
+    /* Background of the track (unscrollable portion) */
+    border-radius: 7px;
+    /* Make the track round */
 }
 
-/* Style for the scrollbar handle (thumb) */
-::-webkit-scrollbar-thumb {
-    background: #6b6b6b;
-    /* Color of the scrollbar */
+::-webkit-scrollbar-corner {
+    background: transparent;
+    /* Corner between vertical and horizontal scrollbars */
 }
 
-/* Style for the scrollbar handle (thumb) on hover */
-::-webkit-scrollbar-thumb:hover {
-    background: #939393;
-    /* Color of the scrollbar when hovered */
+/* Hide scrollbar buttons */
+::-webkit-scrollbar-button {
+    width: 0rem;
+    height: 0rem;
 }
 
-img {
-    vertical-align: middle;
-    border-style: none;
+body::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
 }
 
-.signin-form-wrap {
-    background: linear-gradient(to right, #242424, #18181b);
-    border: 1px solid #18181b;
-    box-shadow: 0 1px #18181b inset, 0 0 10px 5px rgba(0, 0, 0, 0.1);
+.mainContent::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar in Webkit-based browsers (Chrome, Safari) */
+}
+
+.profileHeader {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 50px 20px;
+    background: linear-gradient(to bottom, #000, #2c2c2c);
+}
+
+.profileHeader h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.profileHeader img {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    margin: 0 20px;
+}
+
+.edit-btn {
+    background-color: #ff0000;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#mainInfo {
+    background: #333740;
+    border: 0.1rem solid #494d59;
     border-radius: 5px;
-    height: 100%;
-    margin: 60px auto;
-    padding: 50px 30px 0 30px;
-    text-align: center;
+    padding: 25px 30px;
+    margin-bottom: 15px;
 }
 
-.signin-form-wrap h1 {
-    /* margin: 0 0 50px 0; */
-    padding: 0;
-    font-size: 26px;
-    color: #fff;
+.container *,
+.container *::before,
+.container *::after {
+    position: relative;
 }
 
-.signin-form-wrap h5 {
-    margin-top: 20px;
+.container {
+    font-size: 100%;
+    box-sizing: border-box;
 }
 
-.signin-form-wrap h5>a {
-    font-size: 14px;
-    color: #fff;
+.container {
+    font: 400 1rem/1.5 "Open Sans", "helvetica Neue", "Arial", sans-serif;
+    color: white;
+}
+
+.container h1 {
+    font-size: 1.25rem;
+}
+
+.container h5 {
+    font-size: 1.125rem;
+    font-weight: bold;
+}
+
+.container a {
+    color: #0087c3;
     text-decoration: none;
-    font-weight: 400;
 }
 
-.signin-form input[type="email"],
-.signin-form input[type="password"] {
-    width: 100%;
-    border: 1px solid #314d89;
-    outline: none;
-    padding: 12px 20px;
-    color: #afafaf;
-    font-weight: 400;
-    font-family: 'Lato', sans-serif;
+.container button,
+.container select {
+    display: inline-block;
+    border: 1px solid #ddd;
+    padding: 16px 24px;
+    border-radius: 1px;
+    min-width: 200px;
     cursor: pointer;
 }
 
-.signin-form input[type="email"] {
-    border-bottom: none;
-    border-radius: 4px 4px 0 0;
-    padding-bottom: 13px;
-    box-shadow: 0 -1px 0 #E0E0E0 inset, 0 1px 2px rgba(0, 0, 0, 0.23) inset;
+.card {
+
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
-.signin-form input[type="password"] {
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.23) inset, 0 1px 2px rgba(255, 255, 255, 0.1);
+.card-content {
+    padding: 24px;
 }
 
-.signin-form input[type="submit"] {
-    font-family: 'Lato', sans-serif;
-    font-weight: 400;
-    background: linear-gradient(to bottom, rgba(224, 224, 224, 1) 0%, rgba(206, 206, 206, 1) 100%);
+.card-content+.card-content {
+    border-top: 1px solid #ddd;
+}
+
+.btn-block {
     display: block;
-    margin: 20px auto 0 auto;
     width: 100%;
-    border: none;
-    border-radius: 3px;
-    padding: 8px;
-    font-size: 17px;
-    color: #636363;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
-    font-weight: 700;
-    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.17), 0 1px 0 rgba(255, 255, 255, 0.36) inset;
 }
 
-.signin-form input[type="submit"]:hover {
-    background: #DDD;
+.btn-block+.btn-block {
+    margin-top: 8px;
 }
 
-.signin-form input[type="submit"]:active {
-    padding-top: 9px;
-    padding-bottom: 7px;
-    background: #C9C9C9;
+.nav-tabs {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #ddd;
 }
 
-#loginContainer .btn {
+.nav-tabs>.nav-item {
+    display: inline-block;
+    color: #999;
+    font-weight: 600;
+    line-height: 2;
+}
+
+.nav-tabs>.nav-item+.nav-item {
+    margin-left: 16px;
+}
+
+.nav-tabs>.nav-item.is-active {
+    color: currentColor;
+}
+
+.nav-tabs>.nav-item.is-active::after {
+    content: "";
+    height: 1px;
+    width: 100%;
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    background-color: #000;
+}
+
+.pull-right {
+    float: right;
+}
+
+.clearfix::after {
+    display: block;
+    content: "";
+    clear: both;
+}
+
+.main {
+    background: #333740;
+    border: 0.1rem solid #494d59;
+    border-radius: 5px;
+    padding: 25px 30px;
+    margin-bottom: 15px;
+}
+
+input,
+select {
+    height: 40px;
+    max-width: 250px;
+}
+
+input,
+textarea,
+select {
+    font-size: 0.9em;
+    width: 100%;
+    margin: 0;
+    padding: 10px 8px;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, .12);
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+label {
+    display: block;
+    font-size: 0.9em;
+    padding-bottom: 5px;
+}
+
+/* Your existing styles */
+#avatarProfPic {
+    border: 2px solid #A0ADCD;
+    border-radius: 50%;
+    margin-right: 2rem;
+    transition: margin-right 0.3s ease;
+}
+
+.avatarDropdown {
+    cursor: pointer;
+}
+
+.avatarDropdownMenu {
+    outline: 2px solid #666;
+    display: none;
+    position: absolute;
+    top: 6.58rem;
+    right: 2rem;
+    border-radius: 12px;
+    background-color: #212121;
+    color: white;
+    box-shadow: 0rem .8rem 1.6rem 0rem rgba(0, 0, 0, 0.2);
+    z-index: 100;
+}
+
+.avatarDropdownMenu.show {
+    display: block;
+}
+
+.appsMenu {
+    padding: 1rem;
+}
+
+.appsMenuLink {
+    display: flex;
+    text-decoration: none;
+    color: white;
+    padding: .8rem 2rem;
+    transition: background-color 0.2s;
+    font-size: 2rem;
+    align-items: center;
+    justify-content: left;
+    border-radius: 12px;
+}
+
+.appsMenuLink:hover {
+    background-color: #3d3d40;
+}
+
+.appsMenuIcon {
+    padding-right: 1rem;
+}
+
+#topNavUsername {
+    color: white;
+}
+
+.chat-button {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    color: #292929;
-    background-color: #f5f5f5;
-    border: none;
-    border-radius: 12px;
-    height: 5rem;
-    margin-bottom: 1.6rem;
-    font-weight: 600;
-    font-size: 1.5rem;
-    box-shadow: none;
+    border: solid 1px transparent;
+    transition: border-color 0.2s ease-in, box-shadow 0.2s ease-in;
+    color: white;
+    display: flex;
+    left: 0rem;
+    bottom: 0;
+    height: 2.5rem;
+    font-size: 2rem;
+    text-align: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    align-items: center;
+    padding: 5px;
+    /* margin-left: -5px; */
+    margin-right: 10px;
+    border: solid 1px transparent;
+    transition: all 0.2s ease-in;
+    border-radius: 1.5em;
 }
 
-#loginContainer {
-    width: 50%;
-    height: 90%
-}
-
-/*Reset*/
-html,
-body {
-    margin: 0;
+.dropDownContainer * {
     padding: 0;
-    font-family: 'Lato', sans-serif;
-    color: #1f4568;
-}
-
-body {
-    /* background-image: url("https://image.ibb.co/de6JzG/bitmap_1_1.png"); */
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.btn {
-    background-color: #3a9fff;
-    border-radius: 20px;
-    padding: 10px 25px;
-    color: #fff;
-    box-shadow: 0px 18px 13px -6px rgba(0, 0, 0, 0.2);
-    transition: all 0.4s;
-    -webkit-transition: all 0.4s;
-    -moz-transition: all 0.4s;
-    -ms-transition: all 0.4s;
-    -o-transition: all 0.4s;
-}
-
-.btn:hover {
-    box-shadow: 0px 25px 18px -6px rgba(0, 0, 0, 0.2);
-    background-color: #63b2fc;
-    color: #fff;
-}
-
-.btn--revert {
-    background-color: transparent;
-    color: #8198ae;
-    box-shadow: none;
-    border: 1px solid #c9d9e9;
-}
-
-.btn--revert:hover {
-    background-color: transparent;
-    color: #1f4568;
-    box-shadow: none;
-    border: 1px solid #8198ae;
-}
-
-.btn--width {
-    width: 120px;
-}
-
-.btn--white {
-    background-color: #fff;
-    border: 1px solid #ededed;
-    color: #8198ae;
-}
-
-.btn--white:hover {
-    background-color: #fff;
-    color: #8198ae;
-}
-
-.site {
-    text-align: center;
-}
-
-.site__title {
-    font-size: 30px;
     margin: 0;
-    text-align: center;
+    box-sizing: border-box;
+    list-style: none;
+    color: white;
 }
 
-.site__subtitle {
-    font-size: 22px;
-    color: #8198ae;
-    margin: 4px 0 40px 0;
-    text-align: center;
+.dropDownContainer a {
+    text-decoration: none;
 }
 
-.site__img {
-    margin-top: 50px;
-    display: inline-block;
-    width: 77%;
-    border-radius: 12px;
-    border: 7px solid rgb(160, 173, 205, .2);
-    box-shadow: 5rem 5rem 7rem .1rem #253153, -5rem 5rem 7rem .1rem #253153
+.dropDownContainer {
+    height: 50%;
+    display: grid;
+    place-items: center;
+    font-family: 'Montserrat', sans-serif;
+    background: transparent;
+    /*padding-right: 20px;*/
+    z-index: 101;
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.site__box-link .btn--revert {
-    margin-left: 15px;
+.dropDownContainer .nav {
+    display: flex;
+    align-items: center;
 }
 
-.site__box-link {
-    padding-bottom: 1rem;
+.dropDownContainer .nav h3 {
+    position: relative;
+    margin-right: 30px;
+    font-size: 12px;
+    color: white;
 }
+
+.dropDownContainer .nav h3::after {
+    position: absolute;
+    content: "";
+    top: 0;
+    right: -15px;
+    height: 100%;
+    width: 2px;
+    background: white;
+}
+
+.dropDownContainer .nav .drop {
+    position: relative;
+    height: 32px;
+    width: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #3e4042;
+    padding: 5px;
+    border-radius: 25px;
+    cursor: pointer;
+}
+
+.dropDownContainer img {
+    height: 30px;
+    width: 30px;
+    object-fit: cover;
+    border-radius: 50%;
+    user-select: none;
+}
+
+.dropDownContainer .nav .drop i {
+    transition: 0.3s;
+}
+
+.dropDownContainer .nav .drop i.active {
+    transform: rotate(180deg);
+}
+
+.dropDownContainer .nav .drop .online {
+    position: absolute;
+    bottom: 5px;
+    right: 15px;
+    display: block;
+    height: 5px;
+    width: 5px;
+    background: #50D030;
+    border-radius: 50%;
+}
+
+.drop-box {
+    margin-top: 10px;
+    padding: 10px;
+    width: 230px;
+    background: #3e4042;
+    border-radius: 10px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.5s;
+    z-index: 101;
+    visibility: hidden;
+    border: 0.1rem solid #494d59;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, .8);
+}
+
+.drop-box .user-details {
+    position: relative;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: white;
+}
+
+.drop-box .user-details::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background: white;
+}
+
+.menu ul {
+    width: 100%;
+    line-height: 2;
+}
+
+.menu ul li a {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    font-size: 14px;
+    color: white;
+}
+
+.menu ul li a i {
+    margin: auto 0;
+    display: block;
+    font-size: 16px;
+    padding-right: 10px;
+}
+
+.menu ul li:nth-child(3),
+.menu ul li:nth-child(4) {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.menu ul li:nth-child(3)::after,
+.menu ul li:nth-child(4)::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    background: white;
+}
+
+.menu ul li a:hover {
+    color: #000;
+}
+
+.menu ul li:last-child a i {
+    color: #FF585A;
+}
+
+.drop-box.active {
+    animation: dropDown 0.5s both;
+    visibility: visible;
+}
+
+@keyframes dropDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
 
 #savePreferencesBtn {
     background-color: #333;
@@ -428,7 +694,9 @@ body {
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
-*, *:after, *:before {
+*,
+*:after,
+*:before {
     box-sizing: border-box;
 }
 
@@ -442,7 +710,8 @@ fieldset {
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
-    width: 90%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
 .checkbox-group {
@@ -456,7 +725,7 @@ fieldset {
     user-select: none;
 }
 
-.checkbox-group > * {
+.checkbox-group>* {
     margin: .5rem 0.5rem;
 }
 
@@ -479,29 +748,30 @@ fieldset {
     width: 1px;
 }
 
-.checkbox-input:checked + .checkbox-tile {
+.checkbox-input:checked+.checkbox-tile {
     border-color: #2260ff;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     color: #2260ff;
 }
 
-.checkbox-input:checked + .checkbox-tile:before {
+.checkbox-input:checked+.checkbox-tile:before {
     transform: scale(1);
     opacity: 1;
     background-color: #2260ff;
     border-color: #2260ff;
 }
 
-.checkbox-input:checked + .checkbox-tile .checkbox-icon, .checkbox-input:checked + .checkbox-tile .checkbox-label {
+.checkbox-input:checked+.checkbox-tile .checkbox-icon,
+.checkbox-input:checked+.checkbox-tile .checkbox-label {
     color: #2260ff;
 }
 
-.checkbox-input:focus + .checkbox-tile {
+.checkbox-input:focus+.checkbox-tile {
     border-color: #2260ff;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1), 0 0 0 4px #b5c9fc;
 }
 
-.checkbox-input:focus + .checkbox-tile:before {
+.checkbox-input:focus+.checkbox-tile:before {
     transform: scale(1);
     opacity: 1;
 }
