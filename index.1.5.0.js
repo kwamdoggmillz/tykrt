@@ -1370,10 +1370,20 @@ function createChatTab(channelName) {
   });
 
   const videoThumbnail = document.getElementById(`profilePic-${channelName}`);
-  const labelImg = createElementWithClass('img', `labelImg`, {
-    src: videoThumbnail.src,
-    id: `labelImg-${channelName}`,
-  });
+  let labelImg = null;
+
+  if (!videoThumbnail) {
+    labelImg = createElementWithClass('img', `labelImg`, {
+      src: 'images/avatarProfPic.png',
+      id: `labelImg-${channelName}`,
+    })
+  } else {
+     labelImg = createElementWithClass('img', `labelImg`, {
+      src: videoThumbnail.src,
+      id: `labelImg-${channelName}`,
+    });
+  }
+
 
   label.appendChild(labelImg);
 

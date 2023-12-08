@@ -53,7 +53,7 @@
   flex-grow: 1;
   overflow: hidden;
   /* Hide content overflow */
-  padding-top: 0.5rem;
+  /*padding-top: 0.5rem;*/
   height: 90%;
   border-radius: 12px;
   background: #3E4042;
@@ -744,7 +744,7 @@
 }
 
 .grid-stack {
-  width: 99%;
+  width: 100%;
 }
 
 .grid-stack-item {
@@ -761,13 +761,13 @@
 .ui-resizable-w {
   left: 0px !important;
   width: 40px !important;
-  height: calc(100% - 60px) !important;
+  height: calc(100% - 9rem) !important;
 }
 
 .ui-resizable-e {
   right: 0px !important;
   width: 40px !important;
-  height: calc(100% - 60px) !important;
+  height: calc(100% - 9rem) !important;
 }
 
 .ui-resizable-s {
